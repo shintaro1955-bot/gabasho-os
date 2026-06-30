@@ -1,0 +1,1559 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ガバショ！ AIコーチングOS（プロトタイプ）</title>
+<style>
+  :root{
+    --ink:#13241c; --ink-2:#3f5249; --mut:#8a988f; --line:#e4ede8;
+    --bg:#ffffff; --bg-soft:#f3faf6; --card:#ffffff;
+    --em:#10b981; --em-deep:#059669; --em-dark:#047857; --em-soft:#e7f7ef; --em-tint:#f0faf5;
+    --gold:#e0b14a; --gold-soft:#fbf3df; --pink:#ff6b97; --pink-soft:#ffeaf1; --blue:#4aa3ff; --blue-soft:#e8f3ff;
+    --purple:#8b6ff0; --purple-soft:#efeafb;
+    --warn:#e2603a; --warn-soft:#fdeee8; --bad:#d6334a;
+    --radius:16px; --shadow:0 16px 40px -26px rgba(16,40,30,.4);
+    --font:'Hiragino Kaku Gothic ProN','Noto Sans JP',system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg-soft);line-height:1.7;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit}
+
+  .appbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+  .appbar-in{display:flex;align-items:center;gap:14px;height:62px;padding:0 20px;max-width:1340px;margin:0 auto}
+  .cobrand{display:flex;align-items:center;gap:8px;font-weight:900;text-decoration:none;color:inherit;flex:0 0 auto}
+  .cobrand .star{color:var(--em-deep)} .cobrand .horipro{font-size:14px}
+  .cobrand .x{color:var(--mut);font-size:11px}
+  .cobrand .abhap{font-size:12px;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+  .cobrand .ga{margin-left:2px;font-size:15px;color:var(--em-deep)}
+  .roleswitch{margin-left:auto;display:flex;background:var(--em-tint);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap}
+  .roleswitch button{border:0;background:transparent;color:var(--ink-2);font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .roleswitch button.on{background:linear-gradient(120deg,var(--em),var(--em-deep));color:#fff;box-shadow:0 8px 18px -10px rgba(5,150,105,.6)}
+  .who{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+  .who .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--em),var(--em-deep));color:#fff;display:grid;place-items:center;font-weight:900;font-size:14px}
+  .who small{font-size:11px;color:var(--mut);display:block;line-height:1.2}
+  .who b{font-size:13px}
+
+  .shell{display:grid;grid-template-columns:232px 1fr;max-width:1340px;margin:0 auto;min-height:calc(100vh - 62px)}
+  nav.side{border-right:1px solid var(--line);background:#fff;padding:18px 14px}
+  .side .grp{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut);margin:14px 10px 6px}
+  .side a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;text-decoration:none;color:var(--ink-2);font-weight:700;font-size:13.5px;cursor:pointer}
+  .side a .ic{width:22px;text-align:center}
+  .side a:hover{background:var(--em-tint)}
+  .side a.on{background:var(--em-soft);color:var(--em-dark)}
+  .side .badge{margin-left:auto;background:var(--pink);color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px}
+
+  main{padding:26px 30px 70px;min-width:0}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .page-head h1{font-size:23px;font-weight:900;margin:0}
+  .page-head p{margin:2px 0 0;color:var(--mut);font-size:13px}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:11px;padding:10px 16px;font-weight:800;font-size:13.5px;cursor:pointer;text-decoration:none;transition:transform .12s ease}
+  .btn:hover{transform:translateY(-1px)}
+  .btn-em{background:linear-gradient(120deg,var(--em),var(--em-deep));color:#fff;box-shadow:0 12px 24px -12px rgba(5,150,105,.55)}
+  .btn-ghost{background:#fff;color:var(--em-dark);border:1.5px solid var(--em)}
+  .btn-soft{background:var(--em-soft);color:var(--em-dark)}
+  .btn-gold{background:linear-gradient(120deg,#eec96a,var(--gold));color:#5b440c}
+  .btn-sm{padding:7px 12px;font-size:12px}
+  .btn[disabled]{opacity:.5;cursor:default;transform:none}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;border-radius:999px;padding:3px 10px}
+  .pill.em{background:var(--em-soft);color:var(--em-dark)} .pill.gold{background:var(--gold-soft);color:#8a6a14}
+  .pill.pink{background:var(--pink-soft);color:#b53a63} .pill.blue{background:var(--blue-soft);color:#2a6fb5}
+  .pill.warn{background:var(--warn-soft);color:#a8401f} .pill.purple{background:var(--purple-soft);color:#5a45b0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .muted{color:var(--mut)} .sample{font-size:10px;color:var(--mut);background:#fff;border:1px dashed var(--line);border-radius:6px;padding:1px 6px}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .threecol{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+  .kpi .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;margin-bottom:8px;background:var(--em-soft)}
+  .kpi .n{font-size:26px;font-weight:900;line-height:1} .kpi .l{font-size:11.5px;color:var(--mut);margin-top:3px}
+  .kpi.g .ic{background:var(--gold-soft)} .kpi.p .ic{background:var(--pink-soft)} .kpi.b .ic{background:var(--blue-soft)}
+
+  .follow{background:linear-gradient(120deg,#fff,var(--warn-soft));border:1px solid #f3d6c9;border-radius:var(--radius);padding:20px;margin-bottom:18px}
+  .follow h2{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .follow .row,.listrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed #f0d8cd}
+  .follow .row:last-child{border-bottom:0}
+  .av-c{width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:900;color:var(--em-dark);flex:0 0 auto}
+  .nm{font-weight:800;font-size:13.5px} .reason{font-size:12px;color:var(--warn);font-weight:700}
+  .row .act,.listrow .act{margin-left:auto;display:flex;gap:8px}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tbl th{text-align:left;font-size:11px;color:var(--mut);font-weight:800;padding:12px 14px;background:var(--em-tint);border-bottom:1px solid var(--line)}
+  .tbl td{padding:12px 14px;border-bottom:1px solid var(--line)} .tbl tr:last-child td{border-bottom:0}
+  .tbl tr.clickable{cursor:pointer} .tbl tr.clickable:hover td{background:var(--em-tint)}
+  .nmcell{display:flex;align-items:center;gap:10px}
+  .nmcell .av{width:30px;height:30px;border-radius:50%;background:var(--em-soft);color:var(--em-dark);display:grid;place-items:center;font-weight:900;font-size:12px}
+  .trend-up{color:var(--em-deep);font-weight:800} .trend-down{color:var(--bad);font-weight:800} .trend-flat{color:var(--mut);font-weight:800}
+
+  .mood-row{display:flex;align-items:center;gap:12px;padding:9px 0}
+  .mood-row .lab{width:120px;font-size:13px;font-weight:700;flex:0 0 auto}
+  .emoji-pick{display:flex;gap:6px}
+  .emoji-pick button{border:1.5px solid var(--line);background:#fff;border-radius:11px;width:42px;height:40px;font-size:19px;cursor:pointer;line-height:1;transition:all .12s ease}
+  .emoji-pick button.on{border-color:var(--em);background:var(--em-soft);transform:translateY(-2px)}
+  .field{margin-bottom:14px} .field label{display:block;font-size:12.5px;font-weight:800;margin-bottom:5px}
+  textarea,input.txt{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical}
+  textarea:focus,input.txt:focus{outline:0;border-color:var(--em);box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+
+  .ai{background:linear-gradient(135deg,var(--em-tint),#fff);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .ai .tag{display:inline-flex;align-items:center;gap:7px;font-weight:900;font-size:13px;color:var(--em-dark);margin-bottom:10px}
+  .ai .tag .dot{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,var(--em),var(--em-deep));color:#fff;display:grid;place-items:center;font-size:13px}
+  .ai .blk{margin:10px 0} .ai .blk b{display:block;font-size:11.5px;color:var(--mut);font-weight:800;margin-bottom:1px} .ai .blk p{margin:0;font-size:13.5px}
+  .ai .next{background:#fff;border:1px dashed var(--em);border-radius:11px;padding:12px 14px;margin-top:8px}
+
+  .score-big{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .ring{--p:76;width:120px;height:120px;border-radius:50%;flex:0 0 auto;background:conic-gradient(var(--em) calc(var(--p)*1%), var(--em-soft) 0);display:grid;place-items:center}
+  .ring .in{width:92px;height:92px;border-radius:50%;background:#fff;display:grid;place-items:center}
+  .ring .in b{font-size:30px;font-weight:900;line-height:1} .ring .in small{font-size:10px;color:var(--mut)}
+  .bars{display:grid;gap:9px;flex:1;min-width:200px}
+  .bar{display:grid;grid-template-columns:104px 1fr 34px;align-items:center;gap:10px;font-size:12px}
+  .bar .track{height:9px;background:var(--em-soft);border-radius:6px;overflow:hidden}
+  .bar .fill{height:100%;background:linear-gradient(90deg,var(--em),var(--em-deep));border-radius:6px}
+
+  .spark{width:100%;height:74px}
+  .spark polyline{fill:none;stroke:var(--em-deep);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+  .spark .area{fill:rgba(16,185,129,.12);stroke:none} .spark circle{fill:#fff;stroke:var(--em-deep);stroke-width:2}
+
+  .ptype{display:flex;align-items:center;gap:14px;background:linear-gradient(120deg,var(--em-soft),#fff);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .ptype .em{font-size:36px} .ptype b{font-size:18px} .ptype small{color:var(--mut);font-size:12px}
+  .deflist{display:grid;gap:10px}
+  .deflist .it b{display:block;font-size:11.5px;color:var(--em-dark);font-weight:800} .deflist .it span{font-size:13px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{background:var(--em-soft);color:var(--em-dark);font-size:12px;font-weight:700;border-radius:999px;padding:4px 11px}
+  .chip.w{background:var(--gold-soft);color:#8a6a14} .chip.r{background:var(--warn-soft);color:#a8401f}
+
+  .privacy{display:flex;gap:10px;align-items:flex-start;background:var(--blue-soft);border:1px solid #cfe5fb;border-radius:12px;padding:12px 14px;font-size:12px;color:#2a5f93}
+
+  /* 継続：カレンダー / ミッション / 目標 / バッジ */
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal .d{aspect-ratio:1/1;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:800;border:1px solid var(--line);color:var(--mut);background:#fff}
+  .cal .d.done{background:linear-gradient(135deg,var(--em),var(--em-deep));color:#fff;border-color:transparent}
+  .cal .d.today{outline:2px solid var(--gold);outline-offset:1px}
+  .mission .item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .mission .item:last-child{border-bottom:0}
+  .mission .ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:14px;transition:all .15s ease}
+  .mission .item.on .ck{background:linear-gradient(135deg,var(--em),var(--em-deep));border-color:transparent}
+  .mission .item.on .t{color:var(--mut);text-decoration:line-through}
+  .progress{height:10px;background:var(--em-soft);border-radius:6px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--em),var(--em-deep));border-radius:6px;transition:width .4s ease}
+  .goal{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px dashed var(--line)}
+  .goal:last-child{border-bottom:0}
+  .goal .em{font-size:24px;flex:0 0 auto}
+  .goal .meta{flex:1;min-width:0}
+  .goal .meta b{font-size:14px} .goal .meta .gp{font-size:11.5px;color:var(--mut)}
+  .goal .pbar{height:8px;background:var(--em-soft);border-radius:6px;overflow:hidden;margin-top:5px}
+  .goal .pbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e0a82e);border-radius:6px}
+  .badges{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .bm{text-align:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 8px}
+  .bm.locked{opacity:.45;filter:grayscale(.6)}
+  .bm .e{font-size:30px} .bm b{display:block;font-size:12px;margin-top:4px} .bm small{font-size:10.5px;color:var(--mut)}
+
+  /* 動画BOX */
+  .vbox{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .vcard{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;cursor:pointer;transition:transform .15s ease}
+  .vcard:hover{transform:translateY(-3px)}
+  .vcard .thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#0f1830,#16224a);display:grid;place-items:center;position:relative}
+  .vcard .thumb .play{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--em-deep);font-size:20px}
+  .vcard .thumb .unread{position:absolute;top:10px;left:10px;background:var(--pink);color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:2px 9px}
+  .vcard .thumb .gold{position:absolute;top:10px;right:10px;font-size:18px}
+  .vcard .vb{padding:12px 14px} .vcard .vb b{font-size:13.5px} .vcard .vb small{color:var(--mut);font-size:11.5px;display:block}
+
+  /* coach brief / script */
+  .brief{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  .scriptbox{background:#0f1830;color:#e7eefc;border-radius:14px;padding:18px 20px}
+  .scriptbox h4{margin:0 0 4px;font-size:11.5px;letter-spacing:.06em;color:#8fb7ff} .scriptbox p{margin:0 0 14px;font-size:13.5px;line-height:1.7}
+  .scriptbox .last p{margin-bottom:0}
+
+  /* prompts editor */
+  .promptcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .promptcard h4{margin:0 0 8px;font-size:13px}
+  .promptcard textarea{min-height:120px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.6;background:#fbfdfb}
+
+  /* ranking / alert */
+  .rank .listrow{border-bottom-style:solid;border-color:var(--line)}
+  .rank .pos{width:30px;font-weight:900;font-size:16px;text-align:center;flex:0 0 auto}
+  .rank .pos.p1{color:#d9a514} .rank .pos.p2{color:#9aa3ab} .rank .pos.p3{color:#c08457}
+  .alert .listrow{border-color:#f0d8cd}
+  .risk{font-weight:900;border-radius:8px;padding:2px 10px;font-size:12px}
+  .risk.hi{background:var(--warn-soft);color:#a8401f} .risk.mid{background:var(--gold-soft);color:#8a6a14} .risk.lo{background:var(--em-soft);color:var(--em-dark)}
+
+  /* toast / modal */
+  .cfgbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:800;color:var(--ink-2);cursor:pointer}
+  .cfgbtn #cfgDot{color:var(--mut);font-size:9px}
+  .cfgbtn.live{border-color:var(--em);color:var(--em-dark);background:var(--em-tint)}
+  .cfgbtn.live #cfgDot{color:var(--em)}
+  .modal-card .field{margin-bottom:14px}
+  .modal-card .field label{font-size:12px;font-weight:800;display:block;margin-bottom:5px}
+  .modal-card .field input,.modal-card .field select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;background:#fff}
+  .modal-card .chk{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink-2)}
+  .modal-card .chk input{width:17px;height:17px;margin-top:3px;flex:0 0 auto}
+  /* 応援コーチ + 成長スコア hero */
+  .hero-strip{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;margin-bottom:16px}
+  .coach-card{background:linear-gradient(120deg,#0f1830,#16224a);color:#fff;border-radius:18px;padding:18px 20px;display:flex;gap:14px;align-items:center;position:relative;overflow:hidden}
+  .coach-card .glow{position:absolute;inset:auto -20% -70% auto;width:55%;height:220%;background:radial-gradient(closest-side,rgba(224,177,74,.32),transparent)}
+  .coach-card .av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#e7d4a0,#caa44e);display:grid;place-items:center;font-size:30px;flex:0 0 auto;border:2px solid rgba(255,255,255,.45);position:relative;z-index:1}
+  .coach-card .cc-body{position:relative;z-index:1;flex:1;min-width:0}
+  .coach-card .label{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--gold)}
+  .coach-card .nm{font-size:16px;font-weight:900}
+  .coach-card .ti{font-size:11.5px;opacity:.82}
+  .coach-card .msg{font-size:13.5px;margin:7px 0 10px}
+  .score-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 20px;display:flex;flex-direction:column;justify-content:center}
+  .score-card .lab{font-size:11.5px;color:var(--mut);font-weight:800}
+  .score-card .big{font-size:42px;font-weight:900;line-height:1;color:var(--em-deep)}
+  .score-card .deltas{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .score-card .deltas b{color:var(--em-deep)}
+  /* 動画BOX 3状態 */
+  .vsum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;background:linear-gradient(120deg,var(--em-tint),#fff);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+  .vsum .s b{display:block;font-size:20px;font-weight:900;line-height:1.1} .vsum .s small{font-size:11px;color:var(--mut)}
+  .vsec-h{font-weight:900;font-size:14px;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+  .vcard.locked{cursor:default} .vcard.locked .thumb{filter:grayscale(1) brightness(.72)}
+  .vcard .lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+  .vcard .lock .k{font-size:26px} .vcard .lock .rem{font-size:11.5px;font-weight:800;background:rgba(0,0,0,.5);padding:3px 11px;border-radius:999px;margin-top:6px}
+  .vcard.prem{border:2px solid var(--gold)} .vcard.prem .thumb{background:linear-gradient(135deg,#1b2c52,#0d1b4c)}
+  .vcard .trophy{position:absolute;top:10px;right:10px;font-size:20px}
+  .vcard .prem-badge{position:absolute;top:10px;left:10px;background:linear-gradient(120deg,#e7d4a0,#caa44e);color:#3a2b08;font-size:9.5px;font-weight:900;border-radius:999px;padding:2px 9px}
+  /* 管理者アラート */
+  .alertrow{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed var(--line)}
+  .alertrow:last-child{border-bottom:0}
+  .lv{font-size:10px;font-weight:900;border-radius:6px;padding:3px 9px;flex:0 0 auto;margin-top:2px}
+  .lv.high{background:var(--warn-soft);color:#a8401f} .lv.medium{background:var(--gold-soft);color:#8a6a14} .lv.low{background:var(--em-soft);color:var(--em-dark)}
+  .alertrow .rec{background:var(--bg-soft);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-top:6px}
+  @media(max-width:900px){ .hero-strip{grid-template-columns:1fr} .vsum{grid-template-columns:1fr 1fr} }
+  /* 応援メッセージ（スレッド） */
+  .thread{display:flex;flex-direction:column;gap:10px;max-height:48vh;overflow:auto;padding:4px 2px}
+  .bubble{max-width:76%;padding:11px 14px;border-radius:14px;font-size:13.5px;line-height:1.65}
+  .bubble .who{font-size:10.5px;font-weight:800;opacity:.7;margin-bottom:3px}
+  .bubble.coach{align-self:flex-start;background:#fff;border:1px solid var(--line);border-top-left-radius:4px}
+  .bubble.me{align-self:flex-end;background:linear-gradient(120deg,#10B981,#059669);color:#fff;border-top-right-radius:4px}
+  .composer{display:flex;gap:10px;margin-top:12px;align-items:flex-end}
+  .composer textarea{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical;min-height:54px}
+  .mlist a{display:flex;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:inherit;cursor:pointer;margin-bottom:8px}
+  .mlist a.on{background:var(--em-soft);border-color:var(--em)}
+  .mlist .av{width:34px;height:34px;border-radius:50%;background:var(--em-soft);color:var(--em-dark);display:grid;place-items:center;font-weight:900;flex:0 0 auto}
+  /* オンボーディング100問 */
+  .onbrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .onbrow:last-child{border-bottom:0}
+  .onbq{flex:1;font-size:13px}
+  .onbchips{display:flex;gap:6px;flex:0 0 auto}
+  .onbchip{width:34px;height:34px;border:1.5px solid var(--line);background:#fff;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;color:var(--ink-2)}
+  .onbchip.on{border-color:var(--em);background:var(--em-soft);color:var(--em-dark)}
+  @media(max-width:680px){ .onbrow{flex-direction:column;align-items:flex-start;gap:6px} }
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;font-size:13px;box-shadow:0 16px 30px -12px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:80}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+  .modal-ov{position:fixed;inset:0;background:rgba(8,20,14,.55);backdrop-filter:blur(3px);z-index:75;display:grid;place-items:center;padding:20px;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal-card{background:#fff;border-radius:22px;max-width:520px;width:100%;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
+  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .mc-top{background:linear-gradient(120deg,var(--gold),#e0a82e);color:#4a370a;font-weight:900;text-align:center;padding:14px;font-size:15px}
+  .mc-body{padding:22px 24px}
+  .mc-name{font-size:18px;font-weight:900;text-align:center;margin-bottom:14px}
+  .player{aspect-ratio:16/9;border-radius:14px;background:linear-gradient(135deg,#0f1830,#16224a);display:grid;place-items:center;position:relative;cursor:pointer;margin-bottom:14px}
+  .player .play{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;color:var(--em-deep);font-size:24px}
+  .player .ptag{position:absolute;bottom:10px;left:12px;color:#fff;font-size:11.5px;font-weight:700}
+  .player .smp{position:absolute;top:10px;right:10px}
+  .mc-msg{background:var(--em-tint);border-radius:12px;padding:14px;font-size:13.5px;margin-bottom:14px}
+  .mc-badge{text-align:center;font-weight:900;color:#8a6a14;background:var(--gold-soft);border-radius:999px;padding:8px;margin-bottom:16px}
+  .mc-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  @media(max-width:980px){ .brief{grid-template-columns:1fr} }
+  @media(max-width:900px){
+    .shell{grid-template-columns:1fr} nav.side{display:none}
+    .kpis,.badges{grid-template-columns:1fr 1fr} .twocol,.threecol,.vbox{grid-template-columns:1fr}
+    .roleswitch .lbl{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-in">
+    <a class="cobrand" href="#"><span class="star">★</span><span class="horipro">HORIPRO</span><span class="x">×</span><span class="abhap">A.B.HAP</span><span class="ga">ガバショ！</span></a>
+    <div class="roleswitch" id="roleswitch" role="tablist" aria-label="ロール切替（デモ）">
+      <button data-role="user" class="on">🌱 <span class="lbl">一般ユーザー</span></button>
+      <button data-role="admin">🏢 <span class="lbl">会社管理者</span></button>
+      <button data-role="coach">🎤 <span class="lbl">コーチ/ホリプロ</span></button>
+      <button data-role="operator">🛠️ <span class="lbl">運営</span></button>
+    </div>
+    <button class="cfgbtn" id="notifyBtn" aria-label="通知">🔔</button>
+    <button class="cfgbtn" id="cfgBtn" aria-label="AI設定"><span id="cfgDot">●</span>⚙️ <span id="cfgState">デモ</span></button>
+    <div class="who" id="who"></div>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="side" id="side"></nav>
+  <main id="main"></main>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modalRoot"></div>
+
+<script>
+/* =========================================================================
+   ガバショ！ AIコーチングOS — プロトタイプ（見た目重視 / 4ロール）
+   ・状態はメモリ内のみ（ブラウザストレージ不使用）
+   ・AI出力（コメント/診断/スコア/面談ガイド/動画台本）は設計図のプロンプト構成に沿ったモック
+     → 本番は各 generate*() / aiBrief() を LLM 呼び出しに置き換える（TODO参照）
+   ========================================================================= */
+
+/* ---------- マスタ ---------- */
+var ME = { name:'田中 翔太', company:'株式会社ネクステージ', position:'営業 2年目',
+  salesType:'反骨成長型クローザー', emoji:'🔥', streak:23 };
+
+var MEMBERS = [
+  {id:'m1', name:'田中 翔太', dept:'第一営業部', mood:[3,3,2], submit:[1,1,1], score:82, trend:'up',   flags:[], coach:false, achiever:true, risk:'lo'},
+  {id:'m2', name:'佐藤 美咲', dept:'第一営業部', mood:[2,2,1], submit:[1,0,0], score:58, trend:'down', flags:['気分スコアが3日連続低下','日報未提出が2日'], coach:false, achiever:false, risk:'mid'},
+  {id:'m3', name:'鈴木 健',   dept:'第二営業部', mood:[4,4,4], submit:[1,1,1], score:90, trend:'up',   flags:[], coach:false, achiever:true, risk:'lo'},
+  {id:'m4', name:'高橋 由依', dept:'第二営業部', mood:[3,2,2], submit:[0,0,0], score:49, trend:'down', flags:['日報未提出が3日連続','成長スコア急落'], coach:true,  achiever:false, risk:'hi'},
+  {id:'m5', name:'伊藤 大和', dept:'第一営業部', mood:[3,3,3], submit:[1,1,1], score:74, trend:'flat', flags:['コーチング希望あり'], coach:true,  achiever:false, risk:'lo'},
+  {id:'m6', name:'渡辺 彩',   dept:'第三営業部', mood:[4,3,3], submit:[1,1,1], score:78, trend:'up',   flags:[], coach:false, achiever:false, risk:'lo'},
+  {id:'m7', name:'山本 蓮',   dept:'第三営業部', mood:[2,2,2], submit:[1,1,0], score:61, trend:'down', flags:['目標未達が続いている','上司面談希望あり'], coach:false, achiever:false, risk:'mid'}
+];
+
+var MOOD_TREND = [3,4,3,2,3,4,4];
+var SCORE_TREND = [68,71,69,74,76,79,82];
+var EMOJI5 = ['😣','😟','😐','🙂','🤩'];
+
+// 目標（編集し続ける対象）
+var GOALS = [
+  {id:'g1', emoji:'🎯', title:'今月の成約', current:2, target:3, unit:'件', done:false},
+  {id:'g2', emoji:'🔥', title:'日記の連続記録', current:23, target:30, unit:'日', done:false},
+  {id:'g3', emoji:'📈', title:'成長スコア80↑の日', current:4, target:10, unit:'日', done:false}
+];
+
+// 受信したお祝い動画（ユーザーBOX）
+var MY_VIDEOS = [
+  {id:'v1', reason:'初成約達成', title:'初成約おめでとう！', talent:'ホリプロ公式コーチ', badge:'ファースト成約バッジ', type:'achievement', status:'unread',
+    script:'田中さん、初成約おめでとうございます！毎日の振り返りを欠かさず続けてきたことが、ちゃんと結果に繋がりましたね。この勢いで、次の一件へ進んでいきましょう！'},
+  {id:'v2', reason:'日記23日連続', title:'継続23日、立派です！', talent:'女子アナ 三上さん', badge:'継続ブロンズ', type:'streak', status:'unread',
+    script:'23日連続の入力、本当に素晴らしい継続力です。続けること自体が一番むずかしい。あなたはもう「やり切れる人」です。30日まであと一息、一緒に走り切りましょう！'}
+];
+
+// コーチ担当ユーザー
+var COACH_USERS = [
+  {id:'cu1', name:'田中 翔太', company:'ネクステージ', position:'営業2年目', when:'本日 15:00', goal:'今月の成約3件', salesType:'反骨成長型クローザー', mood:[3,3,2], score:82, trend:[68,71,69,74,76,79,82], state:'やや疲れ・前向き'},
+  {id:'cu2', name:'高橋 由依', company:'ネクステージ', position:'営業1年目', when:'本日 16:30', goal:'商談化率を上げたい', salesType:'関係構築型', mood:[3,2,2], score:49, trend:[64,60,58,55,52,50,49], state:'落ち込み・要フォロー'},
+  {id:'cu3', name:'伊藤 大和', company:'ネクステージ', position:'営業3年目', when:'明日 11:00', goal:'マネジメント準備', salesType:'分析改善型', mood:[3,3,3], score:74, trend:[70,71,72,73,73,74,74], state:'安定・伸び悩み相談'}
+];
+
+/* ===== ① オンボーディング：100問の質問バンク（5段階：1=全くそう思わない〜5=とてもそう思う） ===== */
+var ONB_CATS=[
+  {axis:'compete', name:'競争心・勝ち負け', items:['誰かに負けるのが何より悔しい','順位やランキングが上がると燃える','「勝った」と実感できる瞬間が好きだ','ライバルがいると本気が出る','数字で他人と比較されるとやる気が出る','一番になりたい気持ちが強い','負けた悔しさを次に取り返したくなる','勝負ごとは燃えるタイプだ','目標を「達成/未達」で見たい','同期に差をつけたい']},
+  {axis:'approval', name:'承認・認められたい', items:['人から認められると頑張れる','上司や周囲に褒められたい','「すごい」と言われると嬉しい','努力を見ていてほしい','評価されないとやる気が落ちる','憧れの人から認められたい','成果を誰かに報告したくなる','感謝されると力が出る','存在を認めてほしい気持ちが強い','人の役に立って「ありがとう」と言われたい']},
+  {axis:'growth', name:'成長・学び', items:['昨日より成長している実感が欲しい','新しいスキルを学ぶのが好きだ','できなかったことができるようになると嬉しい','フィードバックは前向きに受け取れる','自分の弱みを改善したい','本やセミナーで学ぶのが好きだ','成長の手応えがモチベーションになる','失敗から学ぶタイプだ','長期的に自分を伸ばしたい','日々の振り返りを大切にしたい']},
+  {axis:'reward', name:'報酬・地位', items:['収入が上がるとやる気が出る','地位や役職に魅力を感じる','成果に見合う報酬が欲しい','インセンティブで動くタイプだ','良い暮らしを手に入れたい','昇進・昇格を目指したい','金銭的な目標がモチベーションになる','成功して認められる地位が欲しい','努力は報酬で報われるべきだ','目に見える見返りが欲しい']},
+  {axis:'relation', name:'チーム・人間関係', items:['チームで成果を出すのが好きだ','仲間と協力すると力が出る','人間関係が良いと頑張れる','ひとりより誰かと一緒が良い','チームの役に立ちたい','仲間に迷惑をかけたくない','周囲との一体感を大事にする','みんなで喜び合う瞬間が好きだ','信頼できる仲間が支えになる','チームの雰囲気に影響されやすい']},
+  {axis:'purpose', name:'意義・目的', items:['仕事に意味を感じたい','何のためにやるかが大事だ','社会や人の役に立ちたい','自分の仕事が誰かを幸せにすると嬉しい','目的が腑に落ちると動ける','大義や理念に共感したい','「なぜやるか」を重視する','意義を感じない作業はつらい','自分の価値観に沿った仕事をしたい','使命感が原動力になる']},
+  {axis:'stability', name:'継続・安定', items:['コツコツ続けるのが得意だ','急な変化より安定が好きだ','決めたことを淡々と続けられる','習慣化が得意だ','一度始めたら最後までやる','派手さより着実さを重視する','ルーティンがあると落ち着く','長く続けることに価値を感じる','無理のないペースを大事にする','焦らず積み上げたい']},
+  {axis:'empathy', name:'対話・共感', items:['気持ちを言葉にして話したい','じっくり話を聞いてもらえると安心する','感情に寄り添ってもらえると嬉しい','相談できる相手がいると心強い','詰められるより共感されたい','温かい言葉で励まされたい','人の感情を察するのが得意だ','対話の中で考えが整理される','安心できる関係で力を発揮する','厳しさより優しさで伸びる']},
+  {axis:'challenge', name:'挑戦・行動', items:['とにかくまず動くタイプだ','新しいことに挑戦したい','リスクがあってもやってみたい','現状維持より変化を選ぶ','難しい目標ほど燃える','失敗を恐れず行動できる','チャンスは積極的に取りに行く','考えるより先に手が動く','刺激のある環境が好きだ','大きな目標にワクワクする']},
+  {axis:'selfdrive', name:'自律・自分軸', items:['人に管理されるのは苦手だ','自分で決めて進めたい','裁量があると力が出る','細かく指示されたくない','自分のペースで動きたい','自分の判断を信じている','勝負環境を自分で選びたい','自由度の高い仕事が好きだ','他人軸より自分軸で動く','任されると燃えるタイプだ']}
+];
+var ONB_Q=[]; ONB_CATS.forEach(function(c,ci){ c.items.forEach(function(t,ii){ ONB_Q.push({id:'q'+ci+'_'+ii, axis:c.axis, cat:c.name, t:t}); }); });
+function onbAxisScores(){ var sum={},cnt={}; ONB_Q.forEach(function(q){ var v=state.onbAnswers[q.id]; if(v){ sum[q.axis]=(sum[q.axis]||0)+v; cnt[q.axis]=(cnt[q.axis]||0)+1; } }); var ax={}; Object.keys(sum).forEach(function(a){ ax[a]=Math.round(sum[a]/cnt[a]*20); }); return ax; }
+function onbAnswered(){ return ONB_Q.filter(function(q){ return state.onbAnswers[q.id]; }).length; }
+
+/* ---------- 状態 ---------- */
+var state = {
+  role:'user', view:'today',
+  mood:{ mood:null, motivation:null, fatigue:null, confidence:null, stress:null, satisfaction:null },
+  diary:{ done:'', issue:'', emotion:'', learning:'', tomorrow:'', consult:'' },
+  vision:{ deadline:'', becomeWhat:'', want:'', family:'', purpose:'', values:'', forWhom:'' },
+  aiComment:null, selectedMember:null, coachUser:COACH_USERS[0], dayDone:false,
+  personality:null, coachBriefs:{}, videoScript:null,
+  msgThread:null, msgCoach:null, coachMembers:null, coachSel:null,
+  league:null, notify:null,
+  onbAnswers:{}, onboarding:null, assignedCoach:null, leaderNotes:null
+};
+
+/* ===== 応援メッセージ（本人↔女子アナ/コーチ） ===== */
+async function loadMessages(){
+  state.view='ai';
+  if(SERVER && USER && USER.role==='member'){
+    try{ var r=await fetch('/api/messages'); var j=await r.json(); state.msgThread=j.messages||[]; state.msgCoach=j.coach; }
+    catch(e){ state.msgThread=[]; }
+  } else { state.msgThread=null; }
+  render();
+  var t=el('main').querySelector('.thread'); if(t) t.scrollTop=t.scrollHeight;
+}
+async function sendReply(){
+  if(!(SERVER&&USER)){ toast('ログイン環境（サーバー版）でご利用ください'); return; }
+  var ta=el('msgInput'); var text=ta?ta.value.trim():''; if(!text) return;
+  try{ var r=await fetch('/api/messages',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:text})}); var j=await r.json();
+    if(r.ok){ state.msgThread=j.messages; render(); var t=el('main').querySelector('.thread'); if(t) t.scrollTop=t.scrollHeight; } else toast('送信に失敗しました'); }
+  catch(e){ toast('通信エラー'); }
+}
+async function loadCoachMembers(){
+  state.view='messages';
+  if(SERVER && USER){ try{ var r=await fetch('/api/coach/members'); var j=await r.json(); state.coachMembers=j.members||[]; if(!state.coachSel && state.coachMembers[0]) await openCoachThread(state.coachMembers[0].id, true); }catch(e){ state.coachMembers=[]; } }
+  else { state.coachMembers=null; }
+  render();
+}
+async function openCoachThread(id, silent){
+  if(SERVER && USER){ try{ var r=await fetch('/api/coach/thread?memberId='+encodeURIComponent(id)); state.coachSel=await r.json(); }catch(e){ state.coachSel=null; } }
+  if(!silent){ render(); var t=el('main').querySelector('.thread'); if(t) t.scrollTop=t.scrollHeight; }
+}
+/* 管理者：社長・上司コメント／コーチ：仕事スタイル共有（同じメンバー一覧APIを利用） */
+async function loadMembersFor(view){ state.view=view; if(SERVER && USER){ try{ var r=await fetch('/api/coach/members'); var j=await r.json(); state.coachMembers=j.members||[]; if(!state.coachSel && state.coachMembers[0]) await openCoachThread(state.coachMembers[0].id, true); }catch(e){ state.coachMembers=[]; } } else { state.coachMembers=null; } render(); }
+async function postLeaderNote(role){
+  if(!state.coachSel) return; var ta=el(role==='president'?'presInput':'bossInput'); var text=ta?ta.value.trim():''; if(!text) return;
+  try{ var r=await fetch('/api/leader/note',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({memberId:state.coachSel.member.id,role:role,text:text})}); var j=await r.json();
+    if(r.ok){ await openCoachThread(state.coachSel.member.id); toast((role==='president'?'社長':'上司')+'コメントを投稿しました'); } else toast('投稿失敗：'+(j.error||'')); }
+  catch(e){ toast('通信エラー'); }
+}
+async function coachSend(){
+  if(!state.coachSel) return; var ta=el('coachInput'); var text=ta?ta.value.trim():''; if(!text) return;
+  try{ var r=await fetch('/api/coach/message',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({memberId:state.coachSel.member.id,text:text})}); var j=await r.json();
+    if(r.ok){ state.coachSel.messages=j.messages; render(); var t=el('main').querySelector('.thread'); if(t) t.scrollTop=t.scrollHeight; } else toast('送信に失敗しました'); }
+  catch(e){ toast('通信エラー'); }
+}
+async function coachDraft(){
+  if(!state.coachSel) return; var btn=el('coachDraft'); if(btn){ btn.disabled=true; btn.textContent='🤖 下書き中…'; }
+  try{ var r=await fetch('/api/coach/draft',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({memberId:state.coachSel.member.id})}); var j=await r.json();
+    if(r.ok){ var ta=el('coachInput'); if(ta) ta.value=j.message; toast('AIが応援メッセージを下書きしました ✍️'); } else toast('下書き失敗：'+(j.error||'')); }
+  catch(e){ toast('通信エラー'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='🤖 AIで下書き'; } }
+}
+
+/* ===== ③ リーグ・ランキング ===== */
+async function loadLeague(){
+  state.view='league';
+  if(SERVER && USER){ try{ var r=await fetch('/api/league'); state.league=await r.json(); }catch(e){ state.league=null; } }
+  else { state.league=null; }
+  render();
+}
+/* ===== ② 成約登録（kintone連携・モック）→ レア称賛 ===== */
+async function recordDeal(){
+  if(!(SERVER&&USER)){ toast('ログイン環境（サーバー版）でご利用ください'); return; }
+  try{ var r=await fetch('/api/deals',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({amount:null})}); var j=await r.json();
+    if(!r.ok){ toast('登録失敗'); return; }
+    ME.streak=ME.streak; // keep
+    toast('🤝 成約を記録しました（'+j.deals+'件目・+50pt）');
+    if(j.celebrate){ var v={ id:'deal_'+j.deals, reason:j.celebrate.reason, title:j.celebrate.title, talent:j.celebrate.talent, badge:j.celebrate.badge, script:j.celebrate.script, status:'unread', premium:j.celebrate.premium };
+      MY_VIDEOS.unshift(v); showVideoModal(v); }
+  }catch(e){ toast('通信エラー'); }
+}
+/* ===== ① 通知（LINEモック・連勝損失回避） ===== */
+async function openNotify(){
+  var data={notifications:[],lineLinked:false};
+  if(SERVER && USER && USER.role==='member'){ try{ var r=await fetch('/api/notify'); data=await r.json(); }catch(e){} }
+  else { data={notifications:[{type:'streak',level:'high',icon:'🔥',title:'記録が途切れそう！',text:'今日入力すれば連続記録を更新できます（サンプル）。'}],lineLinked:false}; }
+  state.notify=data;
+  var lv={high:'#FDEEE8',mid:'#FBF3DF',low:'#E7F7EF'};
+  var items=data.notifications.map(function(n){ return '<div style="display:flex;gap:10px;padding:11px 12px;border-radius:12px;background:'+(lv[n.level]||'#F3FBF7')+';margin-bottom:8px"><div style="font-size:20px">'+n.icon+'</div><div><b style="font-size:13.5px">'+n.title+'</b><div style="font-size:12.5px;color:var(--ink-2)">'+n.text+'</div></div></div>'; }).join('') || '<div class="muted" style="text-align:center;padding:16px">通知はありません</div>';
+  el('modalRoot').innerHTML='<div class="modal-ov" id="ntfModal"><div class="modal-card" style="max-width:440px"><div class="mc-top" style="background:linear-gradient(120deg,#10B981,#059669);color:#fff">🔔 通知センター</div><div class="mc-body">'
+    + items
+    + '<div style="display:flex;align-items:center;gap:10px;background:#F3FBF7;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:6px"><div style="font-size:22px">📲</div><div style="flex:1"><b style="font-size:13px">LINEで受け取る</b><div style="font-size:11.5px;color:var(--mut)">連続途切れ予告・女子アナ応援・順位変動を通知（モック）</div></div>'
+    + '<button class="btn '+(data.lineLinked?'btn-soft':'btn-em')+' btn-sm" id="lineLink">'+(data.lineLinked?'連携中 ✓':'連携する')+'</button></div>'
+    + '<div class="mc-actions"><button class="btn btn-ghost" data-closemodal="1">閉じる</button></div>'
+    + '</div></div></div>';
+}
+async function toggleLine(){
+  if(!(SERVER&&USER)){ toast('LINE連携（モック）：サーバー版で有効'); return; }
+  try{ var cur=state.notify&&state.notify.lineLinked; var r=await fetch('/api/notify/line',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({link:!cur})}); var j=await r.json(); toast(j.lineLinked?'LINE連携しました（モック）':'LINE連携を解除しました'); openNotify(); }catch(e){ toast('通信エラー'); }
+}
+/* ===== SNS拡散シェア ===== */
+async function shareVideo(v){
+  if(!(SERVER&&USER)){ toast('シェアはサーバー版で利用できます'); return; }
+  try{ var r=await fetch('/api/share',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({reason:v.reason,talent:v.talent})}); var j=await r.json();
+    if(!r.ok){ toast('シェア用URL作成に失敗'); return; }
+    var url=location.origin+j.url;
+    el('modalRoot').innerHTML='<div class="modal-ov" id="shrModal"><div class="modal-card" style="max-width:460px"><div class="mc-top" style="background:linear-gradient(120deg,#E0B14A,#caa44e);color:#3a2b08">📣 SNSでシェア</div><div class="mc-body">'
+      + '<p style="font-size:13px;color:var(--ink-2);margin:0 0 12px">ド派手なお祝いページを生成しました。SNSに貼ると、カード画像つきで広がります。</p>'
+      + '<div style="display:flex;gap:8px"><input class="txt" id="shrUrl" readonly value="'+url+'" style="flex:1;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px"><button class="btn btn-soft btn-sm" id="shrCopy">コピー</button></div>'
+      + '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><a class="btn btn-em" href="'+url+'" target="_blank" rel="noopener">🎬 ページを開く</a>'
+      + '<a class="btn" style="background:#1d9bf0;color:#fff" href="https://twitter.com/intent/tweet?text='+encodeURIComponent(v.reason+'達成！🎉 #ガバショ')+'&url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">𝕏</a>'
+      + '<a class="btn" style="background:#06c755;color:#fff" href="https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">LINE</a></div>'
+      + '<div class="mc-actions"><button class="btn btn-ghost" data-closemodal="1">閉じる</button></div></div></div></div>';
+  }catch(e){ toast('通信エラー'); }
+}
+
+/* ============================================================
+   実証実験モード：設定＋永続化＋実LLM接続（サーバー不要のPoC）
+   ※ APIキーはこの端末のlocalStorageにのみ保存し、Anthropicへ直接送信。
+      本番・社外配布ではサーバー経由（/api）に切り替えること。
+   ============================================================ */
+var LS_CFG='gabasho_cfg', LS_DATA='gabasho_data';
+var cfg={ apiKey:'', model:'claude-opus-4-8', live:false };
+try{ cfg=Object.assign(cfg, JSON.parse(localStorage.getItem(LS_CFG)||'{}')); }catch(e){}
+function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }catch(e){} }
+
+/* サーバーモード（ログインありの本番）。ファイル直開きならスタンドアロン（ブラウザキー）。 */
+var SERVER=false, USER=null, AI_ENABLED=false;
+function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
+
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision }; }
+function applyData(d){ if(!d) return;
+  if(typeof d.streak==='number') ME.streak=d.streak;
+  if(d.mood) state.mood=Object.assign(state.mood,d.mood);
+  if(d.diary) state.diary=Object.assign(state.diary,d.diary);
+  if(d.aiComment) state.aiComment=d.aiComment;
+  if(d.personality) state.personality=d.personality;
+  if(d.vision) state.vision=Object.assign(state.vision,d.vision);
+  if(d.onboarding) state.onboarding=d.onboarding;
+  if(d.assignedCoach) state.assignedCoach=d.assignedCoach;
+  if(Array.isArray(d.leaderNotes)) state.leaderNotes=d.leaderNotes;
+  if(Array.isArray(d.goals)&&d.goals.length) GOALS=d.goals;
+  if(Array.isArray(d.videos)) MY_VIDEOS=d.videos;
+}
+function visionSummary(){
+  var v=state.vision||{}; var p=[];
+  if(v.becomeWhat) p.push('なりたい姿：'+v.becomeWhat+(v.deadline?'（'+v.deadline+'まで）':''));
+  if(v.want) p.push('欲しいもの：'+v.want);
+  if(v.family) p.push('家族にどう見られたいか：'+v.family);
+  if(v.purpose) p.push('働く目的：'+v.purpose);
+  if(v.forWhom) p.push('誰のために：'+v.forWhom);
+  return p.join('\n');
+}
+function saveData(){
+  if(SERVER && USER){ try{ fetch('/api/data',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data:collectData()})}); }catch(e){} return; }
+  try{ localStorage.setItem(LS_DATA, JSON.stringify(collectData())); }catch(e){}
+}
+function loadData(){ try{ applyData(JSON.parse(localStorage.getItem(LS_DATA)||'null')); }catch(e){} }
+async function serverLoad(){ try{ var r=await fetch('/api/data'); if(r.ok){ applyData((await r.json()).data); } }catch(e){} }
+
+// 実LLM呼び出し（kindでサーバーが実行 or スタンドアロンはブラウザ直叩き）。null=モックにフォールバック。
+async function aiCall(kind, input, schema, system){
+  if(SERVER && USER){
+    if(!AI_ENABLED) return null; // サーバーにキー未設定 → モック
+    var r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kind:kind, input:input})});
+    if(!r.ok){ var e=await r.json().catch(function(){return{};}); throw new Error(e.error||('AI '+r.status)); }
+    return await r.json();
+  }
+  if(cfg.live && cfg.apiKey){ var txt=await callClaude(system, input, schema); return JSON.parse(txt); }
+  return null;
+}
+
+// 実LLM呼び出し（ブラウザ直叩き：PoC専用）。本番はサーバ関数経由に置換。
+async function callClaude(system, userText, schema){
+  var body={ model:cfg.model||'claude-opus-4-8', max_tokens:1024, system:system, messages:[{role:'user', content:userText}] };
+  if(schema){ body.output_config={ format:{ type:'json_schema', schema:schema } }; }
+  var res=await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'content-type':'application/json', 'x-api-key':cfg.apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){ var t=await res.text(); throw new Error('API '+res.status+'：'+t.slice(0,160)); }
+  var data=await res.json();
+  return (data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+}
+function buildDiaryPrompt(){
+  var m=state.mood, d=state.diary;
+  var names={mood:'今日の気分',motivation:'やる気',fatigue:'疲労度',confidence:'自信',stress:'人間関係ストレス',satisfaction:'仕事の納得感'};
+  var ml=[]; Object.keys(names).forEach(function(k){ if(m[k]) ml.push(names[k]+'：'+m[k]+'/5'); });
+  var dn={done:'できたこと',issue:'うまくいかなかったこと',emotion:'感情が動いた出来事',learning:'学び',tomorrow:'明日やること',consult:'相談したいこと'};
+  var dl=[]; Object.keys(dn).forEach(function(k){ if(d[k]) dl.push(dn[k]+'：'+d[k]); });
+  var vs=visionSummary();
+  return '【今日の気分】\n'+(ml.join('\n')||'（未入力）')+'\n\n【今日の日記】\n'+(dl.join('\n')||'（未入力）')
+    + (vs?'\n\n【本人の軸・なりたい姿】（これに結びつけて励ましてください）\n'+vs:'');
+}
+var AI_COMMENT_SCHEMA={ type:'object', properties:{
+  empathy:{type:'string'}, analysis:{type:'string'}, goodPoint:{type:'string'}, improvement:{type:'string'}, nextAction:{type:'string'},
+  score:{type:'integer'},
+  scoreBreakdown:{ type:'object', properties:{ action:{type:'integer'},continuity:{type:'integer'},openness:{type:'integer'},communication:{type:'integer'},salesMind:{type:'integer'},condition:{type:'integer'} }, required:['action','continuity','openness','communication','salesMind','condition'], additionalProperties:false },
+  coachingRecommended:{type:'boolean'}
+}, required:['empathy','analysis','goodPoint','improvement','nextAction','score','scoreBreakdown','coachingRecommended'], additionalProperties:false };
+var AI_COMMENT_SYSTEM='あなたは若手営業マンの成長を支援するAIコーチ「ガバショAI」です。ユーザーの日記・気分をもとに、優しく前向きで具体的なフィードバックを返してください。目的は本人の自己理解と成長支援です。医療診断・精神疾患の判定・人格の断定は絶対にしないでください。言葉遣いは温かく前向きで、少し背中を押すトーンに。score は今日の成長・行動・コンディションの状態（0〜100、人格や人の価値ではなく状態を点数化）。各scoreBreakdownも0〜100。nextActionは明日の具体的な一手。必ず指定のJSON形式のみで返答してください。';
+
+/* ---------- ナビ ---------- */
+var NAV = {
+  user:[
+    {grp:'マイコーチング'},
+    {v:'today', ic:'📝', t:'今日の一歩を残す'},
+    {v:'streak', ic:'🔥', t:'つづける（継続・目標）'},
+    {v:'league', ic:'🏆', t:'リーグ・ランキング'},
+    {v:'ai', ic:'💌', t:'コーチからの応援'},
+    {v:'vision', ic:'🎯', t:'なりたい姿・軸'},
+    {v:'personality', ic:'🧭', t:'パーソナリティ診断'},
+    {v:'score', ic:'📈', t:'成長スコア'},
+    {grp:'応援・サポート'},
+    {v:'videos', ic:'🎬', t:'応援動画BOX'},
+    {v:'coaching', ic:'💬', t:'コーチング予約'},
+    {v:'history', ic:'🗓️', t:'成長ログ'}
+  ],
+  admin:[
+    {grp:'組織マネジメント'},
+    {v:'dashboard', ic:'📊', t:'会社ダッシュボード'},
+    {v:'members', ic:'👥', t:'メンバー一覧'},
+    {v:'analytics', ic:'📉', t:'スコア・気分分析'},
+    {grp:'フォロー'},
+    {v:'coachreq', ic:'🙋', t:'コーチング希望者'},
+    {v:'risk', ic:'🚨', t:'離職リスクアラート'},
+    {v:'leaders', ic:'🏢', t:'社長・上司コメント'},
+    {grp:'称賛・表彰'},
+    {v:'awards', ic:'🎬', t:'動画表彰管理'},
+    {v:'ranking', ic:'🏅', t:'チームランキング'},
+    {v:'settings', ic:'⚙️', t:'会社設定'}
+  ],
+  coach:[
+    {grp:'コーチング'},
+    {v:'profiles', ic:'📇', t:'スタッフの仕事スタイル'},
+    {v:'messages', ic:'💌', t:'応援メッセージ'},
+    {v:'queue', ic:'📋', t:'担当予定一覧'},
+    {v:'brief', ic:'🧠', t:'面談前AIサマリー'},
+    {v:'guide', ic:'🗒️', t:'AI面談ガイド'},
+    {v:'memo', ic:'✍️', t:'面談メモ'},
+    {grp:'お祝い動画'},
+    {v:'vscript', ic:'🎞️', t:'動画台本・収録'},
+    {v:'chistory', ic:'🗂️', t:'担当履歴'}
+  ],
+  operator:[
+    {grp:'運営管理'},
+    {v:'companies', ic:'🏢', t:'企業管理'},
+    {v:'users', ic:'👤', t:'ユーザー管理'},
+    {v:'coaches', ic:'🎤', t:'コーチ管理'},
+    {v:'videos_admin', ic:'🎬', t:'動画管理'},
+    {grp:'設定・分析'},
+    {v:'prompts', ic:'🤖', t:'AIプロンプト管理'},
+    {v:'logic', ic:'⚖️', t:'スコアロジック'},
+    {v:'billing', ic:'💳', t:'請求管理'},
+    {v:'usage', ic:'📊', t:'利用状況分析'}
+  ]
+};
+var DEFAULT_VIEW = { user:'today', admin:'dashboard', coach:'queue', operator:'companies' };
+
+/* ---------- 共通描画 ---------- */
+function el(id){ return document.getElementById(id); }
+function avatarText(n){ return (n||'?').trim().charAt(0); }
+function trendIcon(t){ return t==='up'?'<span class="trend-up">▲ 上昇</span>':t==='down'?'<span class="trend-down">▼ 低下</span>':'<span class="trend-flat">― 横ばい</span>'; }
+function pageHead(title,sub,actions){ return '<div class="page-head"><div><h1>'+title+'</h1><p>'+(sub||'')+'</p></div><div>'+(actions||'')+'</div></div>'; }
+function defit(b,s){ return '<div class="it"><b>'+b+'</b><span>'+s+'</span></div>'; }
+function kpi(ic,n,l,cls){ return '<div class="kpi '+(cls||'')+'"><div class="ic">'+ic+'</div><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
+function sparkline(data,w,h){
+  w=w||320;h=h||74;var max=Math.max.apply(null,data),min=Math.min.apply(null,data);var pad=8;
+  var pts=data.map(function(v,i){var x=pad+i*((w-pad*2)/(data.length-1));var y=h-pad-((v-min)/((max-min)||1))*(h-pad*2);return [x,y];});
+  var poly=pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  var area='8,'+(h-pad)+' '+poly+' '+(w-pad)+','+(h-pad);var last=pts[pts.length-1];
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><polygon class="area" points="'+area+'"/><polyline points="'+poly+'"/><circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="3.5"/></svg>';
+}
+function rand(n){ var x=Math.sin(n*99.13+7.7)*10000; return x-Math.floor(x); }
+
+function renderWho(){
+  if(SERVER && USER){
+    var roleJa={member:'メンバー',admin:'会社管理者',coach:'コーチ',operator:'運営'}[USER.role]||USER.role;
+    el('who').innerHTML='<div style="text-align:right"><b>'+USER.name+'</b><small>'+roleJa+'</small></div><div class="av">'+(USER.name||'?').trim().charAt(0)+'</div><button class="cfgbtn" data-logout="1" style="margin-left:6px">ログアウト</button>';
+    return;
+  }
+  var map={ user:['田中 翔太','株式会社ネクステージ','田'], admin:['営業企画 管理者','株式会社ネクステージ','管'],
+    coach:['三上 あかり（コーチ）','HORIPRO × A.B.HAP','三'], operator:['ガバショ！運営','Fit Founder','運'] };
+  var w=map[state.role];
+  el('who').innerHTML='<div style="text-align:right"><b>'+w[0]+'</b><small>'+w[1]+'</small></div><div class="av">'+w[2]+'</div>';
+}
+function renderSide(){
+  el('side').innerHTML=NAV[state.role].map(function(it){
+    if(it.grp) return '<div class="grp">'+it.grp+'</div>';
+    var badge=it.badge?'<span class="badge">'+it.badge+'</span>':'';
+    if(it.v==='videos' && MY_VIDEOS.some(function(v){return v.status==='unread';})) badge='<span class="badge">'+MY_VIDEOS.filter(function(v){return v.status==='unread';}).length+'</span>';
+    return '<a class="navlink'+(it.v===state.view?' on':'')+'" data-view="'+it.v+'"><span class="ic">'+it.ic+'</span>'+it.t+badge+'</a>';
+  }).join('');
+}
+function render(){
+  renderWho(); renderSide();
+  var fn=(VIEWS[state.role]&&VIEWS[state.role][state.view])||function(){return '<div class="card">準備中の画面です。</div>';};
+  el('main').innerHTML=fn(); window.scrollTo(0,0);
+}
+
+var VIEWS={ user:{}, admin:{}, coach:{}, operator:{} };
+
+/* ===================== 一般ユーザー ===================== */
+function missionState(){
+  var moodDone=Object.keys(state.mood).some(function(k){return state.mood[k];});
+  var diaryDone=!!(state.diary.done||state.diary.issue||state.diary.learning||state.diary.emotion);
+  var planDone=!!state.diary.tomorrow;
+  return {mood:moodDone,diary:diaryDone,plan:planDone,count:(moodDone?1:0)+(diaryDone?1:0)+(planDone?1:0)};
+}
+function missionCard(){
+  var m=missionState(); var pct=Math.round(m.count/3*100);
+  function it(on,t,goto){ return '<div class="item'+(on?' on':'')+'" data-goto="'+goto+'"><div class="ck">'+(on?'✓':'')+'</div><div class="t">'+t+'</div><div style="margin-left:auto">'+(on?'<span class="pill em">完了</span>':'<span class="pill warn">これから</span>')+'</div></div>'; }
+  var done=m.count===3;
+  return '<div class="card">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0;font-size:15px">✅ 今日のミッション</h3><span class="pill '+(done?'em':'gold')+'">'+m.count+'/3 完了</span></div>'
+    + '<div class="progress" style="margin:12px 0 14px"><i style="width:'+pct+'%"></i></div>'
+    + '<div class="mission">'+it(m.mood,'気分を記録する','today')+it(m.diary,'日記を書く','today')+it(m.plan,'明日の一手を決める','today')+'</div>'
+    + (done
+        ? '<div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--em-tint);border-radius:12px;padding:12px 14px"><b style="color:var(--em-dark)">🎉 今日もやり切りました！</b><button class="btn btn-em btn-sm" id="completeDay">今日を完了して連続記録をのばす</button></div>'
+        : '<div style="margin-top:12px" class="muted" style="font-size:12px">あと'+(3-m.count)+'つで今日のミッション達成。続けるほど、あなたの伸びが見えてきます。</div>')
+  + '</div>';
+}
+
+/* ===== 改善: 応援コーチ / 報酬動画 / 成長スコア / 管理者アラート（モックデータ＋ロジック） ===== */
+// 実名は許諾確定まで非掲載（CLAUDE.md準拠）。差し替えは COACHES のみで完結。
+var COACHES=[
+  {id:'c1', name:'元プロ野球選手 A', title:'プロ野球 元選手', category:'athlete', emoji:'⚾', message:'今日も、昨日の自分に1つだけ勝とう。'},
+  {id:'c2', name:'フリーアナウンサー B', title:'フリーアナウンサー', category:'announcer', emoji:'🎤', message:'続けているあなたは、もう一歩前にいます。'},
+  {id:'c3', name:'元サッカー日本代表 C', title:'サッカー 元日本代表', category:'athlete', emoji:'⚽', message:'苦しい日こそ、最低ラインを守れたら勝ち。'},
+  {id:'c4', name:'モデル D', title:'モデル／PR', category:'talent', emoji:'💫', message:'あなたの積み重ね、ちゃんと見ています。'}
+];
+function todayCoach(){ return COACHES[ME.streak % COACHES.length]; }
+function rewardVideos(){
+  var s=ME.streak, sc=(state.aiComment?state.aiComment.score:82);
+  return [
+    {id:'rv_first', title:'初回達成おめでとう', coachName:'フリーアナウンサー B', emoji:'🎤', cond:'初めての入力', req:1, premium:false},
+    {id:'rv_7',     title:'7日連続 達成', coachName:'元プロ野球選手 A', emoji:'⚾', cond:'7日連続', req:7, premium:false},
+    {id:'rv_s80',   title:'成長スコア80突破', coachName:'モデル D', emoji:'💫', cond:'成長スコア80', reqScore:80, premium:false},
+    {id:'rv_30',    title:'30日連続 達成 限定', coachName:'元サッカー日本代表 C', emoji:'⚽', cond:'30日連続', req:30, premium:true},
+    {id:'rv_goal',  title:'目標達成 特別お祝い', coachName:'ホリプロ公式コーチ', emoji:'🏆', cond:'目標達成', req:999, premium:true}
+  ].map(function(v){
+    v.isUnlocked = v.reqScore ? (sc>=v.reqScore) : (s>=v.req);
+    v.remain = v.reqScore ? Math.max(0, v.reqScore-sc) : Math.max(0, v.req-s);
+    v.unit = v.reqScore ? '点' : '日'; return v;
+  });
+}
+function nextReward(){ return rewardVideos().filter(function(v){return !v.isUnlocked && v.req!==999;}).sort(function(a,b){return a.remain-b.remain;})[0]; }
+function growthScore(){
+  var c=state.aiComment, sc=c?c.score:72;
+  var bd=c?c.scoreBreakdown:{action:78,continuity:90,openness:74,communication:66,salesMind:70,condition:76};
+  return { total:sc, dod:4, wow:12, items:[['継続力',bd.continuity],['行動力',bd.action],['自己理解',bd.openness],['メンタル安定',bd.condition],['目標達成力',bd.salesMind],['相談力',bd.communication]] };
+}
+function memberAlerts(){
+  return MEMBERS.filter(function(m){return m.flags.length;}).map(function(m){
+    var f=m.flags.join('');
+    var type=f.indexOf('未提出')>=0?'no_input':(f.indexOf('低下')>=0?'high_fatigue':(f.indexOf('急落')>=0?'score_drop':'low_mood'));
+    var rec=m.risk==='hi'?'明日までに上司から短い声かけを推奨。例：「最近どう？今どこが一番詰まってる？」'
+           :m.coach?'コーチング予約を案内。例：「今週の勝ちポイントを一緒に確認しよう」'
+           :'まず1つだけ終わらせる声かけを。例：「今日は1個だけ、一緒に片付けよう」';
+    return { m:m, type:type, level:(m.risk==='hi'?'high':m.risk==='mid'?'medium':'low'), message:m.name+'さんは'+m.flags.join('・')+'。', rec:rec };
+  });
+}
+
+VIEWS.user.onboarding=function(){
+  var ans=onbAnswered(), pct=Math.round(ans/ONB_Q.length*100);
+  var html=ONB_CATS.map(function(c,ci){
+    var rows=c.items.map(function(t,ii){
+      var qid='q'+ci+'_'+ii, cur=state.onbAnswers[qid];
+      var chips=[1,2,3,4,5].map(function(v){ return '<button class="onbchip'+(cur===v?' on':'')+'" data-onb="'+qid+'" data-val="'+v+'">'+v+'</button>'; }).join('');
+      return '<div class="onbrow"><div class="onbq">'+t+'</div><div class="onbchips">'+chips+'</div></div>';
+    }).join('');
+    return '<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 4px;font-size:14px">'+(ci+1)+'. '+c.name+'</h3><p class="muted" style="margin:0 0 6px;font-size:11.5px">1=全くそう思わない 〜 5=とてもそう思う</p>'+rows+'</div>';
+  }).join('');
+  return pageHead('はじめに：あなたを知る100の質問','正確なコーチングのための診断です。直感でOK。回答からAIがあなたのペルソナを判定し、最適な女子アナ／コーチを自動でアサインします。',
+      '<span class="pill em" id="onbCount">'+ans+' / '+ONB_Q.length+' 回答</span>')
+    + '<div class="card" style="position:sticky;top:0;z-index:6"><div class="progress"><i id="onbBar" style="width:'+pct+'%"></i></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap"><span class="muted" style="font-size:12px">直感で。10問以上で診断できます（全問でなくてもOK）。</span><button class="btn btn-em" id="onbSubmit">🤖 診断を完了する</button></div></div>'
+    + html
+    + '<div style="text-align:center;margin:8px 0 30px"><button class="btn btn-em" id="onbSubmit">🤖 診断を完了して、私に合うコーチを選ぶ</button></div>';
+};
+VIEWS.user.onboardingResult=function(){
+  var o=state.onboarding||{}, c=state.assignedCoach||{};
+  return pageHead('診断完了！','回答からAIがあなたのペルソナを判定し、最適な伴走者を選びました。')
+    + '<div class="hero-strip">'
+      + '<div class="coach-card"><span class="glow"></span><div class="av">'+(c.emoji||'🎙️')+'</div><div class="cc-body"><div class="label">あなた専属の応援コーチ（AIが自動選定）</div><div class="nm">'+(c.name||'—')+'</div><div class="ti">'+(c.title||'')+'</div><div class="msg">'+(c.reason||'')+'。これから一緒に伴走します。</div></div></div>'
+      + '<div class="score-card"><div class="lab">あなたのペルソナ</div><div class="big" style="font-size:23px">'+(o.persona||'—')+'</div><div class="deltas"><span class="muted" style="font-size:12px">'+(o.answeredCount||0)+'問の回答からAIが判定</span></div></div>'
+    + '</div>'
+    + '<div class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="font-size:30px">🚀</div><div style="flex:1;min-width:220px"><b>準備OK！今日から積み上げよう。</b><p class="muted" style="margin:3px 0 0;font-size:12.5px">毎日の入力・成約・継続が、'+(c.name||'コーチ')+'からの応援動画につながります。</p></div><button class="btn btn-em" data-goto="today">はじめる →</button></div>';
+};
+
+VIEWS.user.today=function(){
+  var m=state.mood;
+  function moodRow(key,label){
+    var picks=EMOJI5.map(function(e,i){return '<button class="mood-emoji'+(m[key]===(i+1)?' on':'')+'" data-mood="'+key+'" data-val="'+(i+1)+'" aria-label="'+label+(i+1)+'">'+e+'</button>';}).join('');
+    return '<div class="mood-row"><span class="lab">'+label+'</span><div class="emoji-pick">'+picks+'</div></div>';
+  }
+  function ta(key,label,ph){ return '<div class="field"><label>'+label+'</label><textarea data-diary="'+key+'" rows="2" placeholder="'+ph+'">'+state.diary[key]+'</textarea></div>'; }
+  var nr=nextReward(), gs=growthScore();
+  var ac=state.assignedCoach; var coach = ac ? {emoji:ac.emoji||'🎙️', name:ac.name, title:ac.title||'あなた専属コーチ', message:(ac.reason||'今日も一緒に積み上げよう')} : todayCoach();
+  var coachBtn = nr ? '<button class="btn btn-soft btn-sm" data-goto="videos">あと'+nr.remain+nr.unit+'で動画解放 🔒</button>'
+                    : '<button class="btn btn-gold btn-sm" data-goto="videos">応援動画を見る ▶</button>';
+  var hero = '<div class="hero-strip">'
+    + '<div class="coach-card"><span class="glow"></span><div class="av">'+coach.emoji+'</div><div class="cc-body">'
+      + '<div class="label">'+(ac?'あなた専属の応援コーチ':'今日の応援コーチ')+'</div><div class="nm">'+coach.name+(ac?'':' <span class="sample" style="background:transparent;border-color:rgba(255,255,255,.4);color:#fff">※サンプル</span>')+'</div><div class="ti">'+coach.title+'</div>'
+      + '<div class="msg">「'+coach.message+'」</div>'+coachBtn+'</div></div>'
+    + '<div class="score-card"><div class="lab">今日の成長スコア</div><div class="big">'+gs.total+'</div>'
+      + '<div class="deltas"><span>昨日比 <b>+'+gs.dod+'</b></span><span>今週の伸び率 <b>+'+gs.wow+'%</b></span></div>'
+      + '<div style="margin-top:8px"><a class="navlink" data-view="score" style="font-size:12px;color:var(--em-dark);font-weight:800;cursor:pointer;text-decoration:underline">内訳を見る →</a></div></div>'
+    + '</div>';
+  var vb = (state.vision&&state.vision.becomeWhat)
+    ? '<div class="card" style="margin-top:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(120deg,var(--gold-soft),#fff);border-color:#eedfb4"><div style="font-size:26px">🎯</div><div style="flex:1;min-width:220px"><b style="font-size:14px">なりたい姿に近づく今日の一手</b><p class="muted" style="margin:3px 0 0;font-size:12.5px">目標：「'+state.vision.becomeWhat+'」。今日できる小さな1歩を「明日やること」に書こう。</p></div><button class="btn btn-ghost btn-sm" data-view="vision">軸を見る</button></div>'
+    : '';
+  return pageHead('今日の一歩を残す','今日も伴走者が、あなたの前進を見ています。続けるほど、成長は可視化されます。','<span class="pill em">🔥 '+ME.streak+'日連続 入力中</span>')
+    + hero + vb
+    + missionCard()
+    + '<div class="twocol" style="margin-top:16px;grid-template-columns:1.1fr .9fr">'
+      + '<div class="card"><h3 style="margin:0 0 10px;font-size:15px">😊 今日の気分</h3>'
+        + moodRow('mood','今日の気分')+moodRow('motivation','やる気')+moodRow('fatigue','疲労度')
+        + moodRow('confidence','自信')+moodRow('stress','人間関係ｽﾄﾚｽ')+moodRow('satisfaction','仕事の納得感')+'</div>'
+      + '<div class="card"><h3 style="margin:0 0 10px;font-size:15px">📝 今日の日記</h3>'
+        + ta('done','今日できたこと','小さなことでOK')+ta('issue','うまくいかなかったこと','正直に書いてみよう')
+        + ta('emotion','感情が動いた出来事','嬉しい・悔しい等')+ta('learning','今日の学び','一言でも')
+        + ta('tomorrow','明日やること','ひとつ決めよう')+ta('consult','誰かに相談したいこと','任意')+'</div>'
+    + '</div>'
+    + '<div class="card" style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap"><div class="muted" style="font-size:12.5px">入力したら、ガバショAIがすぐにフィードバックします。</div><button class="btn btn-em" id="genAI">🤖 AIコメントを受け取る</button></div>'
+    + (state.aiComment?'<div style="margin-top:16px">'+aiCommentCard(state.aiComment)+'</div>':'');
+};
+
+function aiCommentCard(c){
+  var tg=aiOn()?'<span class="pill em">AIコーチ（実Claude）</span>':'<span class="sample">AI生成（モック）</span>';
+  function hl(ic,lbl,txt,bg){ return '<div style="background:'+bg+';border-radius:12px;padding:12px 14px"><b style="font-size:11.5px;color:var(--em-dark)">'+ic+' '+lbl+'</b><div style="font-size:13.5px;font-weight:600;margin-top:2px">'+txt+'</div></div>'; }
+  return '<div class="ai"><span class="tag"><span class="dot">G</span>今日のAIコーチコメント '+tg+'</span>'
+    + '<p style="font-size:14px;margin:4px 0 14px">'+c.empathy+' '+c.analysis+'</p>'
+    + '<div class="threecol" style="grid-template-columns:1fr 1fr 1fr">'
+      + hl('🏅','今日の勝ちポイント',c.goodPoint,'#fff')
+      + hl('➡️','明日の一手',c.nextAction,'#fff')
+      + hl('⚠️','注意すべきこと',c.improvement,'var(--warn-soft)')
+    + '</div>'
+    + '<div style="display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap"><span class="pill em">今日のガバショAIスコア：'+c.score+'点</span>'+(c.coachingRecommended?'<span class="pill pink">💬 コーチング推奨</span>':'')+'</div></div>';
+}
+
+VIEWS.user.streak=function(){
+  var cells=[];
+  for(var i=34;i>=0;i--){ cells.push({ago:i, done:(i<ME.streak)|| (i%4===0 && i<34)}); }
+  var calHtml=cells.map(function(c){ return '<div class="d'+(c.done?' done':'')+(c.ago===0?' today':'')+'">'+(c.done?'✓':'')+'</div>'; }).join('');
+  var goalsHtml=GOALS.map(function(g){
+    var pct=Math.min(100,Math.round(g.current/g.target*100));
+    return '<div class="goal"><span class="em">'+g.emoji+'</span><div class="meta"><b>'+g.title+'</b> <span class="gp">'+g.current+' / '+g.target+' '+g.unit+'</span>'
+      + '<div class="pbar"><i style="width:'+pct+'%"></i></div></div>'
+      + (g.done?'<span class="pill gold">達成🎉</span>':'<button class="btn btn-soft btn-sm" data-goalup="'+g.id+'">＋進捗</button>')+'</div>';
+  }).join('');
+  function badge(e,t,s,locked){ return '<div class="bm'+(locked?' locked':'')+'"><div class="e">'+e+'</div><b>'+t+'</b><small>'+s+'</small></div>'; }
+  return pageHead('つづける（継続・目標）','毎日書いて、ダッシュボードを育て続ける。続けた分だけ、あなたの成長が積み上がります。','<span class="pill em">🔥 現在 '+ME.streak+'日連続</span>')
+    + '<div class="twocol">'
+      + '<div class="card"><h3 style="margin:0 0 4px;font-size:15px">🔥 継続カレンダー（直近5週間）</h3><p class="muted" style="margin:0 0 12px;font-size:12px">入力した日が緑になります。空白を減らしていきましょう。</p><div class="cal">'+calHtml+'</div>'
+        + '<div style="margin-top:14px;display:flex;gap:16px;flex-wrap:wrap"><span class="pill em">最長連続 '+ME.streak+'日</span><span class="pill gold">今月の入力 '+(ME.streak)+'日</span></div></div>'
+      + '<div class="card"><h3 style="margin:0 0 10px;font-size:15px">🎯 目標（毎日ふり返って更新）</h3>'+goalsHtml
+        + '<p class="muted" style="margin:12px 0 0;font-size:11.5px">「＋進捗」で日々の前進を記録。目標を達成すると、ホリプロから特別なお祝い動画が届きます。</p></div>'
+    + '</div>'
+    + '<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px;font-size:15px">🏅 継続バッジ</h3><div class="badges">'
+      + badge('🥉','継続ブロンズ','7日連続 達成',false)+badge('🔥','継続シルバー','30日連続まで あと'+(30-ME.streak)+'日',true)
+      + badge('🏆','スコア90','成長スコア90 達成で解放',true)+badge('🎬','初お祝い動画','初成約で受信',false)+'</div></div>'
+    + '<div class="card" style="margin-top:16px;background:linear-gradient(120deg,var(--em-tint),#fff)"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="font-size:34px">🌱</div><div style="flex:1;min-width:220px"><b style="font-size:15px">「続けられている」こと自体が、いちばんの成果。</b><p class="muted" style="margin:4px 0 0;font-size:13px">今日の入力もあと少し。1分でも、書けば連続記録はつながります。</p></div><button class="btn btn-em" data-goto="today">今日の入力へ →</button></div></div>';
+};
+
+VIEWS.user.ai=function(){
+  var coachName=(state.assignedCoach&&state.assignedCoach.name)||(state.msgCoach&&state.msgCoach.name)||'担当コーチ（女子アナ）';
+  // スタンドアロン（サーバー無し）はサンプル表示
+  var th = state.msgThread!==null ? state.msgThread : [
+    {from:'coach', name:coachName, text:'田中さん、今週も継続できていますね。疲れが出やすい時期なので、完璧より「最低ライン」を守れたら十分です。気になることがあれば、いつでもここから話しかけてください。'}
+  ];
+  var bubbles = th.length ? th.map(function(mm){
+    return '<div class="bubble '+(mm.from==='coach'?'coach':'me')+'"><div class="who">'+(mm.from==='coach'?(mm.name||coachName):'あなた')+'</div>'+mm.text+'</div>';
+  }).join('') : '<div class="muted" style="text-align:center;padding:24px">まだメッセージはありません。コーチからの応援が届くと、ここに表示されます。</div>';
+  // 社長・上司コメント
+  var ln=state.leaderNotes||[];
+  var leaderHtml = ln.length ? '<div class="card" style="margin-bottom:16px"><div class="vsec-h" style="margin-top:0">🏢 社長・上司からのコメント</div>'
+      + ln.map(function(n){ var pres=n.role==='president'; return '<div class="bubble coach" style="max-width:100%;background:'+(pres?'var(--gold-soft)':'var(--blue-soft)')+';border:0;margin-bottom:8px"><div class="who">'+(pres?'👔 社長':'🧑‍💼 上司')+'</div>'+n.text+'</div>'; }).join('')+'</div>' : '';
+  return pageHead('コーチからの応援','担当の女子アナ／コーチが、あなたの日記と状態を見たうえで応援メッセージを送ります。ここから直接やりとりできます。',
+      '<span class="pill pink">💌 '+coachName+'</span>')
+    + leaderHtml
+    + '<div class="card"><div class="thread">'+bubbles+'</div>'
+      + '<div class="composer"><textarea id="msgInput" placeholder="コーチへ返信する（任意）"></textarea><button class="btn btn-em" id="msgSend">送信</button></div></div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>このやりとりは「あなた」と「担当コーチ」だけが見られます。同じ会社の他のスタッフには公開されません。</div></div>'
+    + (state.aiComment?'<div style="margin-top:16px"><div class="vsec-h">🤖 今日のAIコーチコメント（自分用メモ）</div>'+aiCommentCard(state.aiComment)+'</div>':'');
+};
+
+VIEWS.user.vision=function(){
+  var v=state.vision||{};
+  function ta(key,label,ph,rows){ return '<div class="field"><label>'+label+'</label><textarea data-vision="'+key+'" rows="'+(rows||2)+'" placeholder="'+ph+'">'+(v[key]||'')+'</textarea></div>'; }
+  function inp(key,label,ph){ return '<div class="field"><label>'+label+'</label><input class="txt" data-vision="'+key+'" placeholder="'+ph+'" value="'+(v[key]||'').replace(/"/g,'&quot;')+'"></div>'; }
+  var filled=visionSummary();
+  var hero=filled
+    ? '<div class="coach-card" style="margin-bottom:16px"><span class="glow"></span><div class="av">🎯</div><div class="cc-body"><div class="label">あなたの軸</div><div class="nm" style="font-size:18px">'+(v.becomeWhat||'なりたい姿')+'</div><div class="ti">'+(v.deadline?v.deadline+'までに':'')+(v.forWhom?' ／ '+v.forWhom+'のために':'')+'</div><div class="msg">'+(v.purpose||'何のために働くか、ここに言葉にしておきましょう。')+'</div></div></div>'
+    : '<div class="card" style="margin-bottom:16px;background:linear-gradient(120deg,var(--em-tint),#fff)"><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="font-size:34px">🎯</div><div style="flex:1;min-width:220px"><b style="font-size:15px">まず「なりたい姿」を言葉にしよう。</b><p class="muted" style="margin:4px 0 0;font-size:13px">毎日の入力やAIコーチ・女子アナの応援が、この軸に向かって設計されます。</p></div></div></div>';
+  return pageHead('なりたい姿・わたしの軸','コーチングの土台になる「自分の軸」。いつまでに・どうなりたいか、何のために働くかを言葉にしておくと、毎日の一歩がブレません。',
+      '<span class="pill purple">パーソナリティスペース</span>')
+    + hero
+    + '<div class="twocol">'
+      + '<div class="card"><h3 style="margin:0 0 12px;font-size:15px">🎯 ゴール</h3>'
+        + inp('deadline','いつまでに','例：2026年12月／3年後')
+        + ta('becomeWhat','どうなりたいか（なりたい姿）','例：チームを引っ張れるトップ営業になる',3)
+        + ta('want','何が欲しいか','例：年収◯◯／裁量／自信／仲間からの信頼',2)
+      + '</div>'
+      + '<div class="card"><h3 style="margin:0 0 12px;font-size:15px">💡 意味・つながり</h3>'
+        + ta('purpose','何のために働くか','例：家族に安心を届けるため／自分の可能性を試すため',2)
+        + ta('family','家族にどう見られたいか','例：頼れる存在／背中で語れる親',2)
+        + ta('forWhom','誰のために頑張るか','例：家族／後輩／過去の自分',1)
+        + ta('values','大切にしている価値観','例：誠実さ／挑戦／感謝',1)
+      + '</div>'
+    + '</div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>この「軸」は<b>あなた</b>と<b>担当コーチ（女子アナ）</b>だけが見られます。コーチはこれを踏まえて応援・コーチングします。同じ会社の他のスタッフには公開されません。</div></div>';
+};
+
+VIEWS.user.personality=function(){
+  var P=state.personality||mockPersonality();
+  var tag=state.personality&&aiOn()?'<span class="pill em">AI生成（実Claude）</span>':'<span class="sample">'+(state.personality?'AI生成':'サンプル')+'・自己理解の支援が目的</span>';
+  var btn='<button class="btn btn-em btn-sm" id="genPersona">🤖 '+(aiOn()?'AIで診断する':'診断を生成')+'</button>';
+  return pageHead('パーソナリティ診断','日記・気分・行動からAIが分析した、自己理解とコーチングのための傾向です。', tag+' '+btn)
+    + '<div class="ptype" style="margin-bottom:16px"><span class="em">'+ME.emoji+'</span><div><b>あなたのタイプ：'+P.salesType+'</b><br><small>'+P.salesType+' × '+P.growthType+'（医療・人格診断ではありません）</small></div></div>'
+    + '<div class="twocol">'
+      + '<div class="card"><h3 style="margin:0 0 10px;font-size:14px">強み</h3><div class="chips">'+P.strengths.map(function(s){return '<span class="chip">'+s+'</span>';}).join('')+'</div></div>'
+      + '<div class="card"><h3 style="margin:0 0 10px;font-size:14px">課題</h3><div class="chips">'+P.weaknesses.map(function(s){return '<span class="chip w">'+s+'</span>';}).join('')+'</div></div>'
+    + '</div>'
+    + '<div class="card" style="margin-top:14px"><div class="deflist">'
+      + defit('ストレス時の傾向',P.stressPattern)
+      + defit('伸びる環境',P.bestEnvironment)
+      + defit('上司からの接し方',P.managerAdvice)
+      + defit('本人へのおすすめ行動',P.recommendedActions.join('／'))
+    + '</div></div>';
+};
+
+VIEWS.user.score=function(){
+  var gs=growthScore();
+  function bar(label,v){ return '<div class="bar"><span>'+label+'</span><div class="track"><div class="fill" style="width:'+v+'%"></div></div><span>'+v+'</span></div>'; }
+  var aiLine=state.aiComment?'今週は継続力が高く、自己理解も伸びています。一方で疲労がたまりやすいので、明日は行動量より回復を優先しましょう。':'入力を続けると、AIコーチが「今週の伸びポイント」と「次に伸ばす項目」を毎週コメントします。';
+  return pageHead('成長スコア','続けた行動と状態を、数字で可視化。人の価値ではなく「状態」を見える化します。','<span class="sample">人格や人の価値は評価しません</span>')
+    + '<div class="card"><div class="score-big"><div class="ring" style="--p:'+gs.total+'"><div class="in"><b>'+gs.total+'</b><small>総合スコア</small></div></div>'
+      + '<div style="flex:1;min-width:200px"><div class="deltas" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px"><span class="pill em">昨日比 +'+gs.dod+'</span><span class="pill gold">今週の伸び率 +'+gs.wow+'%</span></div>'
+      + '<div class="bars">'+gs.items.map(function(it){return bar(it[0],it[1]);}).join('')+'</div></div></div></div>'
+    + '<div class="ai" style="margin-top:14px"><span class="tag"><span class="dot">G</span>AIコーチコメント</span><p style="font-size:13.5px;margin:4px 0 0">'+aiLine+'</p></div>'
+    + '<div class="twocol" style="margin-top:14px"><div class="card"><h3 style="margin:0 0 6px;font-size:14px">今週の成長スコア推移</h3>'+sparkline(SCORE_TREND)+'</div><div class="card"><h3 style="margin:0 0 6px;font-size:14px">今週の気分推移</h3>'+sparkline(MOOD_TREND)+'</div></div>';
+};
+
+VIEWS.user.videos=function(){
+  var unread=MY_VIDEOS.filter(function(v){return v.status==='unread';}).length;
+  var nr=nextReward(); var rv=rewardVideos();
+  // 解放済み（届いた動画）
+  var openCards=MY_VIDEOS.map(function(v){
+    return '<div class="vcard" data-playvideo="'+v.id+'"><div class="thumb">'+(v.status==='unread'?'<span class="unread">NEW</span>':'')+'<span class="trophy">🏆</span><div class="play">▶</div></div>'
+      + '<div class="vb"><b>'+v.title+'</b><small>'+v.talent+' ／ '+v.reason+'</small></div></div>';
+  }).join('');
+  // もうすぐ解放（通常・未解放）
+  var lockedCards=rv.filter(function(v){return !v.isUnlocked && !v.premium;}).map(function(v){
+    return '<div class="vcard locked" data-locktoast="あと'+v.remain+v.unit+'で「'+v.title+'」が解放されます"><div class="thumb">'+v.emoji+'<div class="lock"><div class="k">🔒</div><div class="rem">あと'+v.remain+v.unit+'で解放</div></div></div>'
+      + '<div class="vb"><b>'+v.title+'</b><small>'+v.coachName+' ／ '+v.cond+'</small></div></div>';
+  }).join('');
+  // プレミアム
+  var premCards=rv.filter(function(v){return v.premium;}).map(function(v){
+    var locked=!v.isUnlocked;
+    return '<div class="vcard prem'+(locked?' locked':'')+'" '+(locked?'data-locktoast="プレミアム動画「'+v.title+'」は特別達成で解放されます"':'data-goto="streak"')+'><div class="thumb"><span class="prem-badge">PREMIUM</span><span class="trophy">🏆</span>'+v.emoji+(locked?'<div class="lock"><div class="k">🔒</div><div class="rem">'+v.cond+'で解放</div></div>':'<div class="play">▶</div>')+'</div>'
+      + '<div class="vb"><b>'+v.title+'</b><small>'+v.coachName+' ／ '+v.cond+'</small></div></div>';
+  }).join('');
+  var summary='<div class="vsum">'
+    + '<div class="s"><b>'+unread+'</b><small>未読の応援動画</small></div>'
+    + '<div class="s"><b>'+(nr?'あと'+nr.remain+nr.unit:'解放準備OK')+'</b><small>次の動画まで</small></div>'
+    + '<div class="s"><b>🔥 '+ME.streak+'日</b><small>現在の連続日数</small></div>'
+    + '<div class="s"><b>'+(nr?nr.cond:'—')+'</b><small>次の達成条件</small></div></div>';
+  return pageHead('応援動画BOX','続けるほど、憧れの伴走者から特別な動画が届く。あなたへのご褒美コンテンツです。','<span class="pill pink">'+unread+'件 未読</span>')
+    + summary
+    + (nr?'<div class="card" style="margin-bottom:8px;background:linear-gradient(120deg,var(--gold-soft),#fff);border-color:#eedfb4"><b style="font-size:14px">🎁 次の動画まで、あと'+nr.remain+nr.unit+'</b><span class="muted" style="font-size:12.5px;margin-left:8px">'+nr.cond+'で「'+nr.title+'」（'+nr.coachName+'）が届きます。</span></div>':'')
+    + '<div class="vsec-h">📬 解放済みの動画</div>'
+    + (MY_VIDEOS.length?'<div class="vbox">'+openCards+'</div>':'<div class="card muted">まだ届いた動画はありません。続けて最初の1本を解放しましょう。</div>')
+    + (lockedCards?'<div class="vsec-h">⏳ もうすぐ解放</div><div class="vbox">'+lockedCards+'</div>':'')
+    + '<div class="vsec-h">👑 プレミアム応援動画</div><div class="vbox">'+premCards+'</div>';
+};
+
+VIEWS.user.league=function(){
+  var L=state.league;
+  if(!L){ return pageHead('リーグ・ランキング','週次でリセットされるチームリーグ。上位は昇格、勝ち続けて称号を上げよう。','<span class="sample">サーバー版で順位反映</span>')
+    + '<div class="card muted">ログイン環境（サーバー版）でランキングが表示されます。</div>'; }
+  var me=L.me||{rank:'—',points:0,title:'🌱 ルーキー'};
+  var rows=(L.board||[]).map(function(r){
+    var promo=r.rank<=L.promoteLine; var cls=r.isMe?'on':'';
+    var medal=r.rank===1?'🥇':r.rank===2?'🥈':r.rank===3?'🥉':r.rank;
+    return '<a class="'+cls+'" style="cursor:default"><span class="pos" style="width:30px;font-weight:900;text-align:center;flex:0 0 auto">'+medal+'</span>'
+      + '<div style="flex:1;min-width:0"><b style="font-size:13.5px">'+r.label+'</b> '+(r.isMe?'<span class="pill em" style="margin-left:4px">あなた</span>':'')+'<br><span class="muted" style="font-size:11px">'+r.title+'</span></div>'
+      + '<div style="text-align:right"><b style="font-size:15px;color:var(--em-deep)">'+r.points+'</b><span class="muted" style="font-size:11px"> pt</span>'+(promo?'<div style="font-size:10px;color:#8a6a14;font-weight:800">昇格圏</div>':'')+'</div></a>';
+  }).join('');
+  return pageHead('リーグ・ランキング','週次リセットのチームリーグ。今日の入力・成約でポイントが貯まり、順位と称号が上がります。','<span class="pill purple">'+me.title+'</span>')
+    + '<div class="hero-strip">'
+      + '<div class="coach-card"><span class="glow"></span><div class="av">🏆</div><div class="cc-body"><div class="label">あなたの順位</div><div class="nm" style="font-size:24px">'+me.rank+'位 / '+L.total+'人</div><div class="ti">'+me.title+'　'+me.points+' pt</div>'
+        + (L.rival&&L.rival.gap>0?'<div class="msg">⚔️ ライバルまであと <b style="color:#E0B14A">'+L.rival.gap+' pt</b>。今日の一手で逆転しよう。</div>':'<div class="msg">🥇 首位キープ中！この勢いを切らさないで。</div>')+'</div></div>'
+      + '<div class="score-card"><div class="lab">昇格ライン</div><div class="big" style="font-size:30px">上位'+L.promoteLine+'人</div><div class="deltas"><span class="muted" style="font-size:12px">週末にリセット＆順位確定。上位は昇格、称号アップ。</span></div></div>'
+    + '</div>'
+    + '<div class="card"><h3 style="margin:0 0 10px;font-size:15px">🏅 今週のリーグ表</h3><div class="mlist">'+rows+'</div>'
+      + '<p class="muted" style="margin:10px 0 0;font-size:11.5px">他メンバーは匿名表示（順位・ポイントのみ）。日記の内容は誰にも公開されません。</p></div>'
+    + '<div class="card" style="margin-top:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="font-size:30px">🤝</div><div style="flex:1;min-width:220px"><b>成約でポイント大幅アップ</b><p class="muted" style="margin:3px 0 0;font-size:12.5px">CRM（kintone）と連携し、成約1件ごとに+50pt＆女子アナのお祝い動画。</p></div><button class="btn btn-gold" id="dealBtn">🤝 成約を登録（kintone連携）</button></div>';
+};
+
+VIEWS.user.coaching=function(){
+  return pageHead('コーチング予約','ホリプロ所属のコーチ／アナウンサーが、AI分析をもとにあなたを応援します。')
+    + '<div class="card" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div style="font-size:40px">💬</div><div style="flex:1;min-width:220px"><b style="font-size:15px">オンライン面談をリクエスト</b><p class="muted" style="margin:4px 0 0;font-size:13px">あなたのパーソナリティ診断と最近の状態を、コーチが事前に確認したうえで面談します。</p></div><button class="btn btn-em" id="reqCoach">コーチングを希望する</button></div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>コーチに共有されるのは「面談に必要なAI要約・傾向・本人が共有を許可した内容」のみです。日記の全文は本人だけが閲覧できます。</div></div>';
+};
+
+VIEWS.user.history=function(){
+  var rows=['今日','昨日','2日前','3日前','4日前'].map(function(d,i){
+    return '<tr><td>'+d+'</td><td>'+EMOJI5[[3,3,2,2,1][i]]+'</td><td><b>'+[82,79,76,74,71][i]+'</b></td><td class="muted">'+['商談前準備を3つ書き出した','上司に1つ相談した','焦りを言語化できた','行動を止めずに振り返った','課題を他責にせず振り返った'][i]+'</td></tr>';
+  }).join('');
+  return pageHead('これまでの履歴','あなたの成長の足あとです。')+'<table class="tbl"><thead><tr><th>日付</th><th>気分</th><th>スコア</th><th>その日のひとこと</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+
+/* ===================== 会社管理者 ===================== */
+VIEWS.admin.dashboard=function(){
+  var followers=MEMBERS.filter(function(m){return m.flags.length>0;});
+  var submittedToday=MEMBERS.filter(function(m){return m.submit[m.submit.length-1]===1;}).length;
+  var avgMood=(MEMBERS.reduce(function(a,m){return a+m.mood[m.mood.length-1];},0)/MEMBERS.length);
+  var avgScore=Math.round(MEMBERS.reduce(function(a,m){return a+m.score;},0)/MEMBERS.length);
+  var coachReq=MEMBERS.filter(function(m){return m.coach;}).length;
+  var achievers=MEMBERS.filter(function(m){return m.achiever;}).length;
+  var followHtml=followers.map(function(m){
+    return '<div class="row"><div class="av-c">'+avatarText(m.name)+'</div><div><div class="nm">'+m.name+' <span class="muted" style="font-weight:600;font-size:11px">／'+m.dept+'</span></div><div class="reason">⚠ '+m.flags.join('・')+'</div></div><div class="act"><button class="btn btn-soft btn-sm" data-member="'+m.id+'">詳細</button>'+(m.coach?'<button class="btn btn-ghost btn-sm" data-arrange="'+m.id+'">面談手配</button>':'')+'</div></div>';
+  }).join('');
+  return pageHead('会社ダッシュボード','株式会社ネクステージ ／ '+MEMBERS.length+'名 ・ 営業組織のコンディションを見える化','<span class="pill em">本日 '+submittedToday+'/'+MEMBERS.length+' 名 入力済み</span>')
+    + '<div class="follow"><h2>🚑 今日フォローすべき人 <span class="pill warn" style="margin-left:4px">'+followers.length+'名</span></h2><p class="muted" style="margin:0 0 6px;font-size:12px">AIが気分低下・未提出・スコア急落・面談希望などから自動で抽出しています。</p>'+followHtml+'</div>'
+    + '<div class="kpis">'+kpi('👥',MEMBERS.length,'メンバー数','')+kpi('📝',submittedToday,'本日の日記提出','')+kpi('😊',avgMood.toFixed(1),'平均気分スコア','b')+kpi('📈',avgScore,'平均成長スコア','')+'</div>'
+    + '<div class="kpis" style="margin-top:14px">'+kpi('🚑',followers.length,'フォロー必要人数','p')+kpi('🙋',coachReq,'コーチング希望者','p')+kpi('🏆',achievers,'今月の達成者','g')+kpi('🎬',achievers,'動画表彰 対象者','g')+'</div>'
+    + '<div class="twocol" style="margin-top:16px"><div class="card"><h3 style="margin:0 0 6px;font-size:14px">組織の平均成長スコア（今週）</h3>'+sparkline(SCORE_TREND)+'</div><div class="card"><h3 style="margin:0 0 6px;font-size:14px">組織の平均気分（今週）</h3>'+sparkline(MOOD_TREND)+'</div></div>'
+    + '<div class="card" style="margin-top:16px"><h3 style="margin:0 0 4px;font-size:15px">🤖 AIアラートと推奨アクション</h3><p class="muted" style="margin:0 0 8px;font-size:12px">未入力・疲労・気分低下・ネガティブ傾向・スコア急落をAIが検知し、上司向けの声かけ例まで提案します。</p>'
+      + memberAlerts().map(function(a){
+          return '<div class="alertrow"><span class="lv '+a.level+'">'+({high:'高',medium:'中',low:'低'}[a.level])+'</span>'
+            + '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px">'+a.message+'</div>'
+            + '<div class="rec">💬 推奨：'+a.rec+'</div></div>'
+            + '<div class="act"><button class="btn btn-soft btn-sm" data-member="'+a.m.id+'">詳細</button>'+(a.m.coach?'<button class="btn btn-ghost btn-sm" data-arrange="'+a.m.id+'">面談手配</button>':'')+(a.m.achiever?'':'<button class="btn btn-gold btn-sm" data-sendvideo="'+a.m.id+'">🎬 応援動画</button>')+'</div></div>';
+        }).join('')
+    + '</div>';
+};
+VIEWS.admin.members=function(){
+  var rows=MEMBERS.map(function(m){
+    var status=m.submit[m.submit.length-1]===1?'<span class="pill em">提出済み</span>':'<span class="pill warn">未提出</span>';
+    var flag=m.flags.length?'<span class="pill warn">要フォロー</span>':(m.achiever?'<span class="pill gold">達成者</span>':'<span class="muted">―</span>');
+    return '<tr class="clickable" data-member="'+m.id+'"><td><div class="nmcell"><div class="av">'+avatarText(m.name)+'</div><div><b>'+m.name+'</b><br><span class="muted" style="font-size:11px">'+m.dept+'</span></div></div></td><td>'+status+'</td><td>'+EMOJI5[m.mood[m.mood.length-1]]+'</td><td><b>'+m.score+'</b></td><td>'+trendIcon(m.trend)+'</td><td>'+flag+'</td></tr>';
+  }).join('');
+  return pageHead('メンバー一覧','クリックで詳細（プライバシーに配慮した共有範囲のみ表示）。')
+    + '<table class="tbl"><thead><tr><th>メンバー</th><th>本日の提出</th><th>気分</th><th>成長スコア</th><th>傾向</th><th>状態</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>会社管理者に表示されるのは「提出有無・スコア傾向・フォロー推奨・本人が共有許可した内容・面談希望」です。日記の全文や詳細な感情記録は本人のみが閲覧できます。</div></div>';
+};
+VIEWS.admin.memberDetail=function(){
+  var m=state.selectedMember; if(!m) return VIEWS.admin.members();
+  return pageHead(m.name,m.dept+' ／ メンバー詳細','<button class="btn btn-ghost btn-sm" data-view="members">← 一覧へ</button>')
+    + '<div class="twocol"><div class="card"><h3 style="margin:0 0 12px;font-size:14px">コンディション（共有範囲）</h3><div class="deflist">'
+      + defit('本日の提出',m.submit[m.submit.length-1]===1?'提出済み':'未提出')
+      + defit('直近の気分',EMOJI5[m.mood[m.mood.length-1]]+'（傾向：'+(m.trend==='down'?'低下':m.trend==='up'?'良好':'横ばい')+'）')
+      + defit('成長スコア',m.score+' 点 ／ '+trendIcon(m.trend))
+      + defit('フォロー推奨',m.flags.length?('⚠ '+m.flags.join('・')):'特になし')
+      + defit('面談希望',m.coach?'あり（コーチング手配を推奨）':'なし')+'</div></div>'
+      + '<div class="card"><h3 style="margin:0 0 6px;font-size:14px">成長スコア推移</h3>'+sparkline(SCORE_TREND)+'<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold btn-sm" data-sendvideo="'+m.id+'">🎬 動画で称える</button>'+(m.coach?'<button class="btn btn-ghost btn-sm" data-arrange="'+m.id+'">💬 面談を手配</button>':'')+'</div></div></div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>日記の全文・詳細な感情記録は表示されません（本人のみ閲覧）。本人が共有を許可した要約のみがコーチ／上司に渡ります。</div></div>';
+};
+VIEWS.admin.leaders=function(){
+  if(!SERVER){ return pageHead('社長・上司コメント','本機能はサーバー版で動作します。','<span class="sample">サーバー版で利用</span>')+'<div class="card muted">スタンドアロンのデモでは各スタッフへ投稿できません。</div>'; }
+  var ms=state.coachMembers||[];
+  var list=ms.map(function(m){ var on=state.coachSel&&state.coachSel.member.id===m.id; return '<a class="'+(on?'on':'')+'" data-coachpick="'+m.id+'"><span class="av">'+(m.name||'?').charAt(0)+'</span><div style="min-width:0"><b style="font-size:13.5px">'+m.name+'</b><br><span class="muted" style="font-size:11px">🔥'+m.streak+'日</span></div></a>'; }).join('');
+  var right='<div class="card muted">左からスタッフを選んでください。</div>';
+  if(state.coachSel){ var s=state.coachSel,d=s.data||{}; var ln=d.leaderNotes||[];
+    var notes=ln.length?ln.map(function(n){var pres=n.role==='president';return '<div class="bubble coach" style="max-width:100%;background:'+(pres?'var(--gold-soft)':'var(--blue-soft)')+';border:0;margin-bottom:8px"><div class="who">'+(pres?'👔 社長':'🧑‍💼 上司')+'</div>'+n.text+'</div>';}).join(''):'<div class="muted" style="font-size:12.5px;padding:8px 0">まだコメントはありません。</div>';
+    right='<div class="card"><b style="font-size:15px">'+s.member.name+'</b>'
+      +'<div class="vsec-h">これまでのコメント</div>'+notes
+      +'<div class="field" style="margin-top:12px"><label>👔 社長からのコメント</label><textarea id="presInput" rows="2" placeholder="例：君の挑戦を会社は本気で応援している。"></textarea><div><button class="btn btn-gold btn-sm" id="postPres" style="margin-top:6px">社長コメントを投稿</button></div></div>'
+      +'<div class="field"><label>🧑‍💼 上司からのコメント</label><textarea id="bossInput" rows="2" placeholder="例：先週の動き良かった。今週も1個ずつ積もう。"></textarea><div><button class="btn btn-em btn-sm" id="postBoss" style="margin-top:6px">上司コメントを投稿</button></div></div></div>';
+  }
+  return pageHead('社長・上司コメント','社長・上司から各スタッフへ一言。本人とコーチ（女子アナ）に共有され、応援・コーチングに活きます。')
+    +'<div class="twocol" style="grid-template-columns:.7fr 1.3fr"><div class="card"><h3 style="margin:0 0 10px;font-size:14px">スタッフ</h3><div class="mlist">'+(list||'<div class="muted">スタッフがいません</div>')+'</div></div><div>'+right+'</div></div>';
+};
+VIEWS.admin.analytics=function(){
+  function bar(label,v){ return '<div class="bar"><span>'+label+'</span><div class="track"><div class="fill" style="width:'+v+'%"></div></div><span>'+v+'</span></div>'; }
+  var depts=[['第一営業部',71],['第二営業部',84],['第三営業部',69]];
+  return pageHead('スコア・気分分析','組織全体の傾向。誰をフォローすべきかの判断材料に。')
+    + '<div class="twocol"><div class="card"><h3 style="margin:0 0 6px;font-size:14px">平均成長スコア（今週）</h3>'+sparkline(SCORE_TREND)+'</div><div class="card"><h3 style="margin:0 0 6px;font-size:14px">平均気分（今週）</h3>'+sparkline(MOOD_TREND)+'</div></div>'
+    + '<div class="card" style="margin-top:14px"><h3 style="margin:0 0 12px;font-size:14px">部署別 平均成長スコア</h3><div class="bars">'+depts.map(function(d){return bar(d[0],d[1]);}).join('')+'</div></div>'
+    + '<div class="card" style="margin-top:14px"><h3 style="margin:0 0 8px;font-size:14px">日報提出率（今週）</h3><div class="score-big"><div class="ring" style="--p:86"><div class="in"><b>86<small style="font-size:14px">%</small></b><small>提出率</small></div></div><div class="muted" style="font-size:13px">先週比 +8pt。未提出が続くメンバーは「今日フォローすべき人」に自動表示されます。</div></div></div>';
+};
+VIEWS.admin.coachreq=function(){
+  var reqs=MEMBERS.filter(function(m){return m.coach;});
+  var rows=reqs.map(function(m){return '<tr class="clickable" data-member="'+m.id+'"><td><div class="nmcell"><div class="av">'+avatarText(m.name)+'</div><b>'+m.name+'</b></div></td><td>'+m.dept+'</td><td><b>'+m.score+'</b></td><td>'+(m.flags.length?'<span class="pill warn">'+m.flags[0]+'</span>':'<span class="pill blue">本人希望</span>')+'</td><td><button class="btn btn-em btn-sm" data-arrange="'+m.id+'">面談を手配</button></td></tr>';}).join('');
+  return pageHead('コーチング希望者','ホリプロ側コーチへの面談手配を行います（AI事前分析つき）。','<span class="pill pink">'+reqs.length+'名 希望中</span>')
+    + (reqs.length?'<table class="tbl"><thead><tr><th>メンバー</th><th>部署</th><th>スコア</th><th>きっかけ</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>':'<div class="card muted">現在コーチング希望者はいません。</div>')
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>コーチには面談に必要なAI要約・パーソナリティ傾向・注意点・本人が許可した日記要約のみが共有されます。</div></div>';
+};
+VIEWS.admin.risk=function(){
+  var sorted=MEMBERS.slice().sort(function(a,b){var o={hi:0,mid:1,lo:2};return o[a.risk]-o[b.risk];});
+  var rows=sorted.map(function(m){
+    var lbl={hi:'高',mid:'中',lo:'低'}[m.risk];
+    return '<div class="listrow"><div class="av-c">'+avatarText(m.name)+'</div><div><div class="nm">'+m.name+' <span class="muted" style="font-weight:600;font-size:11px">／'+m.dept+'</span></div><div class="muted" style="font-size:12px">'+(m.flags.length?m.flags.join('・'):'安定して入力・成果が出ています')+'</div></div><div class="act"><span class="risk '+m.risk+'">リスク '+lbl+'</span>'+(m.risk!=='lo'?'<button class="btn btn-soft btn-sm" data-member="'+m.id+'">対応</button>':'')+'</div></div>';
+  }).join('');
+  return pageHead('離職リスクアラート','気分低下・未提出・スコア急落・目標未達からAIがリスクを推定（あくまで早期フォローの目安）。','<span class="sample">AI推定（モック）・人事評価には使いません</span>')
+    + '<div class="card alert">'+rows+'</div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>リスク表示はフォローのための目安です。スコアのみで人事評価を行わない・本人非同意の監視をしない設計です。</div></div>';
+};
+VIEWS.admin.awards=function(){
+  var targets=MEMBERS.filter(function(m){return m.achiever||m.score>=78;});
+  var rows=targets.map(function(m){
+    var reason=m.achiever?'月間目標達成':'成長スコア急上昇';
+    return '<div class="listrow" style="border-color:var(--line)"><div class="av-c">'+avatarText(m.name)+'</div><div><div class="nm">'+m.name+'</div><div class="muted" style="font-size:12px">'+reason+' ／ スコア '+m.score+'</div></div><div class="act"><span class="pill gold">対象</span><button class="btn btn-gold btn-sm" data-sendvideo="'+m.id+'">🎬 お祝い動画を送る</button></div></div>';
+  }).join('');
+  return pageHead('動画表彰管理','達成者へ、ホリプロ所属タレントからのお祝い動画を送ります（自動トリガー＋手動指定）。')
+    + '<div class="card" style="margin-bottom:14px;display:flex;gap:14px;flex-wrap:wrap"><div class="threecol" style="flex:1;width:100%"><div class="kpi g"><div class="ic">🏆</div><div class="n">'+MEMBERS.filter(function(m){return m.achiever;}).length+'</div><div class="l">今月の達成者</div></div><div class="kpi"><div class="ic">📤</div><div class="n">12</div><div class="l">今月の送信数</div></div><div class="kpi p"><div class="ic">▶</div><div class="n">94%</div><div class="l">再生率</div></div></div></div>'
+    + '<div class="card">'+rows+'</div>'
+    + '<div class="card" style="margin-top:14px"><b style="font-size:13.5px">⚡ 自動トリガー設定</b><div class="chips" style="margin-top:10px">'+['月間目標達成','初成約','日記30日連続','成長スコア90↑','前月比大幅改善','チームMVP'].map(function(s){return '<span class="chip">'+s+' ON</span>';}).join('')+'</div><p class="muted" style="margin:10px 0 0;font-size:12px">条件を満たすと自動でお祝い動画の収録依頼がコーチへ飛びます。</p></div>';
+};
+VIEWS.admin.ranking=function(){
+  var sorted=MEMBERS.slice().sort(function(a,b){return b.score-a.score;});
+  var rows=sorted.map(function(m,i){
+    var p=i+1; var cls=p===1?'p1':p===2?'p2':p===3?'p3':'';
+    var medal=p===1?'🥇':p===2?'🥈':p===3?'🥉':'';
+    return '<div class="listrow rank" style="border-color:var(--line)"><div class="pos '+cls+'">'+(medal||p)+'</div><div class="av-c">'+avatarText(m.name)+'</div><div><div class="nm">'+m.name+' <span class="muted" style="font-weight:600;font-size:11px">／'+m.dept+'</span></div><div class="muted" style="font-size:12px">'+trendIcon(m.trend)+'</div></div><div class="act"><b style="font-size:16px;color:var(--em-deep)">'+m.score+'</b>'+(p<=3?'<button class="btn btn-gold btn-sm" data-sendvideo="'+m.id+'">称える</button>':'')+'</div></div>';
+  }).join('');
+  return pageHead('チームランキング','成長スコアでの今月ランキング（称え合う文化づくりのために）。','<span class="sample">人格ではなく行動・状態の指標です</span>')
+    + '<div class="card">'+rows+'</div>';
+};
+VIEWS.admin.settings=function(){
+  return pageHead('会社設定','プロトタイプのため項目はサンプルです。')
+    + '<div class="card"><div class="deflist">'+defit('会社名','株式会社ネクステージ')+defit('業種','人材・営業支援')+defit('契約プラン','Growth（〜50名）')+defit('登録メンバー数',MEMBERS.length+'名')+defit('管理者','営業企画 管理者')+'</div></div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>センシティブ情報（日記・気分）の共有範囲はロールごとに制御されます。本人非同意の監視は行いません。</div></div>';
+};
+
+/* ===================== コーチ / ホリプロ ===================== */
+function aiBrief(u){
+  return {
+    summary: u.name+'さん（'+u.position+'）。タイプは「'+u.salesType+'」。直近は'+u.state+'。目標は「'+u.goal+'」。',
+    personality: u.salesType+'。結果志向で、悔しさを力に変えやすい一方、うまくいかない時に抱え込みやすい傾向。',
+    moodTrend: u.mood.map(function(v){return EMOJI5[v];}).join(' → '),
+    praise:['毎日の振り返りを継続できている','課題を他責にせず自分の行動として捉えている','目標に対して真剣に向き合っている'],
+    questions:['今、一番伸ばしたいと思っている部分はどこですか？','最近「少し変われたかも」と思えた出来事はありますか？','うまくいかない時、誰かに相談できていますか？'],
+    avoid:['結果だけを問い詰める','他者と比較して詰める','「気合が足りない」と精神論で返す'],
+    push:'今の悔しさは、ちゃんと伸びる材料になっています。焦らず、でも止まらずにいきましょう。'
+  };
+}
+VIEWS.coach.messages=function(){
+  if(!SERVER){ return pageHead('応援メッセージ','本機能はログイン環境（サーバー版）で動作します。','<span class="sample">サーバー版で利用</span>')
+    + '<div class="card muted">スタンドアロンのデモでは担当スタッフのデータに接続できません。サーバー版（/api）でご利用ください。</div>'; }
+  var ms=state.coachMembers||[];
+  var list=ms.map(function(m){
+    var on=state.coachSel&&state.coachSel.member.id===m.id;
+    var badge=m.lastFrom==='member'?'<span class="pill pink" style="margin-left:auto">要返信</span>':(m.msgCount?'<span class="pill em" style="margin-left:auto">'+m.msgCount+'</span>':'<span class="muted" style="margin-left:auto;font-size:11px">未送信</span>');
+    return '<a class="'+(on?'on':'')+'" data-coachpick="'+m.id+'"><span class="av">'+(m.name||'?').charAt(0)+'</span><div style="min-width:0"><b style="font-size:13.5px">'+m.name+'</b><br><span class="muted" style="font-size:11px">🔥'+m.streak+'日 ／ スコア'+(m.score||'—')+'</span></div>'+badge+'</a>';
+  }).join('');
+  var right='<div class="card muted">左から担当スタッフを選んでください。</div>';
+  if(state.coachSel){
+    var s=state.coachSel, d=s.data||{};
+    var th=s.messages||[];
+    var bubbles=th.length?th.map(function(mm){ return '<div class="bubble '+(mm.from==='coach'?'me':'coach')+'"><div class="who">'+(mm.from==='coach'?'あなた（コーチ）':s.member.name)+'</div>'+mm.text+'</div>'; }).join('')
+      :'<div class="muted" style="text-align:center;padding:20px">まだやりとりはありません。最初の応援メッセージを送りましょう。</div>';
+    var diary=[d.diary&&d.diary.done&&('できたこと：'+d.diary.done), d.diary&&d.diary.issue&&('課題：'+d.diary.issue), d.diary&&d.diary.consult&&('相談：'+d.diary.consult)].filter(Boolean).join(' ／ ')||'（日記未入力）';
+    right='<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="av-c">'+s.member.name.charAt(0)+'</span><div><b style="font-size:15px">'+s.member.name+'</b><br><span class="muted" style="font-size:11.5px">🔥'+(d.streak||0)+'日連続 ／ 成長スコア'+(d.aiComment?d.aiComment.score:'—')+'</span></div></div>'
+      + (function(){ var v=d.vision||{}; var vl=[v.becomeWhat&&('なりたい姿：'+v.becomeWhat+(v.deadline?'（'+v.deadline+'）':'')), v.purpose&&('働く目的：'+v.purpose), v.family&&('家族に：'+v.family), v.forWhom&&('誰のために：'+v.forWhom), v.want&&('欲しいもの：'+v.want)].filter(Boolean).join(' ／ '); return vl?'<div class="rec" style="background:#FBF3DF;border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:8px">🎯 この人の軸：'+vl+'</div>':''; })()
+      + '<div class="rec" style="background:var(--bg-soft);border-radius:10px;padding:8px 12px;font-size:12.5px">📋 最近の状態：'+diary+'</div>'
+      + '<div class="thread" style="margin-top:12px">'+bubbles+'</div>'
+      + '<div class="composer"><textarea id="coachInput" placeholder="応援メッセージを書く（AIで下書きも可）"></textarea></div>'
+      + '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-ghost" id="coachDraft">🤖 AIで下書き</button><button class="btn btn-em" id="coachSendBtn">この内容で送信</button></div></div>';
+  }
+  return pageHead('応援メッセージ','担当スタッフ（最大4名）へ、状態を見ながら応援メッセージを送れます。AIが下書きも作成します。',
+      '<span class="pill purple">担当 '+ms.length+'名</span>')
+    + '<div class="twocol" style="grid-template-columns:.7fr 1.3fr"><div class="card"><h3 style="margin:0 0 10px;font-size:14px">担当スタッフ</h3><div class="mlist">'+(list||'<div class="muted">担当スタッフがいません</div>')+'</div></div>'
+    + '<div>'+right+'</div></div>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>コーチ（あなた）は担当スタッフ全員の日記・状態・スレッドを閲覧できます。スタッフ同士は互いの内容を見られません。</div></div>';
+};
+
+VIEWS.coach.profiles=function(){
+  if(!SERVER){ return pageHead('スタッフの仕事スタイル','本機能はサーバー版で動作します。','<span class="sample">サーバー版で利用</span>')+'<div class="card muted">サーバー版でスタッフのプロフィール（仕事スタイル）を確認できます。</div>'; }
+  var ms=state.coachMembers||[];
+  var list=ms.map(function(m){ var on=state.coachSel&&state.coachSel.member.id===m.id; return '<a class="'+(on?'on':'')+'" data-coachpick="'+m.id+'"><span class="av">'+(m.name||'?').charAt(0)+'</span><div style="min-width:0"><b style="font-size:13.5px">'+m.name+'</b><br><span class="muted" style="font-size:11px">🔥'+m.streak+'日</span></div></a>'; }).join('');
+  var right='<div class="card muted">左からスタッフを選ぶと、仕事スタイルが表示されます。</div>';
+  if(state.coachSel){ var s=state.coachSel,d=s.data||{}; var ob=d.onboarding||{}, v=d.vision||{}, ln=d.leaderNotes||[];
+    var tags=(ob.topAxes||[]).map(function(a){ var ja={compete:'勝ち負けで燃える',approval:'承認で伸びる',growth:'成長志向',reward:'報酬・地位',relation:'チーム志向',purpose:'意義重視',stability:'継続型',empathy:'対話・共感型',challenge:'挑戦型',selfdrive:'自分軸'}; return '<span class="chip">'+(ja[a]||a)+'</span>'; }).join('');
+    var howto = (ob.topAxes&&ob.topAxes[0]) ? ({compete:'勝負・短期目標・ランキングで燃える。詰めるより「勝てる環境」を渡す。',approval:'こまめな承認と「見ているよ」が効く。結果より過程も褒める。',growth:'学び・伸びしろを示すと動く。フィードバックは前向きに。',reward:'目標と見返りを具体に。達成の地位・報酬イメージを描く。',relation:'チーム・仲間文脈で励ます。一緒に喜ぶ瞬間を作る。',purpose:'「何のために」を一緒に言語化。意義に結びつける。',stability:'淡々と続けられる仕組みを評価。急かさない。',empathy:'まず気持ちを聞く。共感先行・厳しさは控えめに。',challenge:'新しい挑戦・刺激を提示。失敗OKの空気で背中を押す。',selfdrive:'任せて選ばせる。細かい指示は避け裁量を渡す。'}[ob.topAxes[0]]) : 'まずは100問診断を案内し、ペルソナを把握しましょう。';
+    var notes=ln.length?ln.map(function(n){var pres=n.role==='president';return '<div class="bubble coach" style="max-width:100%;background:'+(pres?'var(--gold-soft)':'var(--blue-soft)')+';border:0;margin-bottom:6px"><div class="who">'+(pres?'👔 社長':'🧑‍💼 上司')+'</div>'+n.text+'</div>';}).join(''):'<span class="muted" style="font-size:12px">なし</span>';
+    right='<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="av-c">'+s.member.name.charAt(0)+'</span><div><b style="font-size:15px">'+s.member.name+'</b><br><span class="muted" style="font-size:11.5px">'+(ob.persona||'診断未完了')+' ／ 🔥'+(d.streak||0)+'日</span></div></div>'
+      + '<div class="vsec-h" style="margin-top:6px">タイプ</div><div class="chips">'+(tags||'<span class="muted" style="font-size:12px">診断未完了</span>')+'</div>'
+      + '<div class="vsec-h">🎯 なりたい姿・軸</div><div class="deflist">'+defit('なりたい姿',v.becomeWhat||'未記入')+defit('働く目的',v.purpose||'未記入')+defit('家族に',v.family||'未記入')+defit('誰のために',v.forWhom||'未記入')+'</div>'
+      + '<div class="vsec-h">🤝 おすすめの接し方</div><div class="rec" style="background:var(--em-tint);border-radius:10px;padding:10px 12px;font-size:13px">'+howto+'</div>'
+      + '<div class="vsec-h">🏢 社長・上司コメント</div>'+notes
+      + '<div style="margin-top:12px"><button class="btn btn-em btn-sm" data-view="messages">この人に応援を送る →</button></div></div>';
+  }
+  return pageHead('スタッフの仕事スタイル','担当スタッフの「どんな仕事スタイルか」をひと目で把握。ペルソナ診断・軸・社長/上司コメントから、最適な接し方まで提案します。',
+      '<span class="pill purple">担当 '+ms.length+'名</span>')
+    +'<div class="twocol" style="grid-template-columns:.7fr 1.3fr"><div class="card"><h3 style="margin:0 0 10px;font-size:14px">担当スタッフ</h3><div class="mlist">'+(list||'<div class="muted">担当なし</div>')+'</div></div><div>'+right+'</div></div>'
+    +'<div class="privacy" style="margin-top:14px"><span>🔒</span><div>コーチ（あなた）は担当スタッフの仕事スタイル・軸・社長/上司コメントを閲覧できます。スタッフ同士は互いの内容を見られません。</div></div>';
+};
+
+VIEWS.coach.queue=function(){
+  var rows=COACH_USERS.map(function(u){
+    return '<tr class="clickable" data-coachuser="'+u.id+'"><td><div class="nmcell"><div class="av">'+avatarText(u.name)+'</div><div><b>'+u.name+'</b><br><span class="muted" style="font-size:11px">'+u.company+' ／ '+u.position+'</span></div></div></td><td>'+u.when+'</td><td><b>'+u.score+'</b></td><td>'+u.state+'</td><td><button class="btn btn-em btn-sm" data-coachuser="'+u.id+'">面談準備</button></td></tr>';
+  }).join('');
+  return pageHead('担当予定一覧','面談前に、AIが相手の特徴と進め方を整理してくれます。安心して面談に臨めます。','<span class="pill purple">本日 2件</span>')
+    + '<table class="tbl"><thead><tr><th>担当ユーザー</th><th>予定</th><th>スコア</th><th>今の状態</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
+    + '<div class="privacy" style="margin-top:14px"><span>🔒</span><div>表示されるのは面談に必要なAI要約・傾向・本人が共有を許可した内容のみ。日記の全文は閲覧できません。</div></div>';
+};
+VIEWS.coach.brief=function(){
+  var u=state.coachUser; var b=getBrief(u);
+  var gen='<button class="btn btn-ghost btn-sm" data-genbrief="'+u.id+'">🤖 '+(aiOn()?'AIで生成':'再生成')+'</button>';
+  return pageHead('面談前AIサマリー','「'+u.name+'」さん ／ '+u.when+' の面談準備', gen+' <button class="btn btn-em btn-sm" data-view="guide">面談ガイドを見る →</button>')
+    + '<div class="card" style="margin-bottom:14px;background:linear-gradient(120deg,var(--em-tint),#fff)"><b style="font-size:14px">📌 ひとことサマリー</b><p style="margin:6px 0 0;font-size:13.5px">'+b.summary+'</p></div>'
+    + '<div class="brief">'
+      + '<div class="card"><div class="deflist">'+defit('会社／役職',u.company+' ／ '+u.position)+defit('直近の目標',u.goal)+defit('パーソナリティ',b.personality)+defit('気分推移（直近）',b.moodTrend)+defit('今日の状態',u.state)+'</div>'
+        + '<h4 style="margin:16px 0 8px;font-size:13px">褒めるポイント</h4><div class="chips">'+b.praise.map(function(s){return '<span class="chip">'+s+'</span>';}).join('')+'</div>'
+        + '<h4 style="margin:14px 0 8px;font-size:13px">避けた方がいい言い方</h4><div class="chips">'+b.avoid.map(function(s){return '<span class="chip r">'+s+'</span>';}).join('')+'</div></div>'
+      + '<div class="card"><h3 style="margin:0 0 6px;font-size:14px">成長スコア推移</h3>'+sparkline(u.trend)
+        + '<h4 style="margin:14px 0 8px;font-size:13px">おすすめの質問例</h4><div class="deflist">'+b.questions.map(function(q){return '<div class="it"><span>・'+q+'</span></div>';}).join('')+'</div>'
+        + '<div style="background:var(--gold-soft);border-radius:12px;padding:12px 14px;margin-top:14px"><b style="font-size:11.5px;color:#8a6a14">背中を押す一言</b><div style="font-size:13.5px;font-weight:700">'+b.push+'</div></div></div>'
+    + '</div>';
+};
+VIEWS.coach.guide=function(){
+  var u=state.coachUser; var b=getBrief(u);
+  var tag=state.coachBriefs[u.id]&&aiOn()?'<span class="pill em">AI生成（実Claude）</span>':'<span class="sample">'+(state.coachBriefs[u.id]?'AI生成':'サンプル')+'</span>';
+  return pageHead('AI面談ガイド','「'+u.name+'」さん用に自動生成された台本です（そのまま読めます）。', tag+' <button class="btn btn-ghost btn-sm" data-genbrief="'+u.id+'">🤖 '+(aiOn()?'AIで再生成':'再生成')+'</button>')
+    + '<div class="scriptbox">'
+      + '<h4>冒頭の声かけ</h4><p>'+b.openingScript+'</p>'
+      + '<h4>共感フレーズ</h4><p>うまくいかない日があっても、振り返りを止めずに続けている。それ自体が本当にすごいことです。</p>'
+      + '<h4>褒めるポイント</h4><p>'+(b.praise[1]||b.praise[0])+'点は、大きな強みです。</p>'
+      + '<h4>質問</h4><p>'+b.questions[0]+(b.questions[1]?'<br>'+b.questions[1]:'')+'</p>'
+      + '<h4>避けた方がいい言い方</h4><p>'+b.avoid.join('／')+'</p>'
+      + '<h4>背中を押す一言</h4><p>'+b.push+'</p>'
+      + '<div class="last"><h4>最後の応援メッセージ</h4><p>'+b.closingMessage+'</p></div>'
+    + '</div>'
+    + '<div class="card" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" data-view="memo">面談メモを書く</button><button class="btn btn-em" data-toast="台本をコピーしました（デモ）">台本をコピー</button></div>';
+};
+VIEWS.coach.memo=function(){
+  var u=state.coachUser;
+  return pageHead('面談メモ','「'+u.name+'」さん ／ 面談後の記録（次回・上司共有に活用）。')
+    + '<div class="card"><div class="field"><label>面談内容メモ</label><textarea rows="3" placeholder="話したこと・相手の様子など"></textarea></div>'
+      + '<div class="twocol"><div class="field"><label>良かった点</label><textarea rows="2"></textarea></div><div class="field"><label>今後の課題</label><textarea rows="2"></textarea></div></div>'
+      + '<div class="twocol"><div class="field"><label>次回アクション</label><input class="txt" placeholder="例：1週間後に進捗確認"></div><div class="field"><label>次回面談 推奨日</label><input class="txt" placeholder="例：来週 木曜"></div></div>'
+      + '<div class="field"><label>本人へのメッセージ</label><textarea rows="2" placeholder="前向きな一言を"></textarea></div>'
+      + '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-em" data-toast="面談メモを保存しました（デモ）">保存する</button><button class="btn btn-ghost" data-toast="上司へ共有メモを送りました（デモ）">上司へ共有</button></div></div>';
+};
+VIEWS.coach.vscript=function(){
+  var u=state.coachUser; var V=state.videoScript||mockVideoScript(u);
+  var tag=state.videoScript&&aiOn()?'<span class="pill em">AI生成（実Claude）</span>':'<span class="sample">'+(state.videoScript?'AI生成':'サンプル')+'台本</span>';
+  return pageHead('お祝い動画 台本・収録','達成者へのお祝い動画を、AI生成台本をもとに収録します。', tag+' <button class="btn btn-gold btn-sm" id="genVideo">🤖 '+(aiOn()?'AIで台本生成':'台本を生成')+'</button>')
+    + '<div class="card" style="margin-bottom:14px"><b style="font-size:13.5px">対象：'+u.name+'さん ／ 達成内容：今月の成約3件</b></div>'
+    + '<div class="scriptbox"><h4>動画タイトル</h4><p>'+V.title+'</p>'
+      + '<h4>冒頭</h4><p>'+V.opening+'</p>'
+      + '<h4>努力への言及</h4><p>'+V.effort+'</p>'
+      + '<h4>達成への祝福</h4><p>'+V.congrats+'</p>'
+      + '<div class="last"><h4>次への応援＆締め</h4><p>'+V.encourage+' '+V.closing+'</p></div></div>'
+    + '<div class="card" style="margin-top:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="font-size:30px">🎥</div><div style="flex:1;min-width:220px"><b>動画をアップロード</b><p class="muted" style="margin:3px 0 0;font-size:12px">収録した動画をアップすると、対象ユーザーのBOXに届きます。</p></div><button class="btn btn-em" id="uploadVideo">⬆️ 動画をアップロード</button></div>';
+};
+VIEWS.coach.chistory=function(){
+  var rows=[['田中 翔太','6/20','月間目標達成 お祝い動画','再生済み'],['伊藤 大和','6/14','面談（伸び悩み相談）','完了'],['佐藤 美咲','6/10','応援動画','再生済み']].map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td><span class="pill em">'+r[3]+'</span></td></tr>';}).join('');
+  return pageHead('担当履歴','これまでの面談・お祝い動画の記録。')+'<table class="tbl"><thead><tr><th>対象</th><th>日付</th><th>内容</th><th>状態</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+
+/* ===================== 運営 ===================== */
+VIEWS.operator.companies=function(){
+  var rows=[['株式会社ネクステージ','人材・営業支援','Growth','7','稼働中'],['サンコー商事','卸売','Standard','24','稼働中'],['ブリュー株式会社','IT','Enterprise','58','稼働中']].map(function(r){return '<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td><span class="pill blue">'+r[2]+'</span></td><td>'+r[3]+'名</td><td><span class="pill em">'+r[4]+'</span></td></tr>';}).join('');
+  return pageHead('企業管理','契約企業の管理。','<button class="btn btn-em btn-sm" data-toast="新規企業の登録（デモ）">＋ 企業を追加</button>')
+    + '<div class="kpis" style="margin-bottom:14px">'+kpi('🏢',3,'契約企業','')+kpi('👤',89,'総ユーザー','b')+kpi('🎤',6,'稼働コーチ','p')+kpi('🎬',128,'累計お祝い動画','g')+'</div>'
+    + '<table class="tbl"><thead><tr><th>企業名</th><th>業種</th><th>プラン</th><th>人数</th><th>状態</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+VIEWS.operator.users=function(){
+  var rows=MEMBERS.slice(0,5).map(function(m){return '<tr><td><div class="nmcell"><div class="av">'+avatarText(m.name)+'</div><b>'+m.name+'</b></div></td><td>ネクステージ</td><td>member</td><td><b>'+m.score+'</b></td><td><span class="pill em">アクティブ</span></td></tr>';}).join('');
+  return pageHead('ユーザー管理','全ユーザーの横断管理（運営のみ）。')+'<table class="tbl"><thead><tr><th>名前</th><th>所属</th><th>ロール</th><th>スコア</th><th>状態</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+VIEWS.operator.coaches=function(){
+  var rows=[['三上 あかり','女子アナ','12名','★4.9'],['星野 涼','タレント','8名','★4.8'],['大野 健司','コーチング担当','15名','★4.7']].map(function(r){return '<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';}).join('');
+  return pageHead('コーチ管理','ホリプロ所属コーチ／タレントの管理。')+'<table class="tbl"><thead><tr><th>名前</th><th>区分</th><th>担当人数</th><th>評価</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+VIEWS.operator.videos_admin=function(){
+  var rows=[['VID-128','田中 翔太','achievement','三上 あかり','再生済み'],['VID-127','佐藤 美咲','encouragement','星野 涼','送信済み'],['VID-126','鈴木 健','mvp','三上 あかり','再生済み']].map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td><span class="pill purple">'+r[2]+'</span></td><td>'+r[3]+'</td><td><span class="pill em">'+r[4]+'</span></td></tr>';}).join('');
+  return pageHead('動画管理','お祝い動画テンプレート・送信状況の管理。')
+    + '<div class="kpis" style="margin-bottom:14px">'+kpi('🎬',128,'累計送信','g')+kpi('▶',94,'平均再生率(%)','p')+kpi('📣',41,'社内共有数','b')+kpi('🎞️',9,'テンプレ数','')+'</div>'
+    + '<table class="tbl"><thead><tr><th>動画ID</th><th>対象</th><th>タイプ</th><th>担当</th><th>状態</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+VIEWS.operator.prompts=function(){
+  function pc(title,body){ return '<div class="promptcard"><h4>'+title+'</h4><textarea>'+body+'</textarea></div>'; }
+  return pageHead('AIプロンプト管理','各AI機能のプロンプトを管理（運営のみ）。','<button class="btn btn-em btn-sm" data-toast="プロンプトを保存しました（デモ）">保存</button>')
+    + pc('A. 日記コメント用','あなたは若手営業マンの成長を支援するAIコーチです。日記・気分・過去の傾向をもとに、優しく前向きで具体的なフィードバックを返してください。医療診断・人格の断定はしない。返す内容：1.共感 2.状態整理 3.良かった点 4.改善 5.明日の具体アクション 6.成長スコア 7.コーチング推奨。')
+    + pc('B. パーソナリティ診断用','ユーザーの日記・気分・日報・行動履歴から、自己理解とコーチング支援のための傾向を分析。医療診断・人格障害・発達特性の診断は絶対にしない。出力：営業タイプ/成長タイプ/強み/課題/ストレス時/伸びる環境/上司の接し方/おすすめ行動。')
+    + pc('C. ホリプロ面談ガイド用','担当者が安心して面談できるよう、相手の特徴・褒めるポイント・避けるべき言い方・質問例・応援メッセージを作成。決めつけない／医療診断しない／詰めない。')
+    + pc('D. お祝い動画台本生成','成果を出した営業マン向けに、明るく華やかな30〜60秒の台本を作成。本人の具体的な努力に触れる。出力：タイトル/冒頭/努力への言及/祝福/次への応援/締め。');
+};
+VIEWS.operator.logic=function(){
+  function bar(label,v){ return '<div class="bar"><span>'+label+'</span><div class="track"><div class="fill" style="width:'+v+'%"></div></div><span>'+v+'%</span></div>'; }
+  return pageHead('スコアロジック管理','成長スコアの重みづけ（運営のみ）。')
+    + '<div class="card"><h3 style="margin:0 0 12px;font-size:14px">スコア構成比（合計100%）</h3><div class="bars">'+bar('行動量',25)+bar('継続',20)+bar('素直さ',15)+bar('報連相',15)+bar('営業マインド',15)+bar('コンディション',10)+'</div>'
+      + '<p class="muted" style="margin:12px 0 0;font-size:12px">※ 点数化するのは行動・状態であり、人格や人の価値は評価しません。人事評価への直接利用は禁止。</p></div>';
+};
+VIEWS.operator.billing=function(){
+  var rows=[['ネクステージ','Growth','¥350,000','請求済み'],['サンコー商事','Standard','¥720,000','入金済み'],['ブリュー株式会社','Enterprise','¥1,740,000','請求済み']].map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td><b>'+r[2]+'</b></td><td><span class="pill em">'+r[3]+'</span></td></tr>';}).join('');
+  return pageHead('請求管理','企業ごとの請求・プラン管理。')
+    + '<div class="kpis" style="margin-bottom:14px">'+kpi('💴','¥2.8M','今月の請求額','g')+kpi('🏢',3,'請求対象','')+kpi('✅',1,'入金済み','b')+kpi('🕓',2,'請求済み','p')+'</div>'
+    + '<table class="tbl"><thead><tr><th>企業</th><th>プラン</th><th>月額</th><th>状態</th></tr></thead><tbody>'+rows+'</tbody></table>';
+};
+VIEWS.operator.usage=function(){
+  return pageHead('利用状況分析','プラットフォーム全体の利用状況。')
+    + '<div class="kpis" style="margin-bottom:14px">'+kpi('👤',89,'総ユーザー','')+kpi('📝',78,'日次入力率(%)','b')+kpi('💬',34,'今月の面談','p')+kpi('🎬',128,'累計お祝い動画','g')+'</div>'
+    + '<div class="twocol"><div class="card"><h3 style="margin:0 0 6px;font-size:14px">日次アクティブ（今週）</h3>'+sparkline([62,68,71,69,74,77,80])+'</div><div class="card"><h3 style="margin:0 0 6px;font-size:14px">平均成長スコア（今週）</h3>'+sparkline(SCORE_TREND)+'</div></div>';
+};
+
+/* ===================== AI生成（実LLM or モック） ===================== */
+// cfg.live かつ APIキーありなら実Claude、なければモック。本番はサーバ関数経由に。
+function mockAIComment(){
+  return { empathy:'今日は少し疲れが見えますが、行動を止めずに振り返りを書けている点は素晴らしいです。',
+    analysis:'文章からは、結果に対する焦りと、自分で抱え込みやすい傾向が見えます。',
+    goodPoint:'課題を他責にせず、自分の行動として振り返れていることです。',
+    improvement:'相談を後回しにせず、朝のうちに一つだけ言葉にしてみましょう。',
+    nextAction:'朝一番に上司へ1つだけ相談してから動く／商談前に確認したいことを3つ書き出す',
+    score:82, scoreBreakdown:{action:88,continuity:90,openness:78,communication:72,salesMind:85,condition:76}, coachingRecommended:true };
+}
+async function generateAIComment(){
+  var o=await aiCall('comment', buildDiaryPrompt(), AI_COMMENT_SCHEMA, AI_COMMENT_SYSTEM);
+  return o||mockAIComment();
+}
+
+/* ---- B. パーソナリティ診断 ---- */
+var PERSONALITY_SCHEMA={ type:'object', properties:{
+  salesType:{type:'string'}, growthType:{type:'string'},
+  strengths:{type:'array',items:{type:'string'}}, weaknesses:{type:'array',items:{type:'string'}},
+  stressPattern:{type:'string'}, bestEnvironment:{type:'string'}, managerAdvice:{type:'string'}, recommendedActions:{type:'array',items:{type:'string'}}
+}, required:['salesType','growthType','strengths','weaknesses','stressPattern','bestEnvironment','managerAdvice','recommendedActions'], additionalProperties:false };
+var PERSONALITY_SYSTEM='あなたは営業人材の成長支援を行うAIコーチです。ユーザーの日記・気分・行動から、自己理解とコーチング支援のためのパーソナリティ傾向を分析してください。注意：医療診断・精神疾患・人格障害・発達特性などの診断は絶対に行わないでください。人間の価値を評価しないでください。あくまで仕事上の思考傾向・行動傾向・伸ばし方・上司の接し方として表現してください。salesTypeは「反骨成長型」「関係構築型」「分析改善型」等の短い営業タイプ名。必ず指定のJSON形式のみで返答してください。';
+function mockPersonality(){ return { salesType:ME.salesType, growthType:'急成長型',
+  strengths:['負けず嫌い','行動力','結果への執着','逆境に強い'], weaknesses:['抱え込みやすい','相談が後回し'],
+  stressPattern:'一人で抱え込み、口数が減りやすい。早めの言語化が効果的。',
+  bestEnvironment:'短期目標が明確で、日々の勝ち負けが可視化される環境。',
+  managerAdvice:'細かく詰めるより、勝負環境を作り本人に選ばせる方が効果的。',
+  recommendedActions:['短期目標を立て、毎日の勝ち負けを記録する','週1で誰かに進捗を話す'] }; }
+async function generatePersonality(){
+  var o=await aiCall('personality', buildDiaryPrompt()+'\n\n上記と直近の傾向から分析してください。', PERSONALITY_SCHEMA, PERSONALITY_SYSTEM);
+  return o||mockPersonality();
+}
+
+/* ---- C. ホリプロ面談ガイド ---- */
+var BRIEF_SCHEMA={ type:'object', properties:{
+  summary:{type:'string'}, personality:{type:'string'},
+  praise:{type:'array',items:{type:'string'}}, questions:{type:'array',items:{type:'string'}}, avoid:{type:'array',items:{type:'string'}},
+  openingScript:{type:'string'}, closingMessage:{type:'string'}, push:{type:'string'}
+}, required:['summary','personality','praise','questions','avoid','openingScript','closingMessage','push'], additionalProperties:false };
+var BRIEF_SYSTEM='あなたはホリプロ所属の女子アナ・タレントが、若手営業マンを前向きにコーチングするための面談ガイドを作るAIです。担当者が相手を怖がらず安心して面談できるよう、相手の特徴・褒めるポイント・避けるべき言い方・質問例・冒頭の声かけ(openingScript)・最後の応援メッセージ(closingMessage)・背中を押す一言(push)を作成してください。注意：相手を決めつけない。医療的な診断をしない。否定・説教・詰める言葉を避ける。前向きで自然な会話に。必ず指定のJSON形式のみで返答してください。';
+function coachCtx(u){ return 'ユーザー：'+u.name+'（'+u.position+'）\n会社：'+u.company+'\n直近の目標：'+u.goal+'\n参考タイプ：'+u.salesType+'\n気分推移(5段階)：'+u.mood.join(', ')+'\n成長スコア：'+u.score+'\n今の状態：'+u.state; }
+function getBrief(u){ var g=state.coachBriefs[u.id]; if(g) return g;
+  var b=aiBrief(u); b.openingScript=u.name+'さん、今日はよろしくお願いします。最近の日記を拝見すると、結果に対してかなり真剣に向き合っているのが伝わってきました。'; b.closingMessage=u.name+'さんの努力は、ちゃんと前に進んでいます。また次回、進捗を聞かせてください。'; return b; }
+async function generateBrief(u){
+  var o=await aiCall('brief', coachCtx(u), BRIEF_SCHEMA, BRIEF_SYSTEM);
+  if(o){ if(!o.moodTrend) o.moodTrend=u.mood.map(function(v){return EMOJI5[v];}).join(' → '); return o; }
+  return getBrief(u);
+}
+
+/* ---- D. お祝い動画台本 ---- */
+var VIDEO_SCHEMA={ type:'object', properties:{ title:{type:'string'}, opening:{type:'string'}, effort:{type:'string'}, congrats:{type:'string'}, encourage:{type:'string'}, closing:{type:'string'} }, required:['title','opening','effort','congrats','encourage','closing'], additionalProperties:false };
+var VIDEO_SYSTEM='あなたは成果を出した若手営業マンに向けた、明るく華やかなお祝い動画の台本を作るAIです。本人が見て本気で嬉しくなり、また頑張ろうと思える30〜60秒の台本を作成してください。トーンは明るく・華やか・前向き・少し感動・ド派手なお祝い感。本人の具体的な努力に触れること。出力は title(動画タイトル)/opening(冒頭)/effort(努力への言及)/congrats(達成への祝福)/encourage(次への応援)/closing(締めの一言)。必ず指定のJSON形式のみで返答してください。';
+function mockVideoScript(u){ return { title:u.name+'さん、月間目標達成おめでとう！',
+  opening:u.name+'さん、こんにちは！ホリプロの三上です。今日は、とびきり嬉しいお知らせを聞きました。',
+  effort:'毎日の振り返りを欠かさず、苦しい時も行動を止めなかった。その積み重ねが、今回の成果につながりましたね。',
+  congrats:'月間目標達成、本当におめでとうございます！',
+  encourage:'この勢いで、来月もさらに上を目指していきましょう。', closing:'応援しています！' }; }
+function videoCtx(u){ return '対象：'+u.name+'さん\n達成内容：今月の成約3件達成\n成長スコア：'+u.score+'\n会社：'+u.company+'\n動画担当：ホリプロ所属コーチ 三上あかり（明るく華やかなキャラクター）'; }
+async function generateVideoScript(u){
+  var o=await aiCall('video', videoCtx(u), VIDEO_SCHEMA, VIDEO_SYSTEM);
+  return o||mockVideoScript(u);
+}
+
+/* ===================== 演出・モーダル ===================== */
+function toast(msg){ var t=el('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._tid); t._tid=setTimeout(function(){t.classList.remove('show');},2200); }
+function celebrate(){
+  var colors=['#10b981','#e0b14a','#ff6b97','#4aa3ff','#34d399'];
+  for(var i=0;i<110;i++){(function(i){
+    var c=document.createElement('div'); var size=6+Math.round(rand(i)*8);
+    c.style.cssText='position:fixed;top:-20px;left:'+(rand(i*7)*100)+'vw;width:'+size+'px;height:'+(size*0.5)+'px;background:'+colors[i%colors.length]+';z-index:90;border-radius:2px;pointer-events:none;opacity:.95;transform:rotate('+(rand(i*3)*360)+'deg);transition:transform 2.6s linear, top 2.6s linear, opacity 2.6s ease';
+    document.body.appendChild(c);
+    requestAnimationFrame(function(){ c.style.top=(78+rand(i*5)*22)+'vh'; c.style.transform='translateX('+((rand(i*9)-0.5)*260)+'px) rotate('+(rand(i*11)*720)+'deg)'; c.style.opacity='0'; });
+    setTimeout(function(){ c.remove(); },2700);
+  })(i);}
+}
+function showVideoModal(v){
+  v.status='viewed'; state._shareV=v;
+  el('modalRoot').innerHTML='<div class="modal-ov" id="vidModal"><div class="modal-card">'
+    + '<div class="mc-top">🎉 Special Message が届きました！</div>'
+    + '<div class="mc-body">'
+      + '<div class="mc-name">'+ME.name+'さん、'+v.reason+'おめでとうございます！</div>'
+      + '<div class="player" data-replay="1"><span class="smp sample">デモ：動画はプレースホルダー</span><div class="play">▶</div><div class="ptag">'+v.talent+' からのお祝い動画</div></div>'
+      + '<div class="mc-msg">'+v.script+'</div>'
+      + '<div class="mc-badge">🏅 「'+v.badge+'」を獲得！</div>'
+      + '<div class="mc-actions"><button class="btn btn-gold" id="snsShare">📣 SNSでシェア</button><button class="btn btn-soft" data-share="1">社内に共有</button><button class="btn btn-ghost" data-closemodal="1">閉じる</button></div>'
+    + '</div></div></div>';
+  celebrate();
+}
+function sendVideoToMember(id){
+  var m=MEMBERS.filter(function(x){return x.id===id;})[0]; var name=m?m.name:'メンバー';
+  toast('🎬 '+name+'さんへのお祝い動画の収録をホリプロへ依頼しました！'); celebrate();
+}
+
+/* ===================== イベント ===================== */
+document.addEventListener('click', function(e){
+  var t;
+  // role switch
+  t=e.target.closest('[data-role]');
+  if(t && t.parentElement && t.parentElement.id==='roleswitch'){
+    state.role=t.getAttribute('data-role'); state.view=DEFAULT_VIEW[state.role]; state.selectedMember=null;
+    [].forEach.call(el('roleswitch').children,function(b){ b.classList.toggle('on', b.getAttribute('data-role')===state.role); });
+    render(); return;
+  }
+  // nav / goto
+  function goView(v){
+    if(v==='ai' && SERVER && USER && USER.role==='member'){ loadMessages(); return true; }
+    if(v==='messages' && SERVER && USER){ loadCoachMembers(); return true; }
+    if(v==='leaders' && SERVER && USER){ loadMembersFor('leaders'); return true; }
+    if(v==='profiles' && SERVER && USER){ loadMembersFor('profiles'); return true; }
+    if(v==='league'){ loadLeague(); return true; }
+    return false;
+  }
+  t=e.target.closest('[data-view]'); if(t){ var v=t.getAttribute('data-view'); if(goView(v)) return; state.view=v; render(); return; }
+  t=e.target.closest('[data-goto]'); if(t){ var v2=t.getAttribute('data-goto'); if(goView(v2)) return; state.view=v2; render(); return; }
+  // 応援メッセージ操作
+  if(e.target.closest('#msgSend')){ sendReply(); return; }
+  t=e.target.closest('[data-coachpick]'); if(t){ openCoachThread(t.getAttribute('data-coachpick')); return; }
+  if(e.target.closest('#coachDraft')){ coachDraft(); return; }
+  if(e.target.closest('#coachSendBtn')){ coachSend(); return; }
+  // generic toast
+  t=e.target.closest('[data-toast]'); if(t){ toast(t.getAttribute('data-toast')); return; }
+  // coach user select
+  t=e.target.closest('[data-coachuser]'); if(t){ state.coachUser=COACH_USERS.filter(function(u){return u.id===t.getAttribute('data-coachuser');})[0]; state.view='brief'; render(); return; }
+  // member detail
+  t=e.target.closest('[data-member]'); if(t){ state.selectedMember=MEMBERS.filter(function(m){return m.id===t.getAttribute('data-member');})[0]; state.view='memberDetail'; render(); return; }
+  // arrange coaching
+  t=e.target.closest('[data-arrange]'); if(t){ var mm=MEMBERS.filter(function(m){return m.id===t.getAttribute('data-arrange');})[0]; toast('「'+(mm?mm.name:'')+'」さんの面談をホリプロ側コーチへ手配しました（デモ）'); return; }
+  // send video (admin/coach)
+  t=e.target.closest('[data-sendvideo]'); if(t){ sendVideoToMember(t.getAttribute('data-sendvideo')); return; }
+  // upload video (coach)
+  if(e.target.closest('#uploadVideo')){ toast('動画をアップロードしました。対象ユーザーのBOXに届きます（デモ）'); celebrate(); return; }
+  // play received video (user)
+  t=e.target.closest('[data-playvideo]'); if(t){ var v=MY_VIDEOS.filter(function(x){return x.id===t.getAttribute('data-playvideo');})[0]; if(v) showVideoModal(v); return; }
+  t=e.target.closest('[data-locktoast]'); if(t){ toast('🔒 '+t.getAttribute('data-locktoast')); return; }
+  // modal controls
+  if(e.target.closest('[data-replay]')){ celebrate(); return; }
+  if(e.target.closest('[data-share]')){ toast('社内に共有しました（デモ）'); return; }
+  if(e.target.closest('[data-closemodal]') || (e.target.id==='vidModal')){ el('modalRoot').innerHTML=''; if(state.role==='user'){ render(); } return; }
+
+  // mood emoji
+  t=e.target.closest('[data-mood]');
+  if(t){ var key=t.getAttribute('data-mood'); state.mood[key]=parseInt(t.getAttribute('data-val'),10);
+    [].forEach.call(t.parentElement.children,function(b){ b.classList.toggle('on', b===t); });
+    saveData();
+    return;
+  }
+  // AI設定モーダル
+  if(e.target.closest('#cfgBtn')){ openCfg(); return; }
+  if(e.target.closest('#notifyBtn')){ openNotify(); return; }
+  if(e.target.closest('#lineLink')){ toggleLine(); return; }
+  if(e.target.closest('#dealBtn')){ recordDeal(); return; }
+  t=e.target.closest('[data-onb]'); if(t){ var qid=t.getAttribute('data-onb'); state.onbAnswers[qid]=parseInt(t.getAttribute('data-val'),10);
+    [].forEach.call(t.parentElement.children,function(b){ b.classList.toggle('on', b===t); });
+    var ans=onbAnswered(); var cc=el('onbCount'); if(cc) cc.textContent=ans+' / '+ONB_Q.length+' 回答'; var bar=el('onbBar'); if(bar) bar.style.width=Math.round(ans/ONB_Q.length*100)+'%'; return; }
+  if(e.target.closest('#onbSubmit')){ submitOnboarding(); return; }
+  if(e.target.closest('#postPres')){ postLeaderNote('president'); return; }
+  if(e.target.closest('#postBoss')){ postLeaderNote('boss'); return; }
+  if(e.target.closest('#snsShare')){ shareVideo(state._shareV); return; }
+  if(e.target.closest('#shrCopy')){ var i=el('shrUrl'); if(i){ i.select(); try{ document.execCommand('copy'); }catch(e2){} toast('URLをコピーしました'); } return; }
+  if(e.target.closest('[data-logout]')){ fetch('/api/logout',{method:'POST'}).then(function(){ location.reload(); }); return; }
+  if(e.target.closest('#cfgSave')){
+    var kv=el('cfgKey').value; if(kv && kv!=='********') cfg.apiKey=kv.trim();
+    cfg.model=el('cfgModel').value; cfg.live=el('cfgLive').checked; if(!cfg.apiKey) cfg.live=false;
+    saveCfg(); el('modalRoot').innerHTML=''; renderCfgState(); toast(cfg.live?'実LLMモードON（'+cfg.model+'）':'デモモード'); return;
+  }
+  // generate AI（実LLM or モック）
+  if(e.target.closest('#genAI')){ var btn=e.target.closest('#genAI'); btn.disabled=true; btn.textContent=aiOn()?'🤖 Claude生成中…':'🤖 生成中…';
+    generateAIComment().then(function(c){
+      state.aiComment=c; saveData(); render();
+      toast(aiOn()?'ガバショAI（実Claude）が返答しました 🌱':'ガバショAIがフィードバックを返しました 🌱');
+      var card=el('main').querySelector('.ai'); if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+    }).catch(function(err){
+      btn.disabled=false; btn.textContent='🤖 AIコメントを受け取る'; toast('AI生成に失敗：'+err.message);
+    });
+    return; }
+  // パーソナリティ診断生成（B）
+  if(e.target.closest('#genPersona')){ var pb=e.target.closest('#genPersona'); pb.disabled=true; pb.textContent='🤖 生成中…';
+    generatePersonality().then(function(p){ state.personality=p; saveData(); render(); toast(aiOn()?'AI診断（実Claude）が完了 🧭':'診断を生成しました'); })
+      .catch(function(err){ pb.disabled=false; pb.textContent='🤖 診断'; toast('診断生成に失敗：'+err.message); }); return; }
+  // 面談前サマリー／ガイド生成（C）
+  var gb=e.target.closest('[data-genbrief]');
+  if(gb){ var uid=gb.getAttribute('data-genbrief'); var cu=COACH_USERS.filter(function(x){return x.id===uid;})[0]||state.coachUser; gb.disabled=true; gb.textContent='🤖 生成中…';
+    generateBrief(cu).then(function(b){ state.coachBriefs[uid]=b; render(); toast(aiOn()?'面談ガイド（実Claude）を生成 🗒️':'面談ガイドを生成しました'); })
+      .catch(function(err){ gb.disabled=false; gb.textContent='🤖 生成'; toast('面談ガイド生成に失敗：'+err.message); }); return; }
+  // お祝い動画台本生成（D）
+  if(e.target.closest('#genVideo')){ var vb=e.target.closest('#genVideo'); vb.disabled=true; vb.textContent='🤖 生成中…';
+    generateVideoScript(state.coachUser).then(function(v){ state.videoScript=v; render(); toast(aiOn()?'動画台本（実Claude）を生成 🎞️':'動画台本を生成しました'); })
+      .catch(function(err){ vb.disabled=false; vb.textContent='🤖 台本'; toast('台本生成に失敗：'+err.message); }); return; }
+  // complete day
+  if(e.target.closest('#completeDay')){ state.dayDone=true; ME.streak+=1; saveData(); toast('🔥 今日を完了！連続記録が '+ME.streak+'日 になりました'); celebrate(); render(); return; }
+  // coaching request
+  if(e.target.closest('#reqCoach')){ toast('コーチングを希望しました。担当コーチがAI分析を確認のうえご連絡します 💬'); return; }
+  // goal +progress
+  t=e.target.closest('[data-goalup]');
+  if(t){ var g=GOALS.filter(function(x){return x.id===t.getAttribute('data-goalup');})[0];
+    if(g && g.current<g.target){ g.current+=1;
+      if(g.current>=g.target && !g.done){ g.done=true;
+        // 目標達成 → お祝い動画を自動トリガー
+        var nv={id:'vg_'+g.id, reason:g.title+' 達成', title:g.title+' 達成おめでとう！', talent:'ホリプロ公式コーチ', badge:g.title+' 達成バッジ', type:'achievement', status:'unread',
+          script:ME.name+'さん、「'+g.title+'」の達成、本当におめでとうございます！毎日コツコツ続けてきた成果です。次の目標へ、一緒に進みましょう！'};
+        MY_VIDEOS.unshift(nv); saveData(); render(); showVideoModal(nv); return;
+      }
+      saveData(); render(); toast('進捗を記録しました（'+g.current+'/'+g.target+' '+g.unit+'）');
+    }
+    return;
+  }
+});
+document.addEventListener('input', function(e){
+  var d=e.target.getAttribute&&e.target.getAttribute('data-diary'); if(d){ state.diary[d]=e.target.value; saveData(); return; }
+  var v=e.target.getAttribute&&e.target.getAttribute('data-vision'); if(v){ state.vision[v]=e.target.value; saveData(); }
+});
+
+/* AI設定モーダル＆状態チップ */
+function renderCfgState(){
+  var b=el('cfgBtn'), s=el('cfgState'); if(!b||!s) return;
+  s.textContent=cfg.live?'実LLM':'デモ'; b.classList.toggle('live', !!cfg.live);
+}
+function openCfg(){
+  var models=[['claude-opus-4-8','（既定・高品質）'],['claude-sonnet-4-6','（バランス）'],['claude-haiku-4-5','（最安・高速）']];
+  el('modalRoot').innerHTML='<div class="modal-ov" id="cfgModal"><div class="modal-card" style="max-width:480px">'
+    + '<div class="mc-top" style="background:linear-gradient(120deg,var(--em),var(--em-deep));color:#fff">⚙️ 実証実験モード（実LLM接続）</div>'
+    + '<div class="mc-body">'
+      + '<p style="font-size:12.5px;color:var(--ink-2);margin:0 0 14px">AnthropicのAPIキーを入れて「実LLMで生成」をONにすると、AIコメントが<b>本物のClaude</b>で生成されます（サーバー不要）。</p>'
+      + '<div class="field"><label>Anthropic APIキー</label><input id="cfgKey" type="password" placeholder="sk-ant-..." value="'+(cfg.apiKey?'********':'')+'" autocomplete="off"></div>'
+      + '<div class="field"><label>モデル</label><select id="cfgModel">'+models.map(function(m){return '<option value="'+m[0]+'"'+(cfg.model===m[0]?' selected':'')+'>'+m[0]+' '+m[1]+'</option>';}).join('')+'</select></div>'
+      + '<label class="chk"><input type="checkbox" id="cfgLive"'+(cfg.live?' checked':'')+'><span>実LLMで生成する（OFF＝デモのモック出力）</span></label>'
+      + '<div class="privacy" style="margin:14px 0"><span>🔒</span><div>キーはこの端末のブラウザ(localStorage)にのみ保存され、Anthropicへ直接送信されます。<b>社外配布・本番では使わず</b>、サーバー関数(/api)経由に切り替えてください。</div></div>'
+      + '<div class="mc-actions"><button class="btn btn-em" id="cfgSave">保存</button><button class="btn btn-ghost" data-closemodal="1">閉じる</button></div>'
+    + '</div></div></div>';
+}
+
+/* ---------- ログイン（サーバーモード） ---------- */
+function showLogin(err){
+  el('modalRoot').innerHTML='<div class="modal-ov" id="loginModal"><div class="modal-card" style="max-width:420px">'
+    + '<div class="mc-top" style="background:linear-gradient(120deg,var(--em),var(--em-deep));color:#fff">★ HORIPRO × A.B.HAP ガバショ！ ログイン</div>'
+    + '<div class="mc-body">'
+      + '<form id="loginForm">'
+      + '<div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username" placeholder="demo@gabasho.local"></div>'
+      + '<div class="field"><label>パスワード</label><input id="loginPw" type="password" autocomplete="current-password" placeholder="••••••••"></div>'
+      + (err?'<div style="color:var(--bad);font-size:12.5px;font-weight:700;margin-bottom:10px">'+err+'</div>':'')
+      + '<div class="mc-actions" style="justify-content:flex-start"><button class="btn btn-em" type="submit" id="loginBtn">ログイン</button></div>'
+      + '</form>'
+      + '<p class="muted" style="font-size:11.5px;margin:14px 0 0">実証実験用アカウント（初回起動でサーバーが発行）：demo@ / admin@ / coach@ / ops@ ＠gabasho.local</p>'
+    + '</div></div></div>';
+  var f=el('loginForm'); if(f) f.addEventListener('submit', doLogin);
+}
+async function doLogin(e){
+  if(e) e.preventDefault();
+  var btn=el('loginBtn'); if(btn){ btn.disabled=true; btn.textContent='確認中…'; }
+  try{
+    var r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:el('loginEmail').value,password:el('loginPw').value})});
+    var j=await r.json();
+    if(!r.ok){ showLogin(j.error||'ログインに失敗しました'); return; }
+    USER=j.user; await afterLogin();
+  }catch(err){ showLogin('通信エラー：'+err.message); }
+}
+function roleOf(u){ return u.role==='member'?'user':u.role; }
+async function afterLogin(){
+  el('modalRoot').innerHTML='';
+  state.role=roleOf(USER); state.view=DEFAULT_VIEW[state.role];
+  var rs=el('roleswitch'); if(rs) rs.style.display='none';      // ロールはアカウントで固定
+  var cb=el('cfgBtn'); if(cb) cb.style.display='none';          // キーはサーバー側
+  await serverLoad();
+  // ① 初回ログインは100問オンボーディングをファーストページに
+  if(USER.role==='member' && !state.onboarding){ state.view='onboarding'; }
+  render();
+}
+
+/* ① オンボーディング送信 → ペルソナ判定 → 女子アナ自動アサイン */
+async function submitOnboarding(){
+  var ax=onbAxisScores(); var ans=onbAnswered();
+  if(ans<10){ toast('もう少し回答してください（10問以上）'); return; }
+  var btn=el('onbSubmit'); if(btn){ btn.disabled=true; btn.textContent='AIがあなたに合うコーチを選定中…'; }
+  if(SERVER && USER){
+    try{ var r=await fetch('/api/onboarding',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({axisScores:ax,answeredCount:ans})}); var j=await r.json();
+      if(r.ok){ state.onboarding={persona:j.persona,topAxes:j.topAxes,answeredCount:ans}; state.assignedCoach=j.coach; state.view='onboardingResult'; render(); return; } }
+    catch(e){}
+    toast('保存に失敗しました'); if(btn){ btn.disabled=false; btn.textContent='診断を完了する'; }
+  } else {
+    // スタンドアロン簡易マッチング
+    var ROST=[{name:'元プロ野球選手 A',emoji:'⚾',aff:['compete','challenge','selfdrive']},{name:'三上 あかり（女子アナ）',emoji:'🎙️',aff:['empathy','approval','relation']},{name:'モデル D',emoji:'💫',aff:['approval','reward','selfdrive']},{name:'アナウンサー E',emoji:'📣',aff:['growth','purpose','empathy']}];
+    var best=ROST[0],bs=-1; ROST.forEach(function(c){ var s=0; c.aff.forEach(function(a){s+=(ax[a]||0);}); if(s>bs){bs=s;best=c;} });
+    var top=Object.keys(ax).sort(function(a,b){return ax[b]-ax[a];}).slice(0,3);
+    var ja={compete:'勝ち負け',approval:'承認',growth:'成長',reward:'報酬・地位',relation:'チーム',purpose:'意義',stability:'継続',empathy:'対話・共感',challenge:'挑戦',selfdrive:'自分軸'};
+    state.onboarding={persona:top.map(function(a){return ja[a]||a;}).join('・')+'タイプ',topAxes:top,answeredCount:ans};
+    state.assignedCoach={name:best.name,emoji:best.emoji,title:'',reason:'あなたのペルソナに最適'};
+    state.view='onboardingResult'; render();
+  }
+}
+
+/* ---------- 起動：サーバーモード判定 ---------- */
+(async function boot(){
+  try{
+    var r=await fetch('/api/me');
+    if(r.status===200){ SERVER=true; var j=await r.json(); USER=j.user; AI_ENABLED=!!j.aiEnabled; await afterLogin(); return; }
+    if(r.status===401){ SERVER=true; AI_ENABLED=false; render(); showLogin(); return; }
+  }catch(e){ /* ファイル直開き等 → スタンドアロン */ }
+  // スタンドアロン（ブラウザキー）モード
+  loadData(); renderCfgState(); render();
+})();
+</script>
+</body>
+</html>
