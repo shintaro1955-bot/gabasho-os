@@ -50,7 +50,13 @@ function loadUsers() {
   return JSON.parse(readFileSync(USERS_FILE, 'utf8'));
 }
 let USERS = loadUsers();
-const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role });
+// デモ段階：全アカウントのパスワードを 'test' に統一（メモリ上）＋ id/pass=test/test で全ロール閲覧できる簡易アカウント
+for (const u of USERS) { u.hash = hashPw('test', u.salt); }
+if (!USERS.find(u => u.email === 'test')) {
+  const salt = newSalt();
+  USERS.push({ id: 'u_test', name: 'デモ（全ロール閲覧）', email: 'test', role: 'member', demo: true, salt, hash: hashPw('test', salt) });
+}
+const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, demo: !!u.demo });
 
 /* ---------- セッション（HMAC署名トークン / httpOnly Cookie） ---------- */
 function sign(payload) {
