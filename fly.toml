@@ -1,0 +1,21 @@
+# Fly.io 用（固定URL＋永続ボリュームでデータが消えない）。手順は DEPLOY.md 参照
+app = "gabasho-os"
+primary_region = "nrt"   # 東京
+
+[build]
+
+[env]
+  PORT = "8080"
+  GABASHO_MODEL = "claude-opus-4-8"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+# 永続データ（users.json / data/ を保持）
+[[mounts]]
+  source = "gabasho_data"
+  destination = "/app/data"

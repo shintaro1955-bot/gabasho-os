@@ -1,0 +1,23 @@
+# Render Blueprint：GitHubに上げて Render で "New + → Blueprint" を選ぶだけ
+services:
+  - type: web
+    name: gabasho-os
+    runtime: node
+    plan: free            # 無料（数十秒のコールドスタートあり／ディスクは揮発）
+    buildCommand: "echo no-build"   # 依存ゼロなのでビルド不要
+    startCommand: node server.mjs
+    healthCheckPath: /
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true         # ランダム生成
+      - key: GABASHO_MODEL
+        value: claude-opus-4-8
+      - key: DEMO_PASSWORD
+        value: gabasho123            # 本番では変更推奨
+      - key: ANTHROPIC_API_KEY
+        sync: false                  # ダッシュボードで秘密として設定（未設定ならAIはモック）
+    # ▼ データを消えないようにする（pilot/本番）。free planはディスク不可 → Starter以上で有効化:
+    # disk:
+    #   name: data
+    #   mountPath: /app/data
+    #   sizeGB: 1

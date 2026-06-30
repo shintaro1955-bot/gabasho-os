@@ -1,0 +1,12 @@
+{
+  "name": "gabasho-os-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ガバショ！ AIコーチングOS — ログイン付き本番サーバー（ゼロ依存）",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  },
+  "engines": { "node": ">=18" }
+}
