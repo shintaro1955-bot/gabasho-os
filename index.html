@@ -312,6 +312,35 @@
   .enps-pick{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
   .enps-pick button{width:34px;height:34px;border:1.5px solid var(--line);background:var(--card);border-radius:8px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit}
   .enps-pick button.on{border-color:var(--em);background:var(--em-soft);color:var(--em-dark)}
+  /* 面談カレンダー（相互日程調整） */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .cal-head .mlabel{font-size:15px;font-weight:900}
+  .cal-m{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-m .dow{text-align:center;font-size:10.5px;font-weight:800;color:var(--mut);padding:2px 0}
+  .cal-m .dow.sun{color:#d6334a} .cal-m .dow.sat{color:#2a6fb5}
+  .cal-c{aspect-ratio:1;border:1px solid var(--line);border-radius:10px;padding:5px 4px;font-size:12.5px;font-weight:800;position:relative;display:flex;flex-direction:column;background:var(--card)}
+  .cal-c.empty{border:0;background:transparent}
+  .cal-c.has{cursor:pointer;border-color:#ffb3d1}
+  .cal-c.has:hover{background:var(--pink-soft)}
+  .cal-c.sel{background:var(--pink);color:#fff;border-color:var(--pink)}
+  .cal-c.today::after{content:'今日';position:absolute;top:3px;right:4px;font-size:7.5px;font-weight:800;color:var(--em-dark)}
+  .cal-c.confirmed{background:var(--em-soft);border-color:var(--em);color:var(--em-dark)}
+  .cal-c.past{opacity:.38}
+  .cal-c .av{margin-top:auto;font-size:8px;font-weight:800;color:#b53a63}
+  .cal-c.sel .av{color:#fff}
+  .cal-c .dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--pink)}
+  .cal-c.sel .dot{background:#fff}
+  .slot-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .slot{border:1.5px solid var(--pink);background:var(--card);color:#b53a63;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+  .slot:hover{background:var(--pink-soft)}
+  .sched-req{display:flex;align-items:flex-start;gap:11px;padding:13px 0;border-bottom:1px dashed var(--line)} .sched-req:last-child{border-bottom:0}
+  .sched-req .si{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;color:#fff}
+  .sched-req .si.m{background:linear-gradient(135deg,var(--em),var(--em-deep))} .sched-req .si.c{background:linear-gradient(135deg,#ff9ab8,#f5427a)}
+  .sched-req .si .ic-svg{width:16px;height:16px}
+  .sched-req .sb{flex:1;min-width:0} .sched-req .sb b{font-size:13.5px} .sched-req .sb .sd{font-size:11px;color:var(--mut);margin-top:1px}
+  .sched-req .sact{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+  .sched-conf{display:flex;gap:14px;align-items:center;background:linear-gradient(120deg,var(--em-tint),var(--card));border:1px solid var(--em-soft);border-left:4px solid var(--em);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .sched-conf .sc-ic{width:46px;height:46px;border-radius:12px;background:var(--em-soft);color:var(--em-deep);display:grid;place-items:center;flex:0 0 auto}
   /* タスク1: ログインのアナウンサー・ショーケース */
   .lp-hero{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:#fff;border-radius:16px;padding:22px 22px 20px;margin-bottom:16px;position:relative;overflow:hidden}
   .lp-hero .ey{font-size:11px;font-weight:800;letter-spacing:.1em;opacity:.95}
@@ -810,6 +839,22 @@ function scoreTalk(scn, answer){
   return {score:score, fb:fb};
 }
 
+/* ===== 面談カレンダー（コーチと相互に日程調整） ===== */
+var SCHEDULE={ reqs:[], confirmed:null, monthOffset:0, seq:1 };
+var SCHED_SLOTS=['10:00','13:00','16:00','19:00'];
+function schedToday(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
+function ymd(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function jpDate(s){ var p=s.split('-'); return (p[1]*1)+'月'+(p[2]*1)+'日'; }
+function jpDateW(s){ var p=s.split('-'); var d=new Date(p[0],p[1]-1,p[2]); return (p[1]*1)+'月'+(p[2]*1)+'日（'+'日月火水木金土'[d.getDay()]+'）'; }
+function coachSlots(d){ var dow=d.getDay(); if(dow===0||dow===6) return []; var h=(d.getDate()*7)%10; return SCHED_SLOTS.filter(function(t,i){ return (h+i)%2===0; }); }
+function schedMonth(){ var t=new Date(); return new Date(t.getFullYear(), t.getMonth()+SCHEDULE.monthOffset, 1); }
+function nextCoachSlot(fromYmd){ // コーチの「別日提案」用：翌営業日以降の最初の空き枠
+  var p=fromYmd.split('-'); var d=new Date(p[0],p[1]-1,p[2]);
+  for(var i=1;i<=14;i++){ var nd=new Date(d.getFullYear(),d.getMonth(),d.getDate()+i); var s=coachSlots(nd); if(s.length) return {date:ymd(nd), time:s[0]}; }
+  return null;
+}
+function setConfirmed(date,time){ SCHEDULE.confirmed={date:date,time:time}; }
+
 var MOOD_TREND = [3,4,3,2,3,4,4];
 var SCORE_TREND = [68,71,69,74,76,79,82];
 var EMOJI5 = ['','','','',''];
@@ -1085,11 +1130,13 @@ var NAV = {
     {v:'league', ic:'trophy', t:'リーグ・ランキング'},
     {v:'ai', ic:'message', t:'コーチからの応援'},
     {v:'vision', ic:'target', t:'なりたい姿・軸'},
+    {v:'onboarding', ic:'clipboard', t:'性格診断（100問）'},
     {v:'personality', ic:'compass', t:'営業タイプ診断'},
     {v:'score', ic:'trendUp', t:'成長スコア'},
     {grp:'応援・サポート'},
     {v:'videos', ic:'play', t:'応援動画BOX'},
     {v:'coaching', ic:'calendar', t:'コーチング予約'},
+    {v:'schedule', ic:'calendar', t:'面談カレンダー'},
     {v:'thanks', ic:'heart', t:'サンクスポイント'},
     {v:'history', ic:'clock', t:'成長ログ'},
     {grp:'スキル・トレーニング'},
@@ -1251,7 +1298,7 @@ function renderWho(){
 }
 function renderSide(){
   // 受講者ゲート中はナビを隠し、診断に集中させる
-  if(state.role==='user' && !onbDone()){
+  if(state.role==='user' && !onbDone() && !testBypass()){
     var a2=onbAnswered();
     el('side').innerHTML='<div class="side-coach" style="background:var(--em-tint);border-color:var(--em-soft)"><div class="av" style="background:linear-gradient(135deg,var(--em),var(--em-deep))">'+svg('compass')+'</div><div style="min-width:0"><div class="lab" style="color:var(--em-dark)">受講者 登録ステップ</div><div class="nm">100問 性格診断</div><div class="ro" id="onbSideCount">'+a2+' / '+ONB_Q.length+' 回答</div></div></div>'
       + '<div class="grp">マイページ</div>'
@@ -1277,9 +1324,11 @@ function renderSide(){
 }
 // 受講者は「100問パーソナリティ診断」を答えるまでマイページに入れない（診断＝ログインゲート）
 function onbDone(){ return !!(state.onboarding); }
+// テスト/デモ/スタンドアロンでは100問ゲートをスキップ → ログインで直接マイページ（診断は任意）
+function testBypass(){ return (!SERVER) || (SERVER && USER && USER.demo); }
 function render(){
   // 受講者ゲート：診断未完了なら必ず診断画面へ
-  if(state.role==='user' && !onbDone() && state.view!=='onboarding' && state.view!=='onboardingResult'){ state.view='onboarding'; }
+  if(state.role==='user' && !onbDone() && !testBypass() && state.view!=='onboarding' && state.view!=='onboardingResult'){ state.view='onboarding'; }
   // 管理者/運営＝PRO Athlete（ネイビー×ゴールド）、それ以外＝Standard（ピンク）
   document.body.classList.toggle('theme-pro', state.role==='admin' || state.role==='operator');
   renderWho(); renderSide();
@@ -1876,6 +1925,46 @@ VIEWS.user.pulse=function(){
       + '<div class="field" style="margin-top:14px"><label>ひとこと（任意）</label><input class="txt" id="pulseComment" placeholder="例：今週は手応えがあった／少し疲れ気味"></div>'
       + '<button class="btn btn-em" id="pulseSubmit"'+(c&&n>=0?'':' disabled')+'>回答を送信</button></div>'
     + '<div class="privacy" style="margin-top:14px"><span>'+svg('lock')+'</span><div>個人の点数は本人と管理者のみ。組織には匿名集計（eNPS・平均）として反映されます。</div></div>';
+};
+
+// 面談カレンダー（コーチと相互に日程調整）
+VIEWS.user.schedule=function(){
+  var an=assignedAnnouncer();
+  var m=schedMonth(), year=m.getFullYear(), mon=m.getMonth(), today=schedToday();
+  var firstDow=new Date(year,mon,1).getDay(), days=new Date(year,mon+1,0).getDate(), sel=state.schedSel||'';
+  var conf = SCHEDULE.confirmed ? '<div class="sched-conf"><div class="sc-ic">'+svg('check')+'</div><div style="flex:1;min-width:0"><div class="muted" style="font-size:11px;font-weight:800;color:var(--em-dark)">面談 確定</div><b style="font-size:16px">'+jpDateW(SCHEDULE.confirmed.date)+' '+SCHEDULE.confirmed.time+'〜</b><div class="muted" style="font-size:12px">'+an.name+' とのオンライン面談</div></div><button class="btn btn-ghost btn-sm" data-cancelsched="1">取消</button></div>' : '';
+  var dows=['日','月','火','水','木','金','土'].map(function(d,i){return '<div class="dow'+(i===0?' sun':i===6?' sat':'')+'">'+d+'</div>';}).join('');
+  var cells='';
+  for(var b=0;b<firstDow;b++){ cells+='<div class="cal-c empty"></div>'; }
+  for(var day=1;day<=days;day++){
+    var d=new Date(year,mon,day), s=ymd(d), slots=coachSlots(d), isPast=d<today, isConf=SCHEDULE.confirmed&&SCHEDULE.confirmed.date===s;
+    var cls='cal-c';
+    if(isConf) cls+=' confirmed'; else if(isPast) cls+=' past'; else if(slots.length){ cls+=' has'; if(sel===s) cls+=' sel'; }
+    if(s===ymd(today)) cls+=' today';
+    var clickable=(!isPast && slots.length && !isConf);
+    cells+='<div class="'+cls+'"'+(clickable?' data-schedday="'+s+'"':'')+'>'+day+(slots.length&&!isPast?'<span class="av">空き'+slots.length+'</span>':'')+(clickable?'<span class="dot"></span>':'')+'</div>';
+  }
+  var grid='<div class="card"><div class="cal-head"><button class="btn btn-soft btn-sm" data-schedmonth="-1"'+(SCHEDULE.monthOffset<=0?' disabled':'')+'>‹ 前月</button><div class="mlabel">'+year+'年 '+(mon+1)+'月</div><button class="btn btn-soft btn-sm" data-schedmonth="1">翌月 ›</button></div>'
+    + '<div class="cal-m">'+dows+cells+'</div>'
+    + '<p class="muted" style="font-size:11px;margin:10px 0 0">ピンクの日が<b>コーチの空き枠</b>。日付を選ぶと時間が出ます（土日・過去日は不可）。</p>';
+  if(sel){ var sp=sel.split('-'), sd=new Date(sp[0],sp[1]-1,sp[2]), ss=coachSlots(sd);
+    grid+='<div style="margin-top:6px;border-top:1px solid var(--line);padding-top:12px">'+secH('clock',jpDateW(sel)+' の空き枠')+'<div class="slot-row">'+ss.map(function(t){return '<button class="slot" data-schedslot="'+sel+'|'+t+'">'+t+'〜</button>';}).join('')+'</div><p class="muted" style="font-size:11px;margin:8px 0 0">時間を選ぶと、コーチへ予約リクエストを送ります。</p></div>';
+  }
+  grid+='</div>';
+  var reqs=SCHEDULE.reqs.filter(function(r){return r.status!=='declined';});
+  var reqHtml = reqs.length ? '<div class="card" style="margin-top:16px">'+secH('message','日程のやりとり')+reqs.map(function(r){
+    var fromMe=r.by==='member';
+    var statusTxt = r.status==='confirmed' ? '確定' : fromMe ? 'コーチの返信待ち' : 'あなたの承認待ち';
+    var act='';
+    if(r.status==='pending'){
+      act = fromMe ? '<button class="btn btn-em btn-sm" data-coachrespond="'+r.id+':ok">（デモ）コーチが承認</button><button class="btn btn-ghost btn-sm" data-coachrespond="'+r.id+':alt">（デモ）コーチが別日を提案</button>'
+                   : '<button class="btn btn-em btn-sm" data-acceptsched="'+r.id+'">この日で承認する</button><button class="btn btn-ghost btn-sm" data-declinesched="'+r.id+'">辞退</button>';
+    }
+    return '<div class="sched-req"><div class="si '+(fromMe?'m':'c')+'">'+svg(fromMe?'user':'announcer')+'</div><div class="sb"><b>'+jpDateW(r.date)+' '+r.time+'〜</b><div class="sd">'+(fromMe?'あなた → コーチ へ提案':an.name+' → あなた へ提案')+' ／ '+statusTxt+'</div>'+(act?'<div class="sact">'+act+'</div>':(r.status==='confirmed'?'<span class="pill em" style="margin-top:6px;display:inline-block">確定済み</span>':''))+'</div></div>';
+  }).join('')+'</div>' : '';
+  return pageHead('面談カレンダー','担当コーチ（'+an.name+'）との面談日をカレンダーで相互調整。空き枠から選ぶ→承認／別日提案でやりとりします。',
+      SCHEDULE.confirmed?'<span class="pill em">確定済み</span>':'<span class="pill pink">調整中</span>')
+    + conf + grid + reqHtml;
 };
 
 /* ---- コーチ側（coachロールに統合）：自分の係数・ランク・ガバショテスト ---- */
@@ -3112,7 +3201,18 @@ document.addEventListener('click', function(e){
   // complete day
   if(e.target.closest('#completeDay')){ state.dayDone=true; ME.streak+=1; saveData(); toast('今日を完了！連続記録が '+ME.streak+'日 になりました'); celebrate(); render(); return; }
   // coaching request
-  if(e.target.closest('#reqCoach')){ toast('コーチングを希望しました。担当コーチがAI分析を確認のうえご連絡します '); return; }
+  if(e.target.closest('#reqCoach')){ state.view='schedule'; render(); return; }
+  // 面談カレンダー：相互日程調整
+  t=e.target.closest('[data-schedmonth]'); if(t){ SCHEDULE.monthOffset=Math.max(0,Math.min(6,SCHEDULE.monthOffset+parseInt(t.getAttribute('data-schedmonth'),10))); state.schedSel=null; render(); return; }
+  t=e.target.closest('[data-schedday]'); if(t){ state.schedSel=t.getAttribute('data-schedday'); render(); return; }
+  t=e.target.closest('[data-schedslot]'); if(t){ var ps=t.getAttribute('data-schedslot').split('|'); SCHEDULE.reqs.unshift({id:SCHEDULE.seq++, date:ps[0], time:ps[1], by:'member', status:'pending'}); state.schedSel=null; toast(jpDate(ps[0])+' '+ps[1]+'〜 で予約をリクエストしました'); render(); return; }
+  t=e.target.closest('[data-coachrespond]'); if(t){ var pr=t.getAttribute('data-coachrespond').split(':'); var rq=SCHEDULE.reqs.filter(function(x){return x.id==pr[0];})[0]; if(!rq) return;
+    if(pr[1]==='ok'){ rq.status='confirmed'; setConfirmed(rq.date,rq.time); toast('コーチが承認。'+jpDate(rq.date)+' '+rq.time+'〜 で面談確定'); }
+    else { rq.status='declined'; var ns=nextCoachSlot(rq.date); if(ns){ SCHEDULE.reqs.unshift({id:SCHEDULE.seq++, date:ns.date, time:ns.time, by:'coach', status:'pending'}); toast('コーチが別日（'+jpDate(ns.date)+' '+ns.time+'）を提案しました'); } }
+    render(); return; }
+  t=e.target.closest('[data-acceptsched]'); if(t){ var ra=SCHEDULE.reqs.filter(function(x){return x.id==t.getAttribute('data-acceptsched');})[0]; if(ra){ ra.status='confirmed'; setConfirmed(ra.date,ra.time); toast(jpDate(ra.date)+' '+ra.time+'〜 で面談確定しました'); } render(); return; }
+  t=e.target.closest('[data-declinesched]'); if(t){ var rd=SCHEDULE.reqs.filter(function(x){return x.id==t.getAttribute('data-declinesched');})[0]; if(rd){ rd.status='declined'; toast('提案を辞退しました'); } render(); return; }
+  if(e.target.closest('[data-cancelsched]')){ SCHEDULE.confirmed=null; SCHEDULE.reqs=[]; toast('面談予約を取り消しました'); render(); return; }
   // goal +progress
   t=e.target.closest('[data-goalup]');
   if(t){ var g=GOALS.filter(function(x){return x.id===t.getAttribute('data-goalup');})[0];
@@ -3232,7 +3332,7 @@ async function afterLogin(){
   var cb=el('cfgBtn'); if(cb) cb.style.display='none';          // キーはサーバー側
   await serverLoad();
   // 受講者は100問パーソナリティ診断に答えるまでマイページに入れない（render()のゲートが担保）
-  if(USER.role==='member' && !state.onboarding){ state.view='onboarding'; }
+  if(USER.role==='member' && !state.onboarding && !USER.demo){ state.view='onboarding'; }
   render();
 }
 
