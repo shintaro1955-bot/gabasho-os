@@ -4,3 +4,5 @@ users.json
 data/
 *.log
 .DS_Store
+
+cloudflared
