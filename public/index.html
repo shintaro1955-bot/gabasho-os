@@ -1722,6 +1722,7 @@ function render(){
   if(state.role==='user' && state.view==='today' && !(state.dream&&state.dream.done)) state.view='dreamsetup';
   var fn=(VIEWS[state.role]&&VIEWS[state.role][state.view])||function(){return '<div class="card">準備中の画面です。</div>';};
   el('main').innerHTML=(typeof goalStrip==='function'?goalStrip():'')+fn(); window.scrollTo(0,0);
+  if(state.role==='user' && typeof ensureDreamImgPrompt==='function') ensureDreamImgPrompt(); // 目標画像のAI翻訳（未翻訳時のみ）
 }
 
 var VIEWS={ user:{}, admin:{}, coach:{}, operator:{} };
@@ -2745,8 +2746,30 @@ function dreamCard(){
 function dreamImgUrl(w){
   var want=dreamVal('want'); if(!want) return '';
   var seed=(state.dream&&state.dream.imgSeed)||7;
-  var prompt='beautiful aspirational cinematic photo, '+want+', bright hopeful atmosphere, photorealistic, high quality, no text';
+  // 日本語の目標は翻訳済み英語(imgPrompt)を優先（画像モデルは英語が得意）。主題を先頭に置く。
+  var subject=(state.dream&&state.dream.imgPrompt&&state.dream.imgPromptFor===want)?state.dream.imgPrompt:want;
+  var prompt=subject+', dream goal visualization, aspirational cinematic photo, bright hopeful atmosphere, photorealistic, high quality, no text';
   return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)+'?width='+(w||900)+'&height=500&nologo=true&seed='+seed;
+}
+// 目標が変わったら、裏で日→英翻訳（MyMemory・キー不要）→より正確な画像に差し替え。失敗しても原文で表示継続。
+var _dreamTranslating=false;
+function ensureDreamImgPrompt(){
+  var want=dreamVal('want');
+  if(!want || _dreamTranslating) return;
+  if(state.dream && state.dream.imgPromptFor===want) return;            // 翻訳済み
+  if(!/[^\x00-\x7F]/.test(want)){ state.dream.imgPrompt=want; state.dream.imgPromptFor=want; return; } // 英語入力はそのまま
+  _dreamTranslating=true;
+  fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(want)+'&langpair=ja|en')
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){
+      _dreamTranslating=false;
+      var t=j&&j.responseStatus===200&&j.responseData&&(j.responseData.translatedText||'');
+      t=(t||'').trim().slice(0,140);
+      if(!t || dreamVal('want')!==want) return;
+      state.dream.imgPrompt=t; state.dream.imgPromptFor=want; saveData();
+      var im=el('dreamImg'); if(im){ var l=el('dreamImgLoad'); if(l) l.style.display='flex'; im.removeAttribute('data-retry'); im.src=dreamImgUrl(900); }
+      var th=document.querySelector('.dreambar .db-img'); if(th) th.src=dreamImgUrl(900);
+    }).catch(function(){ _dreamTranslating=false; });
 }
 // 画像ロード失敗時：少し待って再試行（レート制限対策）→ 最終的に目標テキスト入りプレースホルダー
 function dreamImgErr(im){
