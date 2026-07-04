@@ -833,6 +833,39 @@
   .gbz .dream .dr-q label{ display:block; font-size:11.5px; font-weight:800; color:#c58aa0; margin:0 0 5px }
   .gbz .dream .dr-privacy{ margin:11px 0 0; font-size:10.5px; color:#b8a3ad; font-weight:600 }
   @media(max-width:640px){ .gbz .dream .dr-form{ grid-template-columns:1fr } }
+  /* ゴール画像（AI自動生成） */
+  .gbz .dr-imgwrap{ margin-top:14px; border-radius:16px; overflow:hidden; border:1px solid #F3DDE5; background:#FFF8FB; position:relative }
+  .gbz .dr-img-loading{ position:absolute; top:0; left:0; right:0; aspect-ratio:9/5; display:flex; align-items:center; justify-content:center; text-align:center; padding:0 30px; font-size:12.5px; font-weight:800; color:#c58aa0; background:linear-gradient(110deg,#FFE9F1 30%,#FFF6FA 50%,#FFE9F1 70%); background-size:200% 100%; animation:drShimmer 1.6s linear infinite; z-index:1; pointer-events:none }
+  @keyframes drShimmer{ from{ background-position:200% 0 } to{ background-position:-200% 0 } }
+  .gbz .dr-img{ display:block; width:100%; height:auto; aspect-ratio:9/5; object-fit:cover; background:linear-gradient(120deg,#FFE9F1,#FFF8FB) }
+  .gbz .dr-img-foot{ display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap; padding:10px 14px }
+  .gbz .dr-img-foot span{ font-size:11px; color:#a08a92; font-weight:600; flex:1; min-width:200px; line-height:1.6 }
+  .gbz .dr-regen{ border:1px solid #F5427A; background:#fff; color:#E1306C; font-weight:800; font-size:11.5px; border-radius:999px; padding:6px 13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
+  .gbz .dr-regen svg{ width:13px; height:13px }
+  .gbz .dr-regen:hover{ background:#F5427A; color:#fff }
+  /* 朝の問い／夜の問い */
+  .gbz .qa-card{ border-radius:18px }
+  .gbz .qa-card.qa-m{ background:linear-gradient(150deg,#FFF9EC,#FFFFFF); border:1px solid #F2E3C4 }
+  .gbz .qa-card.qa-n{ background:linear-gradient(150deg,#F0F2FB,#FFFFFF); border:1px solid #D9DEF2 }
+  .gbz .qa-lab{ font-size:12px; font-weight:900; letter-spacing:.04em; color:#a8873c; margin-bottom:9px }
+  .gbz .qa-n .qa-lab{ color:#5a67a8 }
+  .gbz .qa-q{ display:block; font-size:15px; font-weight:900; color:#222; margin-bottom:10px; line-height:1.6 }
+  .gbz .qa-row{ display:flex; gap:9px; align-items:stretch }
+  .gbz .qa-row .oneline{ flex:1; margin:0 }
+  .gbz .qa-btn{ flex:0 0 auto; border:none; background:linear-gradient(135deg,#F5A742,#E18A30); color:#fff; font-weight:900; font-size:12.5px; border-radius:12px; padding:0 18px; cursor:pointer; white-space:nowrap }
+  .gbz .qa-btn.n{ background:linear-gradient(135deg,#5a67a8,#3d4a8c) }
+  .gbz .qa-btn:hover{ filter:brightness(1.06) }
+  .gbz .qa-note{ display:block; margin-top:8px; font-size:10.5px; color:#b3a48a; font-weight:600 }
+  .gbz .qa-n .qa-note{ color:#9aa3c9 }
+  .gbz .qa-recall{ display:flex; gap:9px; align-items:flex-start; background:#fff; border:1px dashed #E8D9B8; border-radius:12px; padding:11px 14px; margin-bottom:12px }
+  .gbz .qa-recall svg{ width:15px; height:15px; color:#D9A53F; flex:0 0 auto; margin-top:3px }
+  .gbz .qa-recall b{ display:block; font-size:13.5px; color:#4a3f28; margin:2px 0 }
+  .gbz .qa-recall small{ display:block; font-size:10.5px; color:#a8946a; font-weight:600; line-height:1.55 }
+  @media(max-width:560px){ .gbz .qa-row{ flex-direction:column } .gbz .qa-btn{ padding:11px 18px } }
+  /* 今日の合言葉（ヒーロー内） */
+  .gbz .hero .motto{ margin-top:12px; font-size:13px; font-weight:800; color:#fff; background:rgba(255,255,255,.14); border:1px dashed rgba(255,255,255,.4); border-radius:12px; padding:9px 14px; display:inline-block }
+  /* 目標バーのサムネイル */
+  .dreambar .db-img{ width:40px; height:40px; border-radius:12px; object-fit:cover; flex:0 0 auto; border:1px solid #F3DDE5; background:#FFE9F1 }
   /* 初回セットアップ（頑張る理由） */
   .gbz .ds-hero{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; border-radius:24px; padding:30px 30px; margin-bottom:18px; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
   .gbz .ds-eyebrow{ font-size:11px; font-weight:800; letter-spacing:.18em; color:#ffd0e0 }
@@ -1257,7 +1290,8 @@ var state = {
   onbAnswers:{}, onboarding:null, assignedCoach:null, leaderNotes:null,
   msQueue:null, msProgress:null, showMore:false, showDetail:false, todayState:null, savedToday:false, viewCoach:null,
   approvedCount:null, todayApproved:false, lastApproveGain:0, approvedByUser:{},
-  dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false }
+  dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false, imgSeed:7 },
+  qa:{ mDate:'', mAns:'', nDate:'', nQ:'' }
 };
 
 /* ===== 応援メッセージ（本人↔女子アナ/コーチ） ===== */
@@ -1376,7 +1410,7 @@ function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }cat
 var SERVER=false, USER=null, AI_ENABLED=false;
 function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
 
-function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream }; }
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa }; }
 function applyData(d){ if(!d) return;
   if(typeof d.streak==='number') ME.streak=d.streak;
   if(d.mood) state.mood=Object.assign(state.mood,d.mood);
@@ -1385,6 +1419,7 @@ function applyData(d){ if(!d) return;
   if(d.personality) state.personality=d.personality;
   if(d.vision) state.vision=Object.assign(state.vision,d.vision);
   if(d.dream) state.dream=Object.assign(state.dream||{},d.dream);
+  if(d.qa) state.qa=Object.assign(state.qa||{},d.qa);
   if(d.onbAnswers) state.onbAnswers=Object.assign(state.onbAnswers||{},d.onbAnswers);
   if(d.onboarding) state.onboarding=d.onboarding;
   if(d.assignedCoach) state.assignedCoach=d.assignedCoach;
@@ -2702,9 +2737,63 @@ function dreamCard(){
       + '<div class="dr-q dr-q-month"><label>いつまでに？</label><input class="oneline" type="month" data-dream="by" value="'+esc(dreamVal('by'))+'"></div>'
       + '<div class="dr-q"><label>そのために、何をやる？</label><input class="oneline" data-dream="action" value="'+esc(dreamVal('action'))+'" placeholder="例：毎日「今日の一歩」を1つ決めて、やり切る"></div>'
     + '</div>'
+    + dreamImgBlock()
     + '<p class="dr-privacy">この目標はあなたのマイページにだけ表示されます（会社・上司には共有されません）。</p>'
   + '</div></div>';
 }
+// ゴール画像：AIで自動生成（キー不要の生成API。目標テキストから臨場感のある1枚を作る）
+function dreamImgUrl(w){
+  var want=dreamVal('want'); if(!want) return '';
+  var seed=(state.dream&&state.dream.imgSeed)||7;
+  var prompt='beautiful aspirational cinematic photo, '+want+', bright hopeful atmosphere, photorealistic, high quality, no text';
+  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)+'?width='+(w||900)+'&height=500&nologo=true&seed='+seed;
+}
+// 画像ロード失敗時：少し待って再試行（レート制限対策）→ 最終的に目標テキスト入りプレースホルダー
+function dreamImgErr(im){
+  var n=parseInt(im.getAttribute('data-retry')||'0',10);
+  if(n<2){ im.setAttribute('data-retry', String(n+1)); setTimeout(function(){ im.src=dreamImgUrl(900)+'&r='+(n+1); }, 9000); return; }
+  var want=dreamVal('want')||'目標';
+  var sv='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500">'
+    + '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5427A"/><stop offset="1" stop-color="#E1306C"/></linearGradient></defs>'
+    + '<rect width="900" height="500" fill="url(#g)"/>'
+    + '<text x="450" y="240" font-size="40" fill="#ffffff" text-anchor="middle" font-family="sans-serif" font-weight="bold">🎯</text>'
+    + '<text x="450" y="300" font-size="30" fill="#ffffff" text-anchor="middle" font-family="sans-serif" font-weight="bold">'+want.replace(/[<>&"]/g,'')+'</text></svg>';
+  im.onerror=null; im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(sv);
+  var l=el('dreamImgLoad'); if(l) l.style.display='none';
+}
+function dreamImgBlock(){
+  if(!dreamVal('want')) return '';
+  return '<div class="dr-imgwrap"><div class="dr-img-loading" id="dreamImgLoad">✨ AIがあなたの目標のイメージを生成しています…（初回は30秒ほどかかります）</div>'
+    + '<img id="dreamImg" class="dr-img" src="'+dreamImgUrl(900)+'" alt="" loading="lazy"'
+    + ' onload="var l=document.getElementById(\'dreamImgLoad\'); if(l) l.style.display=\'none\'"'
+    + ' onerror="dreamImgErr(this)">'
+    + '<div class="dr-img-foot"><span>目標のイメージ（AIが自動生成）。毎日見るほど、無意識がこの絵を「現実にすべきもの」と認識します。</span>'
+    + '<button class="dr-regen" data-dreamimg="1">'+svg('sparkles')+' 画像を生成し直す</button></div></div>';
+}
+// 朝の問い／夜の問い（入力するとその日は消える）
+function todayKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function morningQuestionCard(){
+  if(!state.qa) state.qa={};
+  if(state.qa.mDate===todayKey()) return ''; // 今日はもう答えた → 消える
+  var recall=(state.qa.nQ && state.qa.nDate && state.qa.nDate!==todayKey())
+    ? '<div class="qa-recall">'+svg('sparkles')+'<div><small>昨夜、あなたが置いた問い</small><b>「'+state.qa.nQ+'」</b><small>無意識が一晩考えました。浮かんだことがあれば、そのまま下に。</small></div></div>' : '';
+  return '<div class="sec"><div class="card qa-card qa-m"><div class="qa-lab">☀️ 朝の問い</div>'
+    + recall
+    + '<b class="qa-q">達成した自分なら、今日どう動く？</b>'
+    + '<div class="qa-row"><input id="qMorningInput" class="oneline" placeholder="例：迷ったら、先に電話する">'
+    + '<button class="qa-btn" data-qmorning="1">これで動く</button></div>'
+    + '<small class="qa-note">入力すると、このカードは今日はもう表示されません。</small></div></div>';
+}
+function nightQuestionCard(){
+  if(!state.qa) state.qa={};
+  if(state.qa.nDate===todayKey()) return ''; // 今日はもう置いた → 消える
+  return '<div class="sec"><div class="card qa-card qa-n"><div class="qa-lab">🌙 寝る前に、明日の問いを置く</div>'
+    + '<b class="qa-q">「どうすれば、◯◯できるか？」の形で1つだけ。答えは出さなくていい。</b>'
+    + '<div class="qa-row"><input id="qNightInput" class="oneline" placeholder="例：どうすれば、最初の10分で信頼してもらえるか？">'
+    + '<button class="qa-btn n" data-qnight="1">問いを置いて、今日を終える</button></div>'
+    + '<small class="qa-note">明日の朝、この問いをもう一度お見せします。眠っている間も、無意識は考え続けます。</small></div></div>';
+}
+
 // 全ページ共通の目標バー（頑張る理由をいつも目に入る場所に）
 function goalStrip(){
   if(state.role!=='user'||state.view==='dream'||state.view==='dreamsetup') return '';
@@ -2713,6 +2802,7 @@ function goalStrip(){
   var age=parseInt(dreamVal('age'),10), ra=parseInt(dreamVal('retireAge'),10)||65;
   var days=(!isNaN(age)&&age>0&&age<ra)?Math.round((ra-age)*365.25):null;
   return '<div class="dreambar" data-goto="dream" title="タップして目標を編集">'
+    + '<img class="db-img" src="'+dreamImgUrl(900)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
     + '<span class="db-ic">🎯</span>'
     + '<span class="db-main"><b>'+(by?by+'までに、':'')+want+'</b>'+(action?'<small>そのために：'+action+'</small>':'')+'</span>'
     + (days?'<span class="db-days">働ける日 あと<b>'+days.toLocaleString()+'</b>日</span>':'')
@@ -2763,17 +2853,20 @@ VIEWS.user.today=function(){
     + '<h1>今日も、一歩だけ進もう。</h1>'
     + '<p class="sub">頑張る理由は、毎日変わっていい。</p>'
     + '<div class="anc"><span class="av">'+personSil()+'</span><div><b>'+(an.name||'三上 あかり').split('（')[0]+'</b><small>'+(an.role||'ホリプロ（仮） アナウンサー')+' ／ 今日もあなたの一歩を見ています。</small></div></div>'
+    + ((state.qa&&state.qa.mDate===todayKey()&&state.qa.mAns)?'<div class="motto">今日の合言葉：「'+state.qa.mAns+'」</div>':'')
     + '<div class="score"><div class="lab">GABASHO SCORE</div><div class="n">'+s.total+'</div><div class="d">'+(s.dod>0?('承認で +'+s.dod+' 上がりました'):('承認された努力 '+s.approved+'件 が反映中'))+'</div></div>'
     + '<div style="text-align:center;margin-top:14px"><a data-view="score" style="font-size:12px;color:#ffd9e6;font-weight:800;text-decoration:underline;cursor:pointer">内訳を見る →</a></div>'
     + '</div>';
   return '<div class="gbz">'
     + hero
+    + morningQuestionCard()
     + '<div class="sec"><div class="sec-t">今の自分を選ぶ</div><div class="choices">'+choiceHtml+'</div></div>'
     + '<div class="sec"><div class="sec-t">今の気分</div><div class="card">'+axes+'</div></div>'
     + '<div class="sec"><div class="sec-t">今日の一歩</div>'+step+'</div>'
     + '<div class="sec"><div class="sec-t">小さな前進</div>'+prog+'</div>'
     + '<button class="save" data-recordeval="1">今日を残す</button>'
     + (state.savedToday?'<div class="saved">今日もちゃんと進んだ。</div>':'')
+    + nightQuestionCard()
     + '</div>';
 };
 
@@ -3912,6 +4005,12 @@ document.addEventListener('click', function(e){
   // 頑張る理由セットアップ：完了／スキップ
   t=e.target.closest('[data-dreamdone]'); if(t){ if(!dreamVal('want').trim()){ toast('「何が欲しい？ 何がしたい？」をひとつだけ書いてみてください'); return; } state.dream.done=true; saveData(); state.view='today'; render(); toast('設定しました。目標は各ページの上部にいつも表示されます'); return; }
   t=e.target.closest('[data-dreamskip]'); if(t){ if(!state.dream) state.dream={}; state.dream.done=true; saveData(); state.view='today'; render(); return; }
+  // ゴール画像を生成し直す（シード変更で別の1枚に）
+  t=e.target.closest('[data-dreamimg]'); if(t){ state.dream.imgSeed=Math.floor(Math.random()*100000); saveData(); var im=el('dreamImg'); if(im){ im.src=dreamImgUrl(900); toast('新しいイメージを生成しています…'); } return; }
+  // 朝の問い：入力したら今日は消える（合言葉としてヒーローに残る）
+  t=e.target.closest('[data-qmorning]'); if(t){ var mi=el('qMorningInput'); var mv=(mi&&mi.value||'').trim(); if(!mv){ toast('ひとことだけで大丈夫です'); return; } state.qa.mDate=todayKey(); state.qa.mAns=mv; saveData(); render(); toast('今日の合言葉にしました。いってらっしゃい！'); return; }
+  // 夜の問い：置いたら今日は消える → 明日の朝カードに再表示
+  t=e.target.closest('[data-qnight]'); if(t){ var ni=el('qNightInput'); var nv=(ni&&ni.value||'').trim(); if(!nv){ toast('「どうすれば◯◯できるか？」の形でひとつだけ'); return; } state.qa.nDate=todayKey(); state.qa.nQ=nv; saveData(); render(); toast('問いを置きました。明日の朝、もう一度お見せします。おやすみなさい'); return; }
   // 「今日を残す」：GABASHO SCORE基準で“次の特別動画”バーが少し満ちる（満ちたら内部で動画が届く）
   t=e.target.closest('[data-recordeval]'); if(t){ state.savedToday=true; var got=bumpVideoProgress(Math.max(10, Math.round(gabashoScore().total/3))); saveData(); render(); toast(got? '三上さんから新しい動画が届きました！応援動画BOXへ' : '記録しました。コーチが受け止めます（努力の承認でスコアが上がります）'); return; }
   // コーチが努力を承認 → GABASHO SCOREに反映（自己申告では上がらない・1サイクル1回）
