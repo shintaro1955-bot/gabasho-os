@@ -833,6 +833,11 @@
   .gbz .dream .dr-q label{ display:block; font-size:11.5px; font-weight:800; color:#c58aa0; margin:0 0 5px }
   .gbz .dream .dr-privacy{ margin:11px 0 0; font-size:10.5px; color:#b8a3ad; font-weight:600 }
   @media(max-width:640px){ .gbz .dream .dr-form{ grid-template-columns:1fr } }
+  /* 初回セットアップ（頑張る理由） */
+  .gbz .ds-hero{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; border-radius:24px; padding:30px 30px; margin-bottom:18px; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
+  .gbz .ds-eyebrow{ font-size:11px; font-weight:800; letter-spacing:.18em; color:#ffd0e0 }
+  .gbz .ds-hero h1{ font-size:clamp(21px,3.2vw,27px); font-weight:900; margin:8px 0 0; line-height:1.4 }
+  .gbz .ds-hero p{ font-size:13px; color:#ffdfea; margin:10px 0 0; line-height:1.75 }
   /* 全ページ共通・目標バー */
   .dreambar{ display:flex; align-items:center; gap:11px; background:linear-gradient(120deg,#FFF0F6,#FFF8FB); border:1px solid #F3DDE5; border-left:4px solid #F5427A; border-radius:14px; padding:10px 16px; margin:0 0 16px; cursor:pointer }
   .dreambar:hover{ border-color:#F5427A }
@@ -1252,7 +1257,7 @@ var state = {
   onbAnswers:{}, onboarding:null, assignedCoach:null, leaderNotes:null,
   msQueue:null, msProgress:null, showMore:false, showDetail:false, todayState:null, savedToday:false, viewCoach:null,
   approvedCount:null, todayApproved:false, lastApproveGain:0, approvedByUser:{},
-  dream:{ age:'', retireAge:'65', want:'', by:'', action:'' }
+  dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false }
 };
 
 /* ===== 応援メッセージ（本人↔女子アナ/コーチ） ===== */
@@ -1454,6 +1459,7 @@ var NAV = {
   user:[
     {v:'today', ic:'edit', t:'今日の一歩', core:true},
     {v:'videos', ic:'play', t:'応援動画BOX', core:true},
+    {v:'dream', ic:'target', t:'頑張る理由・目標', core:true},
     {grp:'マイコーチング'},
     {v:'streak', ic:'flame', t:'継続・目標'},
     {v:'score', ic:'trendUp', t:'成長スコア'},
@@ -1677,6 +1683,8 @@ function render(){
   // 管理者/運営＝PRO Athlete（ネイビー×ゴールド）、それ以外＝Standard（ピンク）
   document.body.classList.toggle('theme-pro', state.role==='admin' || state.role==='operator');
   renderWho(); renderSide();
+  // 「頑張る理由」未設定なら、マイページに入る前にセットアップ（初回のみ）
+  if(state.role==='user' && state.view==='today' && !(state.dream&&state.dream.done)) state.view='dreamsetup';
   var fn=(VIEWS[state.role]&&VIEWS[state.role][state.view])||function(){return '<div class="card">準備中の画面です。</div>';};
   el('main').innerHTML=(typeof goalStrip==='function'?goalStrip():'')+fn(); window.scrollTo(0,0);
 }
@@ -2619,6 +2627,27 @@ function memberAlerts(){
   });
 }
 
+// 初回セットアップ：マイページに入る前に「頑張る理由」を設定（クリアするまでtodayに入れない）
+VIEWS.user.dreamsetup=function(){
+  return '<div class="gbz">'
+    + '<div class="ds-hero"><span class="ds-eyebrow">はじめに（1分で終わります）</span>'
+      + '<h1>あなたの、頑張る理由を教えてください。</h1>'
+      + '<p>ガバショは成績を管理する場所ではありません。あなたが「今日も頑張ろう」と思える理由を、いつも見える場所に置いておくためのものです。</p></div>'
+    + dreamCard()
+    + growthProcessCard(true)
+    + '<button class="save" data-dreamdone="1">この内容で、マイページをはじめる</button>'
+    + '<div style="text-align:center;margin-top:10px"><a data-dreamskip="1" style="font-size:11.5px;color:var(--mut);text-decoration:underline;cursor:pointer">あとで設定する（スキップ）</a></div>'
+    + '</div>';
+};
+// 頑張る理由・目標ページ（設定後はここで編集・仕組みもここで確認）
+VIEWS.user.dream=function(){
+  return '<div class="gbz">'
+    + pageHead('頑張る理由・目標','あなたが決めた目標は、すべてのページの上部にいつも表示されます。','')
+    + dreamCard()
+    + growthProcessCard()
+    + '</div>';
+};
+
 VIEWS.user.onboarding=function(){
   var ans=onbAnswered(), pct=Math.round(ans/ONB_Q.length*100);
   var html=ONB_CATS.map(function(c,ci){
@@ -2678,12 +2707,12 @@ function dreamCard(){
 }
 // 全ページ共通の目標バー（頑張る理由をいつも目に入る場所に）
 function goalStrip(){
-  if(state.role!=='user'||state.view==='today') return '';
+  if(state.role!=='user'||state.view==='dream'||state.view==='dreamsetup') return '';
   var want=dreamVal('want'); if(!want) return '';
   var by=fmtByMonth(dreamVal('by')), action=dreamVal('action');
   var age=parseInt(dreamVal('age'),10), ra=parseInt(dreamVal('retireAge'),10)||65;
   var days=(!isNaN(age)&&age>0&&age<ra)?Math.round((ra-age)*365.25):null;
-  return '<div class="dreambar" data-goto="today" title="タップして目標を編集">'
+  return '<div class="dreambar" data-goto="dream" title="タップして目標を編集">'
     + '<span class="db-ic">🎯</span>'
     + '<span class="db-main"><b>'+(by?by+'までに、':'')+want+'</b>'+(action?'<small>そのために：'+action+'</small>':'')+'</span>'
     + (days?'<span class="db-days">働ける日 あと<b>'+days.toLocaleString()+'</b>日</span>':'')
@@ -2691,10 +2720,11 @@ function goalStrip(){
 }
 
 // 成長のプロセス：マイナス思考→コーチ→結果→承認 を可視化。承認だけがスコアを上げる。
-function growthProcessCard(){
-  var done=stageFlags();
+// compact=true でセットアップ用の説明のみ（進捗ステータス・承認ログなし）
+function growthProcessCard(compact){
+  var done=compact?[false,false,false,false]:stageFlags();
   var nodes=GROWTH_STEPS.map(function(s,i){
-    var st=done[i]?'done':((i===0||done[i-1])?'active':'todo');
+    var st=compact?'':(done[i]?'done':((i===0||done[i-1])?'active':'todo'));
     return '<div class="gp-node '+st+'"><div class="gp-ic">'+s.ic+'</div><div class="gp-b"><b>'+s.t+'</b><small>'+s.d+'</small></div></div>'
       + (i<GROWTH_STEPS.length-1?'<span class="gp-arrow">'+svg('trendUp')+'</span>':'');
   }).join('');
@@ -2702,12 +2732,12 @@ function growthProcessCard(){
   var log=GROWTH_LOG.slice(0,3).map(function(c){
     return '<div class="gp-log"><span class="gp-date">'+c.date+'</span><div class="gp-log-b"><p class="neg">🌧 '+c.neg+'</p><p class="res">🎯 '+c.result+'</p><span class="gp-coach">'+c.coach+' が承認</span></div><span class="gp-pts">+'+c.pts+'</span></div>';
   }).join('');
-  return '<div class="sec"><div class="sec-t">努力が承認されて、スコアは上がる</div>'
+  return '<div class="sec"><div class="sec-t">'+(compact?'スコアの上がり方（大事な仕組み）':'努力が承認されて、スコアは上がる')+'</div>'
     + '<div class="card gp-card">'
     + '<div class="gp-flow">'+nodes+'</div>'
-    + '<div class="gp-status">'+status+'</div>'
+    + (compact?'':'<div class="gp-status">'+status+'</div>')
     + '<div class="gp-note">'+svg('sparkles')+'<span>スコアは自己申告では上がりません。<b>マイナス思考を正直に出す → コーチが受け止める → 一歩の結果を出す → コーチが承認</b>。この“承認”でだけ、スコアが上がります。</span></div>'
-    + '<div class="gp-log-h">これまで承認された努力（'+approvedEfforts()+'件）</div>'+log
+    + (compact?'':'<div class="gp-log-h">これまで承認された努力（'+approvedEfforts()+'件）</div>'+log)
     + '</div></div>';
 }
 VIEWS.user.today=function(){
@@ -2738,8 +2768,6 @@ VIEWS.user.today=function(){
     + '</div>';
   return '<div class="gbz">'
     + hero
-    + dreamCard()
-    + growthProcessCard()
     + '<div class="sec"><div class="sec-t">今の自分を選ぶ</div><div class="choices">'+choiceHtml+'</div></div>'
     + '<div class="sec"><div class="sec-t">今の気分</div><div class="card">'+axes+'</div></div>'
     + '<div class="sec"><div class="sec-t">今日の一歩</div>'+step+'</div>'
@@ -3881,6 +3909,9 @@ document.addEventListener('click', function(e){
   t=e.target.closest('[data-coachvideo]'); if(t){ showCoachVideo(t.getAttribute('data-coachvideo')); return; }
   // 継続チャレンジ：仲間の継続を称える
   t=e.target.closest('[data-cheer]'); if(t&&!t.classList.contains('done')){ var who=t.getAttribute('data-cheer'); t.classList.add('done'); t.innerHTML=svg('heart')+' 称えました'; toast(who+'さんに「続けてるね！」を届けました'); return; }
+  // 頑張る理由セットアップ：完了／スキップ
+  t=e.target.closest('[data-dreamdone]'); if(t){ if(!dreamVal('want').trim()){ toast('「何が欲しい？ 何がしたい？」をひとつだけ書いてみてください'); return; } state.dream.done=true; saveData(); state.view='today'; render(); toast('設定しました。目標は各ページの上部にいつも表示されます'); return; }
+  t=e.target.closest('[data-dreamskip]'); if(t){ if(!state.dream) state.dream={}; state.dream.done=true; saveData(); state.view='today'; render(); return; }
   // 「今日を残す」：GABASHO SCORE基準で“次の特別動画”バーが少し満ちる（満ちたら内部で動画が届く）
   t=e.target.closest('[data-recordeval]'); if(t){ state.savedToday=true; var got=bumpVideoProgress(Math.max(10, Math.round(gabashoScore().total/3))); saveData(); render(); toast(got? '三上さんから新しい動画が届きました！応援動画BOXへ' : '記録しました。コーチが受け止めます（努力の承認でスコアが上がります）'); return; }
   // コーチが努力を承認 → GABASHO SCOREに反映（自己申告では上がらない・1サイクル1回）
@@ -4093,7 +4124,7 @@ document.addEventListener('input', function(e){
 });
 document.addEventListener('change', function(e){
   var dr=e.target.getAttribute&&e.target.getAttribute('data-dream');
-  if(dr&&state.role==='user'&&state.view==='today'){ render(); } // 確定時に目標バー等へ反映
+  if(dr&&state.role==='user'&&state.view==='dream'){ render(); } // 確定時に目標バー等へ反映（setup中は再描画しない）
 });
 
 /* AI設定モーダル＆状態チップ */
