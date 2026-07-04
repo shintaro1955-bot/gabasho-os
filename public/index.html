@@ -815,6 +815,34 @@
   .gbz .gp-coach{ font-size:10.5px; font-weight:800; color:#E1306C; background:#FFE4EE; border-radius:999px; padding:2px 9px; display:inline-block; margin-top:5px }
   .gbz .gp-pts{ font-size:14px; font-weight:900; color:#E1306C; flex:0 0 auto; align-self:center }
   @media(max-width:640px){ .gbz .gp-flow{ flex-wrap:wrap } .gbz .gp-node{ flex:1 1 42% } .gbz .gp-arrow{ display:none } }
+  /* 頑張る理由（じぶん設定） */
+  .gbz .dream{ background:linear-gradient(165deg,#FFF5F9,#FFFFFF); border:1px solid #F3DDE5 }
+  .gbz .dream .dr-line{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; font-weight:700; color:#5a505a }
+  .gbz .dream .dr-line label{ font-size:12px; font-weight:800; color:#c58aa0 }
+  .gbz .dream .dr-num{ width:64px; padding:8px 10px; border:1px solid #F3DDE5; border-radius:10px; font-size:15px; font-weight:800; color:#E1306C; text-align:center; font-family:inherit }
+  .gbz .dream .dr-num:focus{ outline:none; border-color:#F5427A }
+  .gbz .dream .dr-count{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:13px 0 4px; padding:13px 16px; background:#fff; border:1px dashed #F3DDE5; border-radius:14px }
+  .gbz .dream .dr-count::before{ content:'定年まで あと'; font-size:12px; font-weight:800; color:#c58aa0 }
+  .gbz .dream .dr-big{ font-size:34px; font-weight:900; color:#E1306C; line-height:1; font-variant-numeric:tabular-nums }
+  .gbz .dream .dr-big small{ font-size:15px; margin-left:2px }
+  .gbz .dream .dr-days{ font-size:14px; font-weight:800; color:#a08a92; font-variant-numeric:tabular-nums }
+  .gbz .dream .dr-note{ flex-basis:100%; font-size:12px; color:#8a6a76; font-weight:600 }
+  .gbz .dream .dr-hint{ font-size:12.5px; color:#a08a92; font-weight:600 }
+  .gbz .dream .dr-form{ display:grid; grid-template-columns:1.4fr .7fr; gap:10px; margin-top:12px }
+  .gbz .dream .dr-q:last-child{ grid-column:1 / -1 }
+  .gbz .dream .dr-q label{ display:block; font-size:11.5px; font-weight:800; color:#c58aa0; margin:0 0 5px }
+  .gbz .dream .dr-privacy{ margin:11px 0 0; font-size:10.5px; color:#b8a3ad; font-weight:600 }
+  @media(max-width:640px){ .gbz .dream .dr-form{ grid-template-columns:1fr } }
+  /* 全ページ共通・目標バー */
+  .dreambar{ display:flex; align-items:center; gap:11px; background:linear-gradient(120deg,#FFF0F6,#FFF8FB); border:1px solid #F3DDE5; border-left:4px solid #F5427A; border-radius:14px; padding:10px 16px; margin:0 0 16px; cursor:pointer }
+  .dreambar:hover{ border-color:#F5427A }
+  .dreambar .db-ic{ font-size:18px; flex:0 0 auto }
+  .dreambar .db-main{ flex:1; min-width:0 }
+  .dreambar .db-main b{ font-size:13.5px; color:#222; font-weight:800; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .dreambar .db-main small{ font-size:11px; color:#a08a92; font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .dreambar .db-days{ flex:0 0 auto; font-size:11.5px; font-weight:700; color:#8a6a76; background:#fff; border:1px solid #F3DDE5; border-radius:999px; padding:5px 12px; white-space:nowrap }
+  .dreambar .db-days b{ color:#E1306C; font-size:13px; font-variant-numeric:tabular-nums }
+  body.theme-pro .dreambar{ background:linear-gradient(120deg,#FFFDF5,#fff); border-color:#ead9a8; border-left-color:var(--gold,#C9A227) }
   .gbz .hero .score{ margin:24px 0 0; text-align:center }
   .gbz .hero .score .lab{ font-size:11px; font-weight:800; letter-spacing:.22em; color:#ffd0e0 }
   .gbz .hero .score .n{ font-size:74px; font-weight:900; line-height:1; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 8px 34px rgba(255,255,255,.3) }
@@ -1223,7 +1251,8 @@ var state = {
   league:null, notify:null,
   onbAnswers:{}, onboarding:null, assignedCoach:null, leaderNotes:null,
   msQueue:null, msProgress:null, showMore:false, showDetail:false, todayState:null, savedToday:false, viewCoach:null,
-  approvedCount:null, todayApproved:false, lastApproveGain:0, approvedByUser:{}
+  approvedCount:null, todayApproved:false, lastApproveGain:0, approvedByUser:{},
+  dream:{ age:'', retireAge:'65', want:'', by:'', action:'' }
 };
 
 /* ===== 応援メッセージ（本人↔女子アナ/コーチ） ===== */
@@ -1342,7 +1371,7 @@ function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }cat
 var SERVER=false, USER=null, AI_ENABLED=false;
 function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
 
-function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState }; }
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream }; }
 function applyData(d){ if(!d) return;
   if(typeof d.streak==='number') ME.streak=d.streak;
   if(d.mood) state.mood=Object.assign(state.mood,d.mood);
@@ -1350,6 +1379,7 @@ function applyData(d){ if(!d) return;
   if(d.aiComment) state.aiComment=d.aiComment;
   if(d.personality) state.personality=d.personality;
   if(d.vision) state.vision=Object.assign(state.vision,d.vision);
+  if(d.dream) state.dream=Object.assign(state.dream||{},d.dream);
   if(d.onbAnswers) state.onbAnswers=Object.assign(state.onbAnswers||{},d.onbAnswers);
   if(d.onboarding) state.onboarding=d.onboarding;
   if(d.assignedCoach) state.assignedCoach=d.assignedCoach;
@@ -1648,7 +1678,7 @@ function render(){
   document.body.classList.toggle('theme-pro', state.role==='admin' || state.role==='operator');
   renderWho(); renderSide();
   var fn=(VIEWS[state.role]&&VIEWS[state.role][state.view])||function(){return '<div class="card">準備中の画面です。</div>';};
-  el('main').innerHTML=fn(); window.scrollTo(0,0);
+  el('main').innerHTML=(typeof goalStrip==='function'?goalStrip():'')+fn(); window.scrollTo(0,0);
 }
 
 var VIEWS={ user:{}, admin:{}, coach:{}, operator:{} };
@@ -2618,6 +2648,48 @@ VIEWS.user.onboardingResult=function(){
     + '<div class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div class="kpi-ic-lg">'+svg('sparkles')+'</div><div style="flex:1;min-width:220px"><b>診断完了。マイページが開きました。</b><p class="muted" style="margin:3px 0 0;font-size:12.5px">あなたの営業タイプ「'+((state.personality||{}).salesType||o.persona||'—')+'」をもとに、毎日の応援とコーチングが設計されます。</p></div><button class="btn btn-ghost" data-goto="coaching">相性を見る</button><button class="btn btn-em" data-goto="today">マイページへ</button></div>';
 };
 
+// 頑張る理由（じぶん設定）：年齢→定年カウント＋欲しいもの＋そのために何をやるか
+function dreamVal(k){ return (state.dream&&state.dream[k]!=null)?String(state.dream[k]):''; }
+function dreamCountHtml(){
+  var age=parseInt(dreamVal('age'),10), ra=parseInt(dreamVal('retireAge'),10)||65;
+  if(isNaN(age)||age<=0||age>=ra) return '<span class="dr-hint">年齢を入れると、働ける残り時間が見えます。</span>';
+  var years=ra-age, days=Math.round(years*365.25);
+  return '<span class="dr-big">'+years+'<small>年</small></span><span class="dr-days">約 '+days.toLocaleString()+' 日</span>'
+    + '<span class="dr-note">自分のために働ける日が、あと'+days.toLocaleString()+'日ある。今日はそのうちの1日。</span>';
+}
+function fmtByMonth(by){ // input[type=month] "2026-12" → 2026年12月
+  if(!by) return ''; var m=String(by).split('-'); return (m.length===2)?(m[0]+'年'+parseInt(m[1],10)+'月'):String(by);
+}
+function dreamCard(){
+  var esc=function(s){ return String(s||'').replace(/"/g,'&quot;'); };
+  return '<div class="sec"><div class="sec-t">頑張る理由（じぶん設定）</div><div class="card dream">'
+    + '<div class="dr-line">'
+      + '<label>いまの年齢</label><input class="dr-num" type="number" min="15" max="80" data-dream="age" value="'+esc(dreamVal('age'))+'" placeholder="28">歳'
+      + '<label style="margin-left:14px">定年</label><input class="dr-num" type="number" min="50" max="80" data-dream="retireAge" value="'+esc(dreamVal('retireAge')||'65')+'">歳'
+    + '</div>'
+    + '<div class="dr-count" id="dreamCount">'+dreamCountHtml()+'</div>'
+    + '<div class="dr-form">'
+      + '<div class="dr-q"><label>何が欲しい？ 何がしたい？</label><input class="oneline" data-dream="want" value="'+esc(dreamVal('want'))+'" placeholder="例：ハーレーを買う／家族を沖縄に連れて行く"></div>'
+      + '<div class="dr-q dr-q-month"><label>いつまでに？</label><input class="oneline" type="month" data-dream="by" value="'+esc(dreamVal('by'))+'"></div>'
+      + '<div class="dr-q"><label>そのために、何をやる？</label><input class="oneline" data-dream="action" value="'+esc(dreamVal('action'))+'" placeholder="例：毎日「今日の一歩」を1つ決めて、やり切る"></div>'
+    + '</div>'
+    + '<p class="dr-privacy">この目標はあなたのマイページにだけ表示されます（会社・上司には共有されません）。</p>'
+  + '</div></div>';
+}
+// 全ページ共通の目標バー（頑張る理由をいつも目に入る場所に）
+function goalStrip(){
+  if(state.role!=='user'||state.view==='today') return '';
+  var want=dreamVal('want'); if(!want) return '';
+  var by=fmtByMonth(dreamVal('by')), action=dreamVal('action');
+  var age=parseInt(dreamVal('age'),10), ra=parseInt(dreamVal('retireAge'),10)||65;
+  var days=(!isNaN(age)&&age>0&&age<ra)?Math.round((ra-age)*365.25):null;
+  return '<div class="dreambar" data-goto="today" title="タップして目標を編集">'
+    + '<span class="db-ic">🎯</span>'
+    + '<span class="db-main"><b>'+(by?by+'までに、':'')+want+'</b>'+(action?'<small>そのために：'+action+'</small>':'')+'</span>'
+    + (days?'<span class="db-days">働ける日 あと<b>'+days.toLocaleString()+'</b>日</span>':'')
+  + '</div>';
+}
+
 // 成長のプロセス：マイナス思考→コーチ→結果→承認 を可視化。承認だけがスコアを上げる。
 function growthProcessCard(){
   var done=stageFlags();
@@ -2666,6 +2738,7 @@ VIEWS.user.today=function(){
     + '</div>';
   return '<div class="gbz">'
     + hero
+    + dreamCard()
     + growthProcessCard()
     + '<div class="sec"><div class="sec-t">今の自分を選ぶ</div><div class="choices">'+choiceHtml+'</div></div>'
     + '<div class="sec"><div class="sec-t">今の気分</div><div class="card">'+axes+'</div></div>'
@@ -4015,6 +4088,12 @@ document.addEventListener('click', function(e){
 document.addEventListener('input', function(e){
   var d=e.target.getAttribute&&e.target.getAttribute('data-diary'); if(d){ state.diary[d]=e.target.value; saveData(); return; }
   var v=e.target.getAttribute&&e.target.getAttribute('data-vision'); if(v){ state.vision[v]=e.target.value; saveData(); }
+  var dr=e.target.getAttribute&&e.target.getAttribute('data-dream'); if(dr){ if(!state.dream) state.dream={}; state.dream[dr]=e.target.value; saveData();
+    var cd=el('dreamCount'); if(cd&&(dr==='age'||dr==='retireAge')) cd.innerHTML=dreamCountHtml(); }
+});
+document.addEventListener('change', function(e){
+  var dr=e.target.getAttribute&&e.target.getAttribute('data-dream');
+  if(dr&&state.role==='user'&&state.view==='today'){ render(); } // 確定時に目標バー等へ反映
 });
 
 /* AI設定モーダル＆状態チップ */
