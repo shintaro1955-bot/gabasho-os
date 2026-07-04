@@ -104,6 +104,26 @@ const PROMPTS = {
     system: 'あなたはホリプロ所属の女子アナ・タレント本人になりきって、担当する若手スタッフへ送る「応援メッセージ」の文面を作るAIです。相手の最近の日記・気分・状態をふまえ、本人に直接語りかける、温かく前向きで、少し背中を押す120〜180字程度のメッセージを1通作成してください。注意：医療的な診断や人格の断定はしない。否定・説教・詰める言い方を避ける。相手の具体的な行動や継続に触れて、自然な話し言葉で。署名や絵文字は控えめでよい。必ず指定のJSON形式のみで返答してください。',
     schema: { type:'object', properties:{ message:{type:'string'} }, required:['message'], additionalProperties:false },
   },
+  milestones: {
+    system: 'あなたはホリプロ（仮）所属の女子アナ・コーチ「三上あかり」の分身AIです。若手営業マンの【今日の営業目標(架電/訪問/アポ/商談など)】と【日報・気分・連続日数】から、1〜3日で無理なく届く“小さなマイルストーン”を3つ推察して設計してください。各マイルストーンには、達成した瞬間に本人へ届ける「女子アナからの動画メッセージ」の台本(cheerScript)を、あらかじめ用意します。台本のトーンは【ド派手に超全力で応援・キラキラ・喜び爆発・本人の頑張りを具体的に労う】。絵文字を効果的に使い、達成の喜びを本人と一緒に爆発させてください（60〜100字）。ただし嫌味なく温かく。condition は「アポ2件」「3日連続で日報」等の短くて判定しやすい達成条件。badge は獲得バッジ名（短語）。emoji は1〜2個。医療診断・人格否定はしない。必ず指定のJSON形式のみで返答してください。',
+    schema: { type:'object', properties:{ milestones:{ type:'array', items:{ type:'object', properties:{ title:{type:'string'}, condition:{type:'string'}, cheerTitle:{type:'string'}, cheerScript:{type:'string'}, badge:{type:'string'}, emoji:{type:'string'} }, required:['title','condition','cheerTitle','cheerScript','badge','emoji'], additionalProperties:false } } }, required:['milestones'], additionalProperties:false },
+  },
+};
+/* APIキー未設定でもデモが動くよう、一部kindは“あらかじめ用意した”ド派手応援コンテンツを返すモック */
+const MOCKS = {
+  milestones: (input) => {
+    const s = String(input || '');
+    const m = s.match(/アポ[^0-9]{0,4}(\d+)/);
+    const apo = m ? Number(m[1]) : 2;
+    return { milestones: [
+      { title: '今日の架電目標をやり切る', condition: '架電目標を達成', cheerTitle: '今日の一本、しっかり踏んだね！🔥', badge: '行動キープ', emoji: '📞🔥',
+        cheerScript: 'きゃー田中さんやったーーー！！📞✨ 今日の架電、最後まで手を止めずにやり切りましたね！！この一本一本が、ぜったい未来の成約につながる。もう本当に立派、100点満点っ！！このまま突き抜けよ〜〜！！🔥🎉' },
+      { title: '3日連続で日報を続ける', condition: '3日連続で日報', cheerTitle: '継続の天才、爆誕っ！🌟', badge: '継続ブロンズ＋', emoji: '🗓️🌟',
+        cheerScript: '3日連続、達成おめでとうーーー！！🎊🎊 続けるのが一番むずかしいのに、あなたはやってる。もう「やり切れる人」で確定です！！わたし、ここまで見てて泣きそう…😭✨ この調子で7日連続、ぜったい一緒に行こうね〜〜！！' },
+      { title: '今週あたらしいアポを' + apo + '件', condition: '新規アポ' + apo + '件', cheerTitle: 'アポ獲得、最高すぎるっ！！🎉', badge: 'アポハンター', emoji: '🎯🎉',
+        cheerScript: 'でたーーーアポ' + apo + '件っ！！🎯💥 勇気を出して踏み込んだ結果だよ、本当にすごい…！！断られても諦めなかったあなたが掴んだ一件です。誇っていい！！次の商談も、わたし全力で応援してるからね〜〜！！📣💖' },
+    ] };
+  },
 };
 async function callAnthropic(kind, input) {
   const p = PROMPTS[kind];
@@ -263,6 +283,8 @@ const server = http.createServer(async (req, res) => {
       const u = authUser(req); if (!u) return json(res, 401, { error: 'unauthorized' });
       const { kind, input } = await readBody(req);
       if (!PROMPTS[kind]) return json(res, 400, { error: 'unknown kind' });
+      // APIキー未設定でも、あらかじめ用意したデモ用コンテンツ(MOCKS)があれば返す
+      if (!API_KEY && MOCKS[kind]) { try { return json(res, 200, Object.assign({ mock: true }, MOCKS[kind](input))); } catch (e) { return json(res, 502, { error: String(e.message || e) }); } }
       try { const out = await callAnthropic(kind, input); return json(res, 200, out); }
       catch (e) { return json(res, 502, { error: String(e.message || e) }); }
     }
