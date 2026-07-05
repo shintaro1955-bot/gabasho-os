@@ -883,6 +883,27 @@
   .dreambar .db-days{ flex:0 0 auto; font-size:11.5px; font-weight:700; color:#8a6a76; background:#fff; border:1px solid #F3DDE5; border-radius:999px; padding:5px 12px; white-space:nowrap }
   .dreambar .db-days b{ color:#E1306C; font-size:13px; font-variant-numeric:tabular-nums }
   body.theme-pro .dreambar{ background:linear-gradient(120deg,#FFFDF5,#fff); border-color:#ead9a8; border-left-color:var(--gold,#C9A227) }
+  /* 承認ニュース（成長プロセス図の代わり） */
+  .gbz .appr-news{ display:flex; align-items:center; gap:12px; background:linear-gradient(120deg,#EFFBF3,#fff); border:1px solid #bfe6cd; border-radius:16px; padding:15px 18px }
+  .gbz .appr-news .an-ic{ width:38px; height:38px; border-radius:50%; background:#16A05B; color:#fff; display:grid; place-items:center; flex:0 0 auto } .gbz .appr-news .an-ic svg{ width:22px; height:22px }
+  .gbz .appr-news b{ font-size:15px; color:#12603a; display:block } .gbz .appr-news small{ font-size:12px; color:#4a7a5e }
+  .gbz .appr-note{ font-size:12.5px; color:#8a7a82; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; padding:12px 14px } .gbz .appr-note svg{ width:15px; height:15px; color:#E1306C; vertical-align:-3px; margin-right:5px } .gbz .appr-note b{ color:#333 }
+  /* 朝夜アイコン付き見出し */
+  .gbz .sec-t svg{ width:15px; height:15px; vertical-align:-2px; margin-right:5px; color:#E1306C }
+  .gbz .daynote{ font-size:11.5px; color:#a08a92; margin:10px 0 8px }
+  /* 夜：今日の数字 */
+  .gbz .num-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+  .gbz .num-in{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #F3DDE5; border-radius:12px; padding:9px 12px }
+  .gbz .num-in label{ font-size:12px; font-weight:800; color:#c58aa0; white-space:nowrap }
+  .gbz .num-in input{ flex:1; border:none; outline:none; font-size:17px; font-weight:800; color:#E1306C; text-align:right; width:100%; font-family:inherit; padding:0; background:transparent }
+  .gbz .num-in span{ font-size:12px; color:#a08a92 }
+  /* お祝い動画まで あと3回 */
+  .gbz .vhint{ display:flex; align-items:center; gap:11px; justify-content:center; margin:14px 0 0; font-size:12px; color:#8a7a82; font-weight:600 }
+  .gbz .vhint b{ color:#E1306C } .gbz .vh-dots{ display:flex; gap:6px }
+  .gbz .vdot{ width:10px; height:10px; border-radius:50%; background:#F3DDE5 } .gbz .vdot.on{ background:#F5427A }
+  /* 今月の目標 target 編集 */
+  .g-target{ width:44px; border:1px solid var(--line); border-radius:7px; padding:2px 4px; font-size:14px; font-weight:800; color:var(--ink); text-align:center; font-family:inherit }
+  @media(max-width:520px){ .gbz .num-row{ grid-template-columns:1fr } }
   /* 個人プロフィール */
   .pf-av{ border-radius:50%; background-size:cover; background-position:center; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; background-color:#F3DDE5 }
   .pf-av.ph{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; font-weight:800 }
@@ -1402,11 +1423,10 @@ var CHIST = [
 ];
 
 // 目標（編集し続ける対象）
+// 今月の営業目標。月初に目標(target)を立て、毎晩の日記で数字(current)を積み上げる。
 var GOALS = [
-  {id:'g1', title:'今月のアポ数', current:18, target:30, unit:'件', done:false},
-  {id:'g2', title:'今月の商談数', current:9, target:15, unit:'件', done:false},
-  {id:'g3', title:'今月の成約数', current:2, target:3, unit:'件', done:false},
-  {id:'g4', title:'日記の連続記録', current:23, target:30, unit:'日', done:false}
+  {id:'g_shodan',  title:'今月の商談数', current:0, target:15, unit:'件', done:false},
+  {id:'g_keiyaku', title:'今月の成約数', current:0, target:3,  unit:'件', done:false}
 ];
 
 // 受信したお祝い動画（ユーザーBOX）
@@ -1457,6 +1477,7 @@ var state = {
   dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false, imgSeed:7 },
   qa:{ mDate:'', mAns:'', nDate:'', nQ:'' },
   profile:{ name:'', company:'', dept:'', position:'', years:'', email:'', salesType:'', about:'', photo:'' },
+  doneCount:0,
   reflSession:0, reflAnswers:{}, reflections:[],
   reportCfg:{ enabled:true, day:'月', time:'08:00', email:'owner@company.co.jp' }
 };
@@ -1577,11 +1598,12 @@ function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }cat
 var SERVER=false, USER=null, AI_ENABLED=false;
 function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
 
-function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections }; }
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections, doneCount:state.doneCount }; }
 function applyData(d){ if(!d) return;
   if(d.profile){ state.profile=Object.assign(state.profile||{},d.profile); syncProfileToME(); }
   if(typeof d.reflSession==='number') state.reflSession=d.reflSession;
   if(Array.isArray(d.reflections)) state.reflections=d.reflections;
+  if(typeof d.doneCount==='number') state.doneCount=d.doneCount;
   if(Array.isArray(d.bookings)&&d.bookings[0]&&d.bookings[0].date){ SCHEDULE.confirmed=d.bookings[0]; }
   if(typeof d.streak==='number') ME.streak=d.streak;
   if(d.mood) state.mood=Object.assign(state.mood,d.mood);
@@ -1595,7 +1617,7 @@ function applyData(d){ if(!d) return;
   if(d.onboarding) state.onboarding=d.onboarding;
   if(d.assignedCoach) state.assignedCoach=d.assignedCoach;
   if(Array.isArray(d.leaderNotes)) state.leaderNotes=d.leaderNotes;
-  if(Array.isArray(d.goals)&&d.goals.length) GOALS=d.goals;
+  if(Array.isArray(d.goals)&&d.goals.length && d.goals[0]&&d.goals[0].id==='g_shodan') GOALS=d.goals; // 旧フォーマット(g1..)は無視して新目標を使う
   if(Array.isArray(d.videos)) MY_VIDEOS=d.videos;
   if(Array.isArray(d.msQueue)) state.msQueue=d.msQueue;
   if(typeof d.msProgress==='number') state.msProgress=d.msProgress;
@@ -1666,7 +1688,6 @@ var NAV = {
     {v:'today', ic:'edit', t:'今日の一歩', core:true},
     {v:'videos', ic:'play', t:'応援動画BOX', core:true},
     {v:'dream', ic:'target', t:'頑張る理由・目標', core:true},
-    {v:'profile', ic:'contact', t:'プロフィール', core:true},
     {grp:'マイコーチング'},
     {v:'streak', ic:'flame', t:'継続・目標'},
     {v:'score', ic:'trendUp', t:'成長スコア'},
@@ -1806,6 +1827,8 @@ var ICONS={
   pencil:'<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   video:'<rect x="3" y="6" width="13" height="12" rx="2"/><polygon points="16 10 21 7 21 17 16 14"/>',
   camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+  sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
   folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
   user:'<circle cx="12" cy="8" r="4"/><path d="M5 21v-1a6 6 0 0 1 14 0v1"/>',
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
@@ -1870,7 +1893,7 @@ function renderSide(){
   var profile='';
   if(state.role==='user'){
     var an=assignedAnnouncer();
-    var meChip='<a class="side-me" data-view="profile"><span class="mav">'+pfAvatar(38)+'</span><div style="min-width:0"><div class="nm">'+(pfVal('name')||ME.name)+'</div><div class="ro">'+(pfVal('company')||ME.company)+'</div></div><span class="edit">'+svg('edit')+'</span></a>';
+    var meChip='<a class="side-me" data-view="onboarding"><span class="mav">'+pfAvatar(38)+'</span><div style="min-width:0"><div class="nm">'+(pfVal('name')||ME.name)+'</div><div class="ro">'+(pfVal('company')||ME.company)+'</div></div><span class="edit">'+svg('edit')+'</span></a>';
     profile=meChip+'<div class="side-coach"><div class="av">'+personSil()+'</div><div style="min-width:0"><div class="lab">あなたの担当コーチ</div><div class="nm">'+(an.name||'三上 あかり（※サンプル）')+'</div><div class="ro">'+(an.role||'ホリプロ（仮） アナウンサー')+'</div></div></div>';
   } else if(state.role==='coach'){
     profile='<div class="side-self"><div class="top"><div class="av">三</div><div style="min-width:0"><div class="lab">HORIPRO（仮） 認定コーチ</div><div class="nm">三上 あかり（※サンプル）</div><div class="ro">ホリプロ（仮） アナウンサー</div></div></div>'
@@ -2934,35 +2957,37 @@ function memberAlerts(){
   });
 }
 
+// 承認ニュース（成長プロセス図の代わり）。承認された瞬間だけ「承認されました！」を出す。
+function approvalNews(){
+  if(state.todayApproved){
+    var g=state.lastApproveGain||0;
+    return '<div class="sec"><div class="appr-news"><span class="an-ic">'+svg('check')+'</span><div><b>承認されました！</b><small>コーチがあなたの努力を承認しました'+(g>0?(' ─ GABASHO SCORE +'+g):'')+'</small></div></div></div>';
+  }
+  return '<div class="sec"><div class="appr-note">'+svg('sparkles')+' スコアは自己申告では上がりません。<b>コーチの承認でだけ</b>上がります。</div></div>';
+}
 // 初回セットアップ：マイページに入る前に「頑張る理由」を設定（クリアするまでtodayに入れない）
 VIEWS.user.dreamsetup=function(){
   return '<div class="gbz">'
     + '<div class="ds-hero"><span class="ds-eyebrow">はじめに（1分）</span>'
       + '<h1>あなたの、頑張る理由を教えてください。</h1></div>'
     + dreamCard()
-    + growthProcessCard(true)
     + '<button class="save" data-dreamdone="1">はじめる</button>'
     + '<div style="text-align:center;margin-top:10px"><a data-dreamskip="1" style="font-size:11.5px;color:var(--mut);text-decoration:underline;cursor:pointer">あとで設定する</a></div>'
     + '</div>';
 };
-// 頑張る理由・目標ページ（設定後はここで編集・仕組みもここで確認）
+// 頑張る理由・目標ページ（設定後はここで編集）
 VIEWS.user.dream=function(){
   return '<div class="gbz">'
     + pageHead('頑張る理由・目標','目標は全ページの上部に表示されます。','')
     + dreamCard()
-    + growthProcessCard()
+    + approvalNews()
     + '</div>';
 };
 
-// 営業マン 個人プロフィール登録（プロフィール画像つき）
-VIEWS.user.profile=function(){
+// 営業マン 個人プロフィール（写真つき）。オンボーディング（100問）の中で編集する。
+function profileCard(){
   var esc=function(s){ return String(s||'').replace(/"/g,'&quot;'); };
-  var filled=['name','company','dept','position'].filter(function(k){return pfVal(k);}).length + (pfPhoto()?1:0);
-  var pct=Math.round(filled/5*100);
-  return '<div class="gbz">'
-    + pageHead('プロフィール登録','あなたのことを教えてください。コーチが面談の準備に使います（会社・上司には日記の中身は共有されません）。',
-        '<span class="pill pink">'+pct+'% 入力済み</span>')
-    + '<div class="card pf-card">'
+  return '<div class="card pf-card">'
       + '<div class="pf-head">'
         + '<div class="pf-avwrap">'+pfAvatar(96)+'<button class="pf-cam" data-pfpick="1" aria-label="写真を変更">'+svg('camera')+'</button></div>'
         + '<div class="pf-headtxt"><b>'+(pfVal('name')||'お名前を入力')+'</b>'
@@ -2981,10 +3006,8 @@ VIEWS.user.profile=function(){
       + '</div>'
       + '<div class="pf-q"><label>営業タイプ（任意）</label><input class="oneline" data-pf="salesType" value="'+esc(pfVal('salesType'))+'" placeholder="例：反骨成長型クローザー ／ 性格診断から自動でも入ります"></div>'
       + '<div class="pf-q"><label>ひとこと自己紹介</label><textarea class="pf-ta" data-pf="about" placeholder="例：住宅営業2年目。断られても粘るのが強み。今月は成約3件が目標です。">'+esc(pfVal('about'))+'</textarea></div>'
-      + '<button class="save" data-saveprofile="1">プロフィールを保存</button>'
-      + '<p class="pf-note">'+svg('lock')+' 顔写真と自己紹介は、担当コーチと会社の管理者に表示されます。日記・気分の記録は共有されません。</p>'
-    + '</div></div>';
-};
+    + '</div>';
+}
 function pfField(key,label,ph,type){
   var esc=function(s){ return String(s||'').replace(/"/g,'&quot;'); };
   return '<div class="pf-q"><label>'+label+'</label><input class="oneline" type="'+(type||'text')+'" data-pf="'+key+'" value="'+esc(pfVal(key))+'" placeholder="'+ph+'"></div>';
@@ -3024,8 +3047,10 @@ VIEWS.user.onboarding=function(){
     }).join('');
     return '<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 4px;font-size:14px">'+(ci+1)+'. '+c.name+'</h3><p class="muted" style="margin:0 0 6px;font-size:11.5px">1=全くそう思わない 〜 5=とてもそう思う</p>'+rows+'</div>';
   }).join('');
-  return pageHead('はじめに：あなたを知る100の質問','正確なコーチングのための診断です。直感でOK。回答からAIがあなたのペルソナを判定し、最適な女子アナ／コーチを自動でアサインします。',
+  return pageHead('はじめに：あなたのプロフィールと100の質問','まずプロフィールを登録し、100問の性格診断へ。回答からAIがペルソナを判定し、最適なコーチを自動アサインします。',
       '<span class="pill em" id="onbCount">'+ans+' / '+ONB_Q.length+' 回答</span>')
+    + '<div class="gbz" style="max-width:none;margin:0 0 6px"><div class="sec-t" style="margin-bottom:10px">STEP 1　プロフィール登録（写真つき）</div>'+profileCard()+'</div>'
+    + '<div class="sec-t" style="margin:22px 0 10px;font-size:13px;font-weight:900;color:var(--ink)">STEP 2　100の質問（性格診断）</div>'
     + '<div class="card" style="position:sticky;top:0;z-index:6"><div class="progress"><i id="onbBar" style="width:'+pct+'%"></i></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap"><span class="muted" style="font-size:12px">直感で。10問以上で診断できます（全問でなくてもOK）。</span><button class="btn btn-em" id="onbSubmit">診断を完了する</button></div></div>'
     + html
     + '<div style="text-align:center;margin:8px 0 30px"><button class="btn btn-em" id="onbSubmit">診断を完了して、私に合うコーチを選ぶ</button>'
@@ -3203,8 +3228,17 @@ VIEWS.user.today=function(){
     + axis('satisfaction','モヤモヤ','納得','仕事の納得感');
   var choices=[{k:'good',t:'いい感じ'},{k:'normal',t:'ふつう'},{k:'heavy',t:'重い'},{k:'switch',t:'切り替えたい'}];
   var choiceHtml=choices.map(function(c){ return '<button class="choice'+(state.todayState===c.k?' on':'')+'" data-todaystate="'+c.k+'"><div class="t">'+c.t+'</div></button>'; }).join('');
-  var step='<input class="oneline" data-diary="todayFocus" placeholder="例：最初の1時間だけ本気で動く" value="'+(state.diary.todayFocus||'').replace(/"/g,"&quot;")+'">';
-  var prog='<input class="oneline" data-diary="done" placeholder="例：気が重かったけど、1件だけ訪問できた" value="'+(state.diary.done||'').replace(/"/g,"&quot;")+'">';
+  var esc2=function(x){ return String(x||'').replace(/"/g,'&quot;'); };
+  var step='<input class="oneline" data-diary="todayFocus" placeholder="例：最初の1時間だけ本気で動く" value="'+esc2(state.diary.todayFocus)+'">';
+  var prog='<input class="oneline" data-diary="done" placeholder="例：気が重かったけど、1件だけ訪問できた" value="'+esc2(state.diary.done)+'">';
+  // 夜：今日の営業数字（月間目標へ積み上がる）
+  var numRow='<div class="num-row">'
+    + '<div class="num-in"><label>今日の商談</label><input class="oneline" type="number" min="0" data-diary="todayShodan" value="'+esc2(state.diary.todayShodan)+'" placeholder="0"><span>件</span></div>'
+    + '<div class="num-in"><label>今日の成約</label><input class="oneline" type="number" min="0" data-diary="todayKeiyaku" value="'+esc2(state.diary.todayKeiyaku)+'" placeholder="0"><span>件</span></div>'
+    + '</div>';
+  var toNext=3-((state.doneCount||0)%3); if(toNext===0) toNext=3;
+  var vdots=''; for(var vd=1;vd<=3;vd++){ vdots+='<span class="vdot'+((3-toNext)>=vd?' on':'')+'"></span>'; }
+  var videoHint='<div class="vhint"><div class="vh-dots">'+vdots+'</div><span>あと <b>'+toNext+'回</b> の記録で、お祝い動画が届きます</span></div>';
   var an=assignedAnnouncer();
   var hero='<div class="hero"><span class="streak">'+svg('flame')+' '+ME.streak+'日連続</span>'
     + '<h1>今日も、一歩だけ進もう。</h1>'
@@ -3219,10 +3253,12 @@ VIEWS.user.today=function(){
     + morningQuestionCard()
     + '<div class="sec"><div class="sec-t">今の自分を選ぶ</div><div class="choices">'+choiceHtml+'</div></div>'
     + '<div class="sec"><div class="sec-t">今の気分</div><div class="card">'+axes+'</div></div>'
-    + '<div class="sec"><div class="sec-t">今日の一歩</div>'+step+'</div>'
-    + '<div class="sec"><div class="sec-t">小さな前進</div>'+prog+'</div>'
+    + '<div class="sec"><div class="sec-t">'+svg('sun')+' 朝：今日の目標</div>'+step+'</div>'
+    + '<div class="sec"><div class="sec-t">'+svg('moon')+' 夜：今日をふり返る</div>'+prog
+      + '<div class="daynote">今日の商談・成約を入れると、今月の目標に積み上がります。</div>'+numRow+'</div>'
     + '<button class="save" data-recordeval="1">今日を残す</button>'
     + (state.savedToday?'<div class="saved">今日もちゃんと進んだ。</div>':'')
+    + videoHint
     + nightQuestionCard()
     + '</div>';
 };
@@ -3253,12 +3289,11 @@ VIEWS.user.streak=function(){
     + kpi(svg('check'), rate+'%', '今月の入力率','b')
     + kpi(svg('play'), MY_VIDEOS.length, '解放済み動画','p');
   var goalsHtml=GOALS.map(function(g){
-    var pct=Math.min(100,Math.round(g.current/g.target*100));
-    var nr=nextReward();
-    return '<div class="goal2"><div class="g-top"><b>'+g.title+'</b><span class="g-num"><b>'+g.current+'</b> / '+g.target+' '+g.unit+'</span></div>'
+    var pct=Math.min(100,Math.round(g.current/Math.max(1,g.target)*100));
+    return '<div class="goal2"><div class="g-top"><b>'+g.title+'</b><span class="g-num"><b>'+g.current+'</b> / <input class="g-target" type="number" min="1" data-goaltarget="'+g.id+'" value="'+g.target+'"> '+g.unit+'</span></div>'
       + '<div class="pbar"><i style="width:'+pct+'%"></i></div>'
       + '<div class="g-foot"><span class="muted">あと '+Math.max(0,g.target-g.current)+g.unit+'で達成</span>'
-      + (g.done?'<span class="pill gold">達成</span>':'<button class="btn btn-soft btn-sm" data-goalup="'+g.id+'">進捗を更新</button>')+'</div></div>';
+      + (g.done?'<span class="pill gold">達成</span>':'<span class="muted" style="font-size:11px">毎晩の日記で自動更新</span>')+'</div></div>';
   }).join('');
   function badge(ic,t,s,locked){ return '<div class="bm'+(locked?' locked':'')+'"><div class="e">'+svg(locked?'lock':ic)+'</div><b>'+t+'</b><small>'+s+'</small></div>'; }
   return pageHead('継続・目標','毎日の入力と営業目標を、数字で積み上げる。続けた分だけ成長スコアと応援動画が解放されます。','<span class="pill em">現在 '+ME.streak+'日連続</span>')
@@ -3266,8 +3301,9 @@ VIEWS.user.streak=function(){
     + '<div class="twocol">'
       + '<div class="card">'+secH('flame','継続カレンダー（直近5週間）')+'<p class="muted" style="margin:-6px 0 12px;font-size:12px">入力した日に色がつきます。空白を減らしていきましょう。</p><div class="cal">'+calHtml+'</div>'
         + '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><span class="pill em">最長連続 '+ME.streak+'日</span><span class="pill gold">今月の入力 '+ME.streak+'日</span><span class="pill b">成長スコア '+sc+'</span></div></div>'
-      + '<div class="card">'+secH('target','営業目標（毎日ふり返って更新）')+goalsHtml
-        + '<p class="muted" style="margin:6px 0 0;font-size:11.5px">目標を達成すると、ホリプロ（仮）所属者から特別なお祝い動画が届きます。</p></div>'
+      + '<div class="card">'+secH('target','今月の営業目標（月初に立て、日記で追う）')
+        + '<p class="muted" style="margin:-6px 0 12px;font-size:12px">数字（右）を直せば、今月の目標を立て直せます。進捗は毎晩の日記で自動更新されます。</p>'+goalsHtml
+        + '<p class="muted" style="margin:8px 0 0;font-size:11.5px">記録を3回続けるごとに、ホリプロ（仮）所属者から特別なお祝い動画が届きます。</p></div>'
     + '</div>'
     + '<div class="card" style="margin-top:16px">'+secH('award','継続バッジ')+'<div class="badges">'
       + badge('award','継続ブロンズ','7日連続 達成',false)+badge('flame','継続シルバー','30日連続まで あと'+Math.max(0,30-ME.streak)+'日',true)
@@ -4397,7 +4433,19 @@ document.addEventListener('click', function(e){
   // 夜の問い：置いたら今日は消える → 明日の朝カードに再表示
   t=e.target.closest('[data-qnight]'); if(t){ var ni=el('qNightInput'); var nv=(ni&&ni.value||'').trim(); if(!nv){ toast('「どうすれば◯◯できるか？」の形でひとつだけ'); return; } state.qa.nDate=todayKey(); state.qa.nQ=nv; saveData(); render(); toast('問いを置きました。明日の朝、もう一度お見せします。おやすみなさい'); return; }
   // 「今日を残す」：GABASHO SCORE基準で“次の特別動画”バーが少し満ちる（満ちたら内部で動画が届く）
-  t=e.target.closest('[data-recordeval]'); if(t){ state.savedToday=true; var got=bumpVideoProgress(Math.max(10, Math.round(gabashoScore().total/3))); saveData(); render(); toast(got? '三上さんから新しい動画が届きました！応援動画BOXへ' : '記録しました。コーチが受け止めます（努力の承認でスコアが上がります）'); return; }
+  t=e.target.closest('[data-recordeval]'); if(t){
+    state.savedToday=true;
+    // 夜の営業数字を今月の目標へ積み上げ
+    var addNum=function(gid,key){ var v=parseInt((state.diary&&state.diary[key])||'0',10)||0; if(v>0){ var g=GOALS.filter(function(x){return x.id===gid;})[0]; if(g){ g.current+=v; if(g.current>=g.target) g.done=true; } } };
+    addNum('g_shodan','todayShodan'); addNum('g_keiyaku','todayKeiyaku');
+    if(state.diary){ state.diary.todayShodan=''; state.diary.todayKeiyaku=''; }
+    // 朝の目標＋夜の日記の完了＝1回の達成。3回たまるとお祝い動画が開く。
+    state.doneCount=(state.doneCount||0)+1;
+    var got=false; if(state.doneCount%3===0){ ensureQueue(); if(!state.msQueue||!state.msQueue.length) state.msQueue=mockMilestones(); deliverVideo(state.msQueue.shift()); got=true; }
+    saveData(); render();
+    var toNext=3-(state.doneCount%3); if(toNext===3&&!got) toNext=3;
+    toast(got? '３回達成！お祝い動画が届きました。応援動画BOXへ' : ('今日を残しました（あと'+toNext+'回でお祝い動画）'));
+    return; }
   // コーチが努力を承認 → GABASHO SCOREに反映（自己申告では上がらない・1サイクル1回）
   t=e.target.closest('[data-approveeffort]'); if(t){ var uid=t.getAttribute('data-approveeffort'); if(!state.approvedByUser) state.approvedByUser={}; if(state.approvedByUser[uid]){ toast('このサイクルはすでに承認済みです'); return; } var before=gabashoScore().total; state.approvedByUser[uid]=true; state.approvedCount=approvedEfforts()+1; state.todayApproved=true; var after=gabashoScore().total; state.lastApproveGain=Math.max(1,after-before); saveData(); render(); toast('努力を承認しました。GABASHO SCORE +'+state.lastApproveGain); return; }
   t=e.target.closest('[data-showdetail]'); if(t){ state.showDetail=!state.showDetail; render(); return; }
@@ -4643,6 +4691,7 @@ document.addEventListener('input', function(e){
   var pf=e.target.getAttribute&&e.target.getAttribute('data-pf'); if(pf){ if(!state.profile) state.profile={}; state.profile[pf]=e.target.value; saveData(); return; }
   if(e.target.getAttribute&&e.target.getAttribute('data-reflnote')){ if(!state.reflAnswers) state.reflAnswers={}; state.reflAnswers.note=e.target.value; return; }
   var rc=e.target.getAttribute&&e.target.getAttribute('data-reportcfg'); if(rc){ if(!state.reportCfg) state.reportCfg={}; state.reportCfg[rc]=e.target.value; return; }
+  var gt=e.target.getAttribute&&e.target.getAttribute('data-goaltarget'); if(gt){ var gg=GOALS.filter(function(x){return x.id===gt;})[0]; if(gg){ var tv=parseInt(e.target.value,10); if(!isNaN(tv)&&tv>0){ gg.target=tv; gg.done=gg.current>=tv; saveData(); } } return; }
   var v=e.target.getAttribute&&e.target.getAttribute('data-vision'); if(v){ state.vision[v]=e.target.value; saveData(); }
   var dr=e.target.getAttribute&&e.target.getAttribute('data-dream'); if(dr){ if(!state.dream) state.dream={}; state.dream[dr]=e.target.value; saveData();
     var cd=el('dreamCount'); if(cd&&(dr==='age'||dr==='retireAge')) cd.innerHTML=dreamCountHtml(); }
