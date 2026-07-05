@@ -50,11 +50,17 @@ function loadUsers() {
   return JSON.parse(readFileSync(USERS_FILE, 'utf8'));
 }
 let USERS = loadUsers();
-// デモ段階：全アカウントのパスワードを 'test' に統一（メモリ上）＋ id/pass=test/test で全ロール閲覧できる簡易アカウント
-for (const u of USERS) { u.hash = hashPw('test', u.salt); }
-if (!USERS.find(u => u.email === 'test')) {
-  const salt = newSalt();
-  USERS.push({ id: 'u_test', name: 'デモ（全ロール閲覧）', email: 'test', role: 'member', demo: true, salt, hash: hashPw('test', salt) });
+// 本番モード（DISABLE_DEMO=1 または NODE_ENV=production）では、test/test の全ロール閲覧デモ垢を作らない＝各自のアカウントのみ。
+const DEMO_MODE = !(process.env.DISABLE_DEMO === '1' || process.env.NODE_ENV === 'production');
+if (DEMO_MODE) {
+  // デモ段階：全アカウントのパスワードを 'test' に統一（メモリ上）＋ id/pass=test/test で全ロール閲覧できる簡易アカウント
+  for (const u of USERS) { u.hash = hashPw('test', u.salt); }
+  if (!USERS.find(u => u.email === 'test')) {
+    const salt = newSalt();
+    USERS.push({ id: 'u_test', name: 'デモ（全ロール閲覧）', email: 'test', role: 'member', demo: true, salt, hash: hashPw('test', salt) });
+  }
+} else {
+  console.log('  本番モード：test/test デモ垢は無効。users.json のアカウント（パスワード=DEMO_PASSWORD）でログインしてください。');
 }
 const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, demo: !!u.demo });
 
@@ -490,7 +496,8 @@ const server = http.createServer(async (req, res) => {
     if (!file.startsWith(PUBLIC)) { res.writeHead(403); return res.end('forbidden'); }
     if (!existsSync(file)) { res.writeHead(404); return res.end('not found'); }
     const buf = await readFile(file);
-    res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' });
+    // 合意前のクローズドPoC想定：検索エンジンに載せない（URLを知る人だけ）
+    res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream', 'X-Robots-Tag': 'noindex, nofollow' });
     return res.end(buf);
   } catch (e) {
     return json(res, 500, { error: String(e.message || e) });

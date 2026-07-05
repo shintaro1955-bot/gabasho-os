@@ -3,21 +3,24 @@ services:
   - type: web
     name: gabasho-os
     runtime: node
-    plan: free            # 無料（数十秒のコールドスタートあり／ディスクは揮発）
+    plan: free            # まず無料で動作確認（コールドスタートあり／freeはディスク不可＝再起動でデータ揮発）
     buildCommand: "echo no-build"   # 依存ゼロなのでビルド不要
     startCommand: node server.mjs
     healthCheckPath: /
     envVars:
       - key: SESSION_SECRET
-        generateValue: true         # ランダム生成
+        generateValue: true         # ランダム生成（cookie署名）
       - key: GABASHO_MODEL
         value: claude-opus-4-8
       - key: DEMO_PASSWORD
-        value: gabasho123            # 本番では変更推奨
+        value: gabasho123            # 本番では必ず変更（各アカウントの初期パスワード）
       - key: ANTHROPIC_API_KEY
-        sync: false                  # ダッシュボードで秘密として設定（未設定ならAIはモック）
-    # ▼ データを消えないようにする（pilot/本番）。free planはディスク不可 → Starter以上で有効化:
+        sync: false                  # ダッシュボードで秘密として設定（未設定ならAIはモック文面）
+      - key: DISABLE_DEMO
+        value: "0"                   # 動作確認は "0"（test/test 全ロール閲覧OK）。関係者に配る本番は "1"（デモ垢オフ＝各自のアカウントのみ）
+    # ▼ 実PoC/本番：データ(users.json / data/)を消えないように。plan を starter 以上にしてから有効化:
+    # plan: starter
     # disk:
-    #   name: data
+    #   name: gabasho-data
     #   mountPath: /app/data
     #   sizeGB: 1
