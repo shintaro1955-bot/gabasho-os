@@ -50,8 +50,9 @@ function loadUsers() {
   return JSON.parse(readFileSync(USERS_FILE, 'utf8'));
 }
 let USERS = loadUsers();
-// 本番モード（DISABLE_DEMO=1 または NODE_ENV=production）では、test/test の全ロール閲覧デモ垢を作らない＝各自のアカウントのみ。
-const DEMO_MODE = !(process.env.DISABLE_DEMO === '1' || process.env.NODE_ENV === 'production');
+// デモ垢（test/test 全ロール閲覧）の可否は DISABLE_DEMO だけで制御する。
+// ※Render等はNODE_ENV=productionを自動付与するため、それには依存しない（関係者に配る本番段階で DISABLE_DEMO=1 を明示設定する）。
+const DEMO_MODE = process.env.DISABLE_DEMO !== '1';
 if (DEMO_MODE) {
   // デモ段階：全アカウントのパスワードを 'test' に統一（メモリ上）＋ id/pass=test/test で全ロール閲覧できる簡易アカウント
   for (const u of USERS) { u.hash = hashPw('test', u.salt); }
