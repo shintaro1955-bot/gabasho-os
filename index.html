@@ -1107,6 +1107,30 @@
   .gbc .wk-actions{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px }
   .gbc .wk-actions li{ display:flex; gap:11px; align-items:flex-start; font-size:13.5px; color:var(--nv); line-height:1.65 }
   .gbc .wk-no{ width:22px; height:22px; border-radius:50%; background:var(--nv); color:#fff; font-size:12px; font-weight:800; display:grid; place-items:center; flex:0 0 auto; margin-top:1px }
+  /* オーナー向け週次AIレポート */
+  .gbc .rep-lab{ font-size:12px; font-weight:800; color:var(--sub); letter-spacing:.02em; margin:6px 0 10px; display:flex; align-items:center; gap:6px } .gbc .rep-lab svg{ width:15px; height:15px; color:var(--grn2) }
+  .gbc .rep-cfg{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px }
+  .gbc .rc-l{ display:flex; align-items:center; gap:9px } .gbc .rc-l b{ font-size:14px; color:var(--nv) }
+  .gbc .rc-badge{ font-size:10.5px; font-weight:800; color:#94a3b8; background:#eef2f7; border-radius:999px; padding:3px 10px } .gbc .rc-badge.on{ color:#0ea968; background:#EFFFF8 }
+  .gbc .rc-fields{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; color:var(--sub); flex:1 }
+  .gbc .rc-fields select,.gbc .rc-fields input{ border:1px solid var(--line); border-radius:9px; padding:7px 10px; font-family:inherit; font-size:13px; color:var(--nv) }
+  .gbc .rc-btns{ display:flex; gap:9px; flex-wrap:wrap }
+  /* メールプレビュー */
+  .gbc .mail{ padding:0; overflow:hidden }
+  .gbc .mail-chrome{ background:#f4f6fa; padding:10px 14px; display:flex; gap:7px; border-bottom:1px solid var(--line) }
+  .gbc .mail-chrome .dot{ width:11px; height:11px; border-radius:50% } .gbc .md.r{ background:#ff5f57 } .gbc .md.y{ background:#febc2e } .gbc .md.g{ background:#28c840 }
+  .gbc .mail-head{ padding:14px 20px 6px } .gbc .mrow{ display:flex; gap:12px; padding:4px 0; font-size:12.5px } .gbc .mk{ color:var(--sub); width:40px; flex:0 0 auto; font-weight:700 } .gbc .mv{ color:var(--nv) } .gbc .mv.sub{ font-weight:800 }
+  .gbc .mail-body{ padding:8px 20px 22px; border-top:1px solid var(--line); margin-top:8px }
+  .gbc .mgreet{ font-size:13.5px; font-weight:800; color:var(--nv); margin:14px 0 12px }
+  .gbc .mpar{ font-size:13px; color:#334155; line-height:1.9; margin:0 0 11px }
+  .gbc .mstat{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0 }
+  .gbc .ms{ background:var(--grn-soft); border:1px solid #cdeede; border-radius:12px; padding:13px 10px; text-align:center } .gbc .ms b{ font-size:24px; font-weight:900; color:var(--nv); display:block } .gbc .ms b span{ font-size:13px; color:var(--sub) } .gbc .ms small{ font-size:10.5px; color:var(--sub) }
+  .gbc .mbtn{ display:inline-block; font-size:12.5px; font-weight:800; color:var(--grn2); cursor:pointer }
+  /* 分布バー */
+  .gbc .rep-bars{ display:flex; flex-direction:column; gap:11px; margin-top:8px }
+  .gbc .rep-bar{ display:flex; align-items:center; gap:10px } .gbc .rep-bar .rl{ font-size:12.5px; color:var(--nv); width:120px; flex:0 0 auto } .gbc .rep-bar .rt{ flex:1; height:9px; background:#eef2f7; border-radius:6px; overflow:hidden } .gbc .rep-bar .rt i{ display:block; height:100%; border-radius:6px } .gbc .rep-bar .rv{ font-size:12px; font-weight:800; color:var(--nv); width:36px; text-align:right; flex:0 0 auto; font-variant-numeric:tabular-nums }
+  .gbc .rep-foot{ display:flex; gap:7px; align-items:flex-start; margin:16px 0 0; font-size:11px; color:var(--sub); line-height:1.7 } .gbc .rep-foot svg{ width:14px; height:14px; flex:0 0 auto; margin-top:2px; color:var(--amber) }
+  @media(max-width:640px){ .gbc .mstat{ grid-template-columns:1fr 1fr } .gbc .rep-bar .rl{ width:96px } }
   @media(max-width:800px){ .gbc .grid2{ grid-template-columns:1fr } .gbc .kpis{ grid-template-columns:1fr 1fr } }
 </style>
 </head>
@@ -1433,7 +1457,8 @@ var state = {
   dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false, imgSeed:7 },
   qa:{ mDate:'', mAns:'', nDate:'', nQ:'' },
   profile:{ name:'', company:'', dept:'', position:'', years:'', email:'', salesType:'', about:'', photo:'' },
-  reflSession:0, reflAnswers:{}, reflections:[]
+  reflSession:0, reflAnswers:{}, reflections:[],
+  reportCfg:{ enabled:true, day:'月', time:'08:00', email:'owner@company.co.jp' }
 };
 
 /* ===== 応援メッセージ（本人↔女子アナ/コーチ） ===== */
@@ -1673,6 +1698,7 @@ var NAV = {
     {v:'textmining', ic:'fileText', t:'本音・離職予兆分析'},
     {v:'condition', ic:'activity', t:'コンディション要因分析'},
     {v:'weekly', ic:'fileText', t:'週次モチベサマリー'},
+    {v:'ownerreport', ic:'fileText', t:'オーナー向け週次AIレポート'},
     {v:'gallery', ic:'users', t:'顔ナビ（ギャラリー）'},
     {grp:'人材分析・AI'},
     {v:'insight', ic:'cpu', t:'AIインサイト'},
@@ -2493,6 +2519,81 @@ VIEWS.admin.weekly=function(){
       + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">'
       + '<button class="btn" style="background:#0B2545;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer" data-toast="週次サマリーを人事チームへ共有しました（デモ）">人事へ共有</button>'
       + '<button class="btn" style="background:#fff;color:#0B2545;border:1px solid #E2E8F0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer" data-toast="PDFを書き出しました（デモ）">PDFで書き出す</button></div></div>'
+    + '</div>';
+};
+
+// 振り返り蓄積の集約 → オーナー向け週次AIレポート（メール定期配信）
+function reflAgg(){
+  var total=MEMBERS.length;
+  var follow=MEMBERS.filter(function(m){return m.risk==='mid'||m.risk==='hi';}).length;
+  // 集約・匿名の分布（※デモ集計。本番は全メンバーのふりかえりをサーバーで集計）
+  var values=[['家族・大切な人',30],['成長',24],['認められること',18],['自由・自分らしさ',15],['仲間',13]];
+  var purpose=[['人の役に立つため',28],['成長のため',24],['生活のため',20],['認められるため',16],['自分を証明するため',12]];
+  // ログイン中メンバーの直近ふりかえりを少しだけ反映（デモの反応性）
+  (state.reflections||[]).slice(0,3).forEach(function(r){ (r.answers||[]).forEach(function(a){
+    values.forEach(function(v){ if(a.a && a.a.indexOf(v[0].slice(0,2))>=0) v[1]+=2; });
+    purpose.forEach(function(p){ if(a.a===p[0]) p[1]+=3; });
+  }); });
+  var norm=function(arr){ var s=arr.reduce(function(t,x){return t+x[1];},0)||1; return arr.map(function(x){return [x[0],Math.round(x[1]/s*100)];}).sort(function(a,b){return b[1]-a[1];}); };
+  return { meetings:14, reflRate:86, avgTemp:3.8, tempDelta:0.3, follow:follow, approved:9,
+    values:norm(values), purpose:norm(purpose) };
+}
+function repBars(rows,color){ var max=rows[0]?rows[0][1]:100; return '<div class="rep-bars">'+rows.map(function(r){
+  return '<div class="rep-bar"><span class="rl">'+r[0]+'</span><span class="rt"><i style="width:'+Math.round(r[1]/max*100)+'%;background:'+color+'"></i></span><span class="rv">'+r[1]+'%</span></div>';
+}).join('')+'</div>'; }
+VIEWS.admin.ownerreport=function(){
+  var A=reflAgg(), cfg=state.reportCfg||{}, sign=function(n){return (n>=0?'+':'')+n;};
+  var topVal=A.values[0][0], topPurpose=A.purpose[0][0];
+  var subject='【ガバショ週次レポート】6/28〜7/4 ─ 組織の心理状態と、来週の一手';
+  // メール本文ダイジェスト
+  var summary=[
+    '今週の面談は'+A.meetings+'件、ふりかえり記入率は'+A.reflRate+'%。心の温度は平均'+A.avgTemp+'/5（前週比 '+sign(A.tempDelta)+'）と、ゆるやかに上向きです。',
+    '組織がいちばん大事にしているのは「'+topVal+'」。営業を続ける理由は「'+topPurpose+'」が最多でした。数字の裏で、人が動いている“理由”が見えています。',
+    '支えが要りそうな傾向が'+A.follow+'名（氏名は非開示）。詰めるより、この価値観に沿った承認が定着に効きます。'
+  ];
+  // メールプレビュー
+  var mail='<div class="card mail"><div class="mail-chrome"><span class="md dot r"></span><span class="md dot y"></span><span class="md dot g"></span></div>'
+    + '<div class="mail-head"><div class="mrow"><span class="mk">From</span><span class="mv">ガバショAI &lt;report@gabasho.ai&gt;</span></div>'
+    + '<div class="mrow"><span class="mk">To</span><span class="mv">'+(cfg.email||'owner@company.co.jp')+'（経営者）</span></div>'
+    + '<div class="mrow"><span class="mk">件名</span><span class="mv sub">'+subject+'</span></div></div>'
+    + '<div class="mail-body">'
+      + '<p class="mgreet">経営者の皆さまへ ─ ガバショAIが、今週の組織の“心理状態”を集約・匿名でまとめました。</p>'
+      + summary.map(function(s){return '<p class="mpar">'+s+'</p>';}).join('')
+      + '<div class="mstat">'
+        + '<div class="ms"><b>'+A.meetings+'</b><small>今週の面談</small></div>'
+        + '<div class="ms"><b>'+A.reflRate+'%</b><small>ふりかえり記入率</small></div>'
+        + '<div class="ms"><b>'+A.avgTemp+'<span>/5</span></b><small>心の温度 '+sign(A.tempDelta)+'</small></div>'
+        + '<div class="ms"><b>'+A.approved+'</b><small>承認された努力</small></div></div>'
+      + '<a class="mbtn" data-toast="詳細レポートを開きました（下にスクロール）">レポート全文を見る →</a>'
+    + '</div></div>';
+  // 配信設定バー
+  var days=['月','火','水','木','金'].map(function(d){return '<option'+(cfg.day===d?' selected':'')+'>'+d+'</option>';}).join('');
+  var cfgBar='<div class="card rep-cfg"><div class="rc-l"><b>定期配信</b><span class="rc-badge '+(cfg.enabled?'on':'')+'">'+(cfg.enabled?'ON':'OFF')+'</span></div>'
+    + '<div class="rc-fields"><label>毎週</label><select data-reportcfg="day">'+days+'</select><label>曜</label>'
+    + '<input type="time" data-reportcfg="time" value="'+(cfg.time||'08:00')+'"><label>宛先</label>'
+    + '<input type="email" data-reportcfg="email" value="'+(cfg.email||'')+'" placeholder="owner@company.co.jp" style="min-width:190px"></div>'
+    + '<div class="rc-btns"><button class="btn" style="background:#16A05B;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer" data-reportsend="1">今すぐ送信（デモ）</button>'
+    + '<button class="btn" style="background:#fff;color:#0B2545;border:1px solid #E2E8F0;border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer" data-reportsave="1">配信設定を保存</button></div></div>';
+  // 提言
+  var actions=[
+    '朝礼・全社発信で「'+topVal+'」を大切にする姿勢を、経営の言葉で示す（人が動く理由に合わせる）。',
+    '評価面談は“詰め”を減らし、価値観に沿った承認を増やす。定着はここで決まる。',
+    '支えが要りそうな傾向のチームへ、コーチ面談の頻度を一段上げる（氏名は特定しない）。'
+  ].map(function(a,i){return '<li><span class="wk-no">'+(i+1)+'</span>'+a+'</li>';}).join('');
+  return '<div class="gbc">'
+    + pageHead('オーナー向け 週次AIレポート','面談ふりかえりの蓄積を、集約・匿名のAIレポートにして経営へ。毎週メールで自動配信します。','<span class="badge" style="font-size:12px;font-weight:700;color:#0ea968;background:#EFFFF8;border:1px solid #cdeede;border-radius:999px;padding:7px 13px">6/28〜7/4</span>')
+    + cfgBar
+    + '<div class="rep-lab">'+svg('message')+' 配信されるメール（プレビュー）</div>'
+    + mail
+    + '<div class="rep-lab" style="margin-top:22px">'+svg('fileText')+' レポート全文（集約・匿名）</div>'
+    + '<div class="privacy">'+svg('lock')+'<div>本レポートは<b>集約・匿名</b>です。個人名・ふりかえりの全文は含みません（<b>5名未満は非表示</b>）。<b>監視ではなく、経営が“人が動く理由”を掴むための情報</b>です。</div></div>'
+    + '<div class="grid2" style="align-items:start">'
+      + '<div class="card"><h3 class="t">組織が大事にしていること（価値観の集約）</h3><div class="st">ふりかえりで選ばれた「本当に大事にしたいこと」の分布。</div>'+repBars(A.values,'#16A05B')+'</div>'
+      + '<div class="card"><h3 class="t">営業を続ける理由（人生観の集約）</h3><div class="st">「営業は何のため？」の分布。動機の設計に使えます。</div>'+repBars(A.purpose,'#0B2545')+'</div>'
+    + '</div>'
+    + '<div class="card" style="margin-top:16px"><h3 class="t">心の温度の推移</h3><div class="st">面談ふりかえりの温度スコア（集約）。</div>'+gbsLine(MOOD_TREND,'#16A05B')+'</div>'
+    + '<div class="card" style="margin-top:16px"><h3 class="t">経営への提言（今週）</h3><ol class="wk-actions">'+actions+'</ol></div>'
+    + '<p class="rep-foot">'+svg('lock')+' 実際の定期メール送信には、サーバー常駐（Fly/Render）＋メール配信サービス（Resend／SendGrid等）＋週次スケジューラの接続が必要です。現在はレポート生成と配信プレビューまで動作します。</p>'
     + '</div>';
 };
 VIEWS.admin.textmining=function(){
@@ -4489,6 +4590,9 @@ document.addEventListener('click', function(e){
   t=e.target.closest('[data-saveprofile]'); if(t){ syncProfileToME(); saveData(); render(); toast('プロフィールを保存しました'); return; }
   t=e.target.closest('[data-copyzoom]'); if(t){ var u=decodeURIComponent(t.getAttribute('data-copyzoom'));
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(u).then(function(){toast('Zoom URLをコピーしました');},function(){toast('コピーできませんでした');}); } else { toast('Zoom URL：'+u); } return; }
+  // オーナー向け週次AIレポート：送信・保存（デモ）
+  t=e.target.closest('[data-reportsend]'); if(t){ var em=(state.reportCfg&&state.reportCfg.email)||'オーナー'; toast(em+' へ 週次AIレポートを送信しました（デモ）'); return; }
+  t=e.target.closest('[data-reportsave]'); if(t){ var c=state.reportCfg||{}; toast('配信設定を保存しました（毎週'+c.day+'曜 '+c.time+'・'+(c.email||'')+'）'); return; }
   // 面談ふりかえり：開始・選択・送信
   t=e.target.closest('[data-reflstart]'); if(t){ state.reflAnswers={}; state.view='reflect'; render(); window.scrollTo(0,0); return; }
   t=e.target.closest('[data-refl]'); if(t){ var pk=t.getAttribute('data-refl').split(':'); if(!state.reflAnswers) state.reflAnswers={}; state.reflAnswers[pk[0]]=parseInt(pk[1],10); saveData(); render(); return; }
@@ -4538,6 +4642,7 @@ document.addEventListener('input', function(e){
   var d=e.target.getAttribute&&e.target.getAttribute('data-diary'); if(d){ state.diary[d]=e.target.value; saveData(); return; }
   var pf=e.target.getAttribute&&e.target.getAttribute('data-pf'); if(pf){ if(!state.profile) state.profile={}; state.profile[pf]=e.target.value; saveData(); return; }
   if(e.target.getAttribute&&e.target.getAttribute('data-reflnote')){ if(!state.reflAnswers) state.reflAnswers={}; state.reflAnswers.note=e.target.value; return; }
+  var rc=e.target.getAttribute&&e.target.getAttribute('data-reportcfg'); if(rc){ if(!state.reportCfg) state.reportCfg={}; state.reportCfg[rc]=e.target.value; return; }
   var v=e.target.getAttribute&&e.target.getAttribute('data-vision'); if(v){ state.vision[v]=e.target.value; saveData(); }
   var dr=e.target.getAttribute&&e.target.getAttribute('data-dream'); if(dr){ if(!state.dream) state.dream={}; state.dream[dr]=e.target.value; saveData();
     var cd=el('dreamCount'); if(cd&&(dr==='age'||dr==='retireAge')) cd.innerHTML=dreamCountHtml(); }
@@ -4545,6 +4650,7 @@ document.addEventListener('input', function(e){
 document.addEventListener('change', function(e){
   var dr=e.target.getAttribute&&e.target.getAttribute('data-dream');
   if(dr&&state.role==='user'&&state.view==='dream'){ render(); } // 確定時に目標バー等へ反映（setup中は再描画しない）
+  var rc2=e.target.getAttribute&&e.target.getAttribute('data-reportcfg'); if(rc2){ if(!state.reportCfg) state.reportCfg={}; state.reportCfg[rc2]=e.target.value; }
   // プロフィール写真アップロード（縮小してdataURIで保存）
   if(e.target.getAttribute&&e.target.getAttribute('data-pfphoto')){
     var f=e.target.files&&e.target.files[0]; if(!f) return;
