@@ -7,8 +7,8 @@
 <style>
   /* Standard Theme（白×ピンク・女性アナ/モデル伴走） */
   :root{
-    --ink:#222222; --ink-2:#555b66; --mut:#7b8290; --line:#F3DDE5;
-    --bg:#ffffff; --bg-soft:#FFFAFC; --card:#ffffff;
+    --ink:#222222; --ink-2:#555b66; --mut:#7b8290; --line:#ECECEF;
+    --bg:#ffffff; --bg-soft:#ffffff; --card:#ffffff;
     --em:#F5427A; --em-deep:#E1306C; --em-dark:#C71E5B; --em-soft:#FFE6EE; --em-tint:#FFF1F5;
     --gold:#B68A2A; --gold-soft:#F5EBCD; --pink:#FF7A9C; --pink-soft:#FFE6EE; --blue:#4aa3ff; --blue-soft:#e8f3ff;
     --navy:#0D1B4C; --navy-dark:#07112F;
@@ -17,34 +17,17 @@
     --radius:18px; --shadow:0 18px 44px -26px rgba(245,66,122,.28);
     --font:'Hiragino Kaku Gothic ProN','Noto Sans JP',system-ui,-apple-system,'Segoe UI',sans-serif;
   }
-  /* PRO Athlete Theme（ネイビー×ゴールド・管理者/上位プラン） */
-  body.theme-pro{
-    --ink:#111827; --ink-2:#4b5563; --mut:#6B7280; --line:#E5E7EB;
-    --bg-soft:#F7F8FB;
-    --em:#B68A2A; --em-deep:#9A7423; --em-dark:#7a5c1c; --em-soft:#F4E8C6; --em-tint:#FAF4E4;
-    --shadow:0 18px 44px -26px rgba(13,27,76,.32);
-  }
   *{box-sizing:border-box}
-  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg-soft);line-height:1.7;-webkit-font-smoothing:antialiased}
-  /* PRO: ヘッダーをネイビーに */
-  body.theme-pro .appbar{background:linear-gradient(120deg,var(--navy),var(--navy-dark))}
-  body.theme-pro .appbar .cobrand .horipro,body.theme-pro .appbar .cobrand .ga,body.theme-pro .who b{color:#fff}
-  body.theme-pro .appbar .cobrand .star,body.theme-pro .appbar .cobrand .ga{color:var(--gold)}
-  body.theme-pro .appbar .cobrand .abhap{color:#fff;border-color:rgba(255,255,255,.4)}
-  body.theme-pro .who small{color:var(--gold-soft)}
-  body.theme-pro .appbar .cfgbtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:#ffffff;line-height:1.7;-webkit-font-smoothing:antialiased}
   button{font-family:inherit}
 
-  .appbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
-  .appbar-in{display:flex;align-items:center;gap:14px;height:62px;padding:0 20px;max-width:1340px;margin:0 auto}
-  .cobrand{display:flex;align-items:center;gap:8px;font-weight:900;text-decoration:none;color:inherit;flex:0 0 auto}
-  .cobrand .star{color:var(--em-deep)} .cobrand .horipro{font-size:14px}
-  .cobrand .x{color:var(--mut);font-size:11px}
-  .cobrand .abhap{font-size:12px;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
-  .cobrand .ga{margin-left:2px;font-size:15px;color:var(--em-deep)}
-  .roleswitch{margin-left:auto;display:flex;background:var(--em-tint);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap}
-  .roleswitch button{border:0;background:transparent;color:var(--ink-2);font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
-  .roleswitch button.on{background:linear-gradient(120deg,var(--em),var(--em-deep));color:#fff;box-shadow:0 8px 18px -10px rgba(5,150,105,.6)}
+  .appbar{position:sticky;top:0;z-index:40;background:#ffffff;border-bottom:1px solid var(--line)}
+  .appbar-in{display:flex;align-items:center;gap:14px;height:60px;padding:0 20px;max-width:1340px;margin:0 auto}
+  .cobrand{display:flex;align-items:center;text-decoration:none;color:inherit;flex:0 0 auto}
+  .cobrand .ga{font-size:19px;font-weight:900;color:var(--em-deep);letter-spacing:.01em}
+  .roleswitch{margin-left:auto;display:flex;background:#F4F4F6;border-radius:999px;padding:3px;gap:2px;flex-wrap:nowrap}
+  .roleswitch button{border:0;background:transparent;color:var(--ink-2);font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .roleswitch button.on{background:var(--em-deep);color:#fff}
   .who{display:flex;align-items:center;gap:9px;flex:0 0 auto}
   .who .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--em),var(--em-deep));color:#fff;display:grid;place-items:center;font-weight:900;font-size:14px}
   .who small{font-size:11px;color:var(--mut);display:block;line-height:1.2}
@@ -719,7 +702,7 @@
     .roleswitch .lbl{display:none}
   }
   /* ===== ガバショ マイページ再設計：ネイビー×グリーンのクールSaaS（.gbz スコープ） ===== */
-  .gbz{ --ac:#F5427A; --ac2:#E1306C; --sub:#7b8290; --bg:#FFFAFC; --card:#FFFFFF; --line:#F3DDE5; --ink:#222222;
+  .gbz{ --ac:#F5427A; --ac2:#E1306C; --sub:#7b8290; --bg:#FFFFFF; --card:#FFFFFF; --line:#ECECEF; --ink:#222222;
     max-width:720px; margin:0 auto; }
   .gbz *{box-sizing:border-box}
   .gbz .hero{ position:relative; background:radial-gradient(120% 120% at 100% 0,#ff9ab8 0%,rgba(255,154,184,0) 55%),linear-gradient(160deg,#F5427A,#E1306C); color:#fff; border-radius:24px; padding:34px 30px; overflow:hidden; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
@@ -904,6 +887,16 @@
   /* 今月の目標 target 編集 */
   .g-target{ width:44px; border:1px solid var(--line); border-radius:7px; padding:2px 4px; font-size:14px; font-weight:800; color:var(--ink); text-align:center; font-family:inherit }
   @media(max-width:520px){ .gbz .num-row{ grid-template-columns:1fr } }
+  /* CRM連携 */
+  .crm-card{ margin-top:16px }
+  .crm-card .crm-top{ display:flex; gap:12px; align-items:flex-start }
+  .crm-card .crm-ic{ width:38px; height:38px; border-radius:11px; background:var(--em-tint); color:var(--em-deep); display:grid; place-items:center; flex:0 0 auto } .crm-card .crm-ic.on{ background:#EFFBF3; color:#16A05B } .crm-card .crm-ic svg{ width:19px; height:19px }
+  .crm-card .crm-top b{ font-size:14.5px; color:var(--ink); display:block } .crm-card .crm-top small{ font-size:12px; color:var(--mut); display:block; margin-top:2px; line-height:1.6 }
+  .crm-card .crm-btns{ display:flex; gap:9px; align-items:center; flex-wrap:wrap; margin-top:13px }
+  .crm-card .crm-btns svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px }
+  .crm-select{ border:1px solid var(--line); border-radius:9px; padding:8px 11px; font-family:inherit; font-size:13px; color:var(--ink) }
+  .crm-card .crm-note{ display:flex; gap:7px; align-items:flex-start; margin:12px 0 0; font-size:11px; color:var(--mut); line-height:1.6 } .crm-card .crm-note svg{ width:14px; height:14px; flex:0 0 auto; margin-top:2px; color:var(--em-deep) }
+  .gbz .crm-inline{ margin-top:10px; font-size:12px; color:#2f6b4a; background:#EFFBF3; border:1px solid #cde8d5; border-radius:10px; padding:9px 12px } .gbz .crm-inline svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px; color:#16A05B }
   /* 個人プロフィール */
   .pf-av{ border-radius:50%; background-size:cover; background-position:center; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; background-color:#F3DDE5 }
   .pf-av.ph{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; font-weight:800 }
@@ -1159,15 +1152,13 @@
 
 <div class="appbar">
   <div class="appbar-in">
-    <a class="cobrand" href="#"><span class="star"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;vertical-align:-2px"><path d="M12 3l2.6 5.6L21 9.3l-4.5 4.2 1.1 6.1L12 16.9 6.4 19.6l1.1-6.1L3 9.3l6.4-.7z"/></svg></span><span class="horipro">HORIPRO（仮）</span><span class="x">×</span><span class="abhap">A.B.HAP</span><span class="ga">ガバショ！</span></a>
+    <a class="cobrand" href="#"><span class="ga">ガバショ！</span></a>
     <div class="roleswitch" id="roleswitch" role="tablist" aria-label="ロール切替（デモ）">
-      <button data-role="user" class="on"><span class="lbl">一般ユーザー</span></button>
-      <button data-role="admin"><span class="lbl">会社管理者</span></button>
-      <button data-role="coach"><span class="lbl">コーチ／ホリプロ（仮）</span></button>
+      <button data-role="user" class="on"><span class="lbl">ユーザー</span></button>
+      <button data-role="admin"><span class="lbl">管理者</span></button>
+      <button data-role="coach"><span class="lbl">コーチ</span></button>
       <button data-role="operator"><span class="lbl">運営</span></button>
     </div>
-    <button class="cfgbtn" id="notifyBtn" aria-label="通知">通知</button>
-    <button class="cfgbtn" id="cfgBtn" aria-label="AI設定"><span id="cfgDot">●</span> AI:<span id="cfgState">デモ</span></button>
     <div class="who" id="who"></div>
   </div>
 </div>
@@ -1478,6 +1469,7 @@ var state = {
   qa:{ mDate:'', mAns:'', nDate:'', nQ:'' },
   profile:{ name:'', company:'', dept:'', position:'', years:'', email:'', salesType:'', about:'', photo:'' },
   doneCount:0,
+  crm:{ connected:false, provider:'', lastSync:'' },
   reflSession:0, reflAnswers:{}, reflections:[],
   reportCfg:{ enabled:true, day:'月', time:'08:00', email:'owner@company.co.jp' }
 };
@@ -1598,12 +1590,13 @@ function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }cat
 var SERVER=false, USER=null, AI_ENABLED=false;
 function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
 
-function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections, doneCount:state.doneCount }; }
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections, doneCount:state.doneCount, crm:state.crm }; }
 function applyData(d){ if(!d) return;
   if(d.profile){ state.profile=Object.assign(state.profile||{},d.profile); syncProfileToME(); }
   if(typeof d.reflSession==='number') state.reflSession=d.reflSession;
   if(Array.isArray(d.reflections)) state.reflections=d.reflections;
   if(typeof d.doneCount==='number') state.doneCount=d.doneCount;
+  if(d.crm) state.crm=Object.assign(state.crm||{},d.crm);
   if(Array.isArray(d.bookings)&&d.bookings[0]&&d.bookings[0].date){ SCHEDULE.confirmed=d.bookings[0]; }
   if(typeof d.streak==='number') ME.streak=d.streak;
   if(d.mood) state.mood=Object.assign(state.mood,d.mood);
@@ -1871,13 +1864,13 @@ function planBadge(){
 function renderWho(){
   if(SERVER && USER){
     var roleJa={member:'メンバー',admin:'会社管理者',coach:'コーチ',operator:'運営'}[USER.role]||USER.role;
-    el('who').innerHTML=planBadge()+'<div style="text-align:right"><b>'+USER.name+'</b><small>'+roleJa+'</small></div><div class="av">'+(USER.name||'?').trim().charAt(0)+'</div><button class="cfgbtn" data-logout="1" style="margin-left:6px">ログアウト</button>';
+    el('who').innerHTML='<div style="text-align:right"><b>'+USER.name+'</b><small>'+roleJa+'</small></div><div class="av">'+(USER.name||'?').trim().charAt(0)+'</div><button class="cfgbtn" data-logout="1" style="margin-left:6px">ログアウト</button>';
     return;
   }
-  var map={ user:['田中 翔太','株式会社ネクステージ','田'], admin:['営業企画 管理者','株式会社ネクステージ','管'],
-    coach:['三上 あかり（コーチ）','HORIPRO（仮） × A.B.HAP','三'], operator:['ガバショ！運営','Fit Founder','運'] };
+  var map={ user:['田中 翔太','営業','田'], admin:['管理者','経営・人事','管'],
+    coach:['三上 あかり','コーチ','三'], operator:['運営','Fit Founder','運'] };
   var w=map[state.role];
-  el('who').innerHTML=planBadge()+'<div style="text-align:right"><b>'+w[0]+'</b><small>'+w[1]+'</small></div><div class="av">'+w[2]+'</div>';
+  el('who').innerHTML='<div style="text-align:right"><b>'+w[0]+'</b><small>'+w[1]+'</small></div><div class="av">'+w[2]+'</div>';
 }
 function renderSide(){
   // 受講者ゲート中はナビを隠し、診断に集中させる
@@ -1926,8 +1919,8 @@ function testBypass(){ return (!SERVER) || (SERVER && USER && USER.demo); }
 function render(){
   // 受講者ゲート：診断未完了なら必ず診断画面へ
   if(state.role==='user' && !onbDone() && !testBypass() && state.view!=='onboarding' && state.view!=='onboardingResult'){ state.view='onboarding'; }
-  // 管理者/運営＝PRO Athlete（ネイビー×ゴールド）、それ以外＝Standard（ピンク）
-  document.body.classList.toggle('theme-pro', state.role==='admin' || state.role==='operator');
+  // 全ロール共通の白UI（旧PRO Athleteネイビー×ゴールドテーマは廃止）
+  document.body.classList.remove('theme-pro');
   renderWho(); renderSide();
   // 「頑張る理由」未設定なら、マイページに入る前にセットアップ（初回のみ）
   if(state.role==='user' && state.view==='today' && !(state.dream&&state.dream.done)) state.view='dreamsetup';
@@ -3231,11 +3224,13 @@ VIEWS.user.today=function(){
   var esc2=function(x){ return String(x||'').replace(/"/g,'&quot;'); };
   var step='<input class="oneline" data-diary="todayFocus" placeholder="例：最初の1時間だけ本気で動く" value="'+esc2(state.diary.todayFocus)+'">';
   var prog='<input class="oneline" data-diary="done" placeholder="例：気が重かったけど、1件だけ訪問できた" value="'+esc2(state.diary.done)+'">';
-  // 夜：今日の営業数字（月間目標へ積み上がる）
+  // 夜：今日の営業数字（月間目標へ積み上がる）。CRM連携中は自動取得の案内を出す。
+  var crmOn=state.crm&&state.crm.connected;
   var numRow='<div class="num-row">'
     + '<div class="num-in"><label>今日の商談</label><input class="oneline" type="number" min="0" data-diary="todayShodan" value="'+esc2(state.diary.todayShodan)+'" placeholder="0"><span>件</span></div>'
     + '<div class="num-in"><label>今日の成約</label><input class="oneline" type="number" min="0" data-diary="todayKeiyaku" value="'+esc2(state.diary.todayKeiyaku)+'" placeholder="0"><span>件</span></div>'
-    + '</div>';
+    + '</div>'
+    + (crmOn?'<div class="crm-inline">'+svg('check')+' '+crmName()+'と連携中。商談・成約は自動で取り込まれます（手入力も可）。</div>':'');
   var toNext=3-((state.doneCount||0)%3); if(toNext===0) toNext=3;
   var vdots=''; for(var vd=1;vd<=3;vd++){ vdots+='<span class="vdot'+((3-toNext)>=vd?' on':'')+'"></span>'; }
   var videoHint='<div class="vhint"><div class="vh-dots">'+vdots+'</div><span>あと <b>'+toNext+'回</b> の記録で、お祝い動画が届きます</span></div>';
@@ -3278,6 +3273,24 @@ function aiCommentCard(c){
     + '<div style="display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap"><span class="pill em">今日のガバショAIスコア：'+c.score+'点</span>'+(c.coachingRecommended?'<span class="pill pink">'+svg('message')+'コーチング推奨</span>':'')+'</div></div>';
 }
 
+// CRM連携（商談・成約を自動取得）。実接続はサーバー＋各CRMのAPI（kintone/Salesforce等）が必要。
+var CRM_PROVIDERS=[['kintone','kintone'],['salesforce','Salesforce'],['hubspot','HubSpot'],['sheets','Google スプレッドシート']];
+function crmName(){ var p=(state.crm&&state.crm.provider); var f=CRM_PROVIDERS.filter(function(x){return x[0]===p;})[0]; return f?f[1]:'CRM'; }
+function crmCard(){
+  var c=state.crm||{};
+  if(c.connected){
+    return '<div class="card crm-card on">'
+      + '<div class="crm-top"><span class="crm-ic on">'+svg('check')+'</span><div><b>'+crmName()+' と連携中</b><small>商談・成約の数字を自動で取り込みます'+(c.lastSync?'　／　最終同期：'+c.lastSync:'')+'</small></div></div>'
+      + '<div class="crm-btns"><button class="btn btn-em btn-sm" data-crmsync="1">'+svg('trendUp')+' 今すぐ同期</button>'
+      + '<button class="btn btn-ghost btn-sm" data-crmdisconnect="1">連携を解除</button></div></div>';
+  }
+  var opts=CRM_PROVIDERS.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('');
+  return '<div class="card crm-card">'
+    + '<div class="crm-top"><span class="crm-ic">'+svg('link')+'</span><div><b>CRM連携で自動取得</b><small>商談・成約の数字を毎日、日記に手入力せず自動で取り込めます。</small></div></div>'
+    + '<div class="crm-btns"><select id="crmProvider" class="crm-select">'+opts+'</select>'
+    + '<button class="btn btn-em btn-sm" data-crmconnect="1">'+svg('link')+' 連携する</button></div>'
+    + '<p class="crm-note">'+svg('lock')+' 実際の接続には各CRMのAPI設定（サーバー側）が必要です。いまは連携の入口までのデモです。</p></div>';
+}
 VIEWS.user.streak=function(){
   var cells=[];
   for(var i=34;i>=0;i--){ cells.push({ago:i, done:(i<ME.streak)|| (i%4===0 && i<34)}); }
@@ -3304,6 +3317,7 @@ VIEWS.user.streak=function(){
       + '<div class="card">'+secH('target','今月の営業目標（月初に立て、日記で追う）')
         + '<p class="muted" style="margin:-6px 0 12px;font-size:12px">数字（右）を直せば、今月の目標を立て直せます。進捗は毎晩の日記で自動更新されます。</p>'+goalsHtml
         + '<p class="muted" style="margin:8px 0 0;font-size:11.5px">記録を3回続けるごとに、ホリプロ（仮）所属者から特別なお祝い動画が届きます。</p></div>'
+      + crmCard()
     + '</div>'
     + '<div class="card" style="margin-top:16px">'+secH('award','継続バッジ')+'<div class="badges">'
       + badge('award','継続ブロンズ','7日連続 達成',false)+badge('flame','継続シルバー','30日連続まで あと'+Math.max(0,30-ME.streak)+'日',true)
@@ -4638,6 +4652,10 @@ document.addEventListener('click', function(e){
   t=e.target.closest('[data-saveprofile]'); if(t){ syncProfileToME(); saveData(); render(); toast('プロフィールを保存しました'); return; }
   t=e.target.closest('[data-copyzoom]'); if(t){ var u=decodeURIComponent(t.getAttribute('data-copyzoom'));
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(u).then(function(){toast('Zoom URLをコピーしました');},function(){toast('コピーできませんでした');}); } else { toast('Zoom URL：'+u); } return; }
+  // CRM連携（商談・成約の自動取得）：連携・同期・解除（デモ）
+  t=e.target.closest('[data-crmconnect]'); if(t){ var pv=(el('crmProvider')&&el('crmProvider').value)||'kintone'; if(!state.crm) state.crm={}; state.crm.connected=true; state.crm.provider=pv; state.crm.lastSync='たった今'; saveData(); render(); toast(crmName()+'と連携しました（デモ）。商談・成約を自動取得します'); return; }
+  t=e.target.closest('[data-crmsync]'); if(t){ var addS=2, addK=1; var gs=GOALS.filter(function(x){return x.id==='g_shodan';})[0]; var gk=GOALS.filter(function(x){return x.id==='g_keiyaku';})[0]; if(gs){ gs.current+=addS; if(gs.current>=gs.target) gs.done=true; } if(gk){ gk.current+=addK; if(gk.current>=gk.target) gk.done=true; } if(state.crm) state.crm.lastSync='たった今'; saveData(); render(); toast(crmName()+'から取得：商談+'+addS+'・成約+'+addK+'（デモ）'); return; }
+  t=e.target.closest('[data-crmdisconnect]'); if(t){ if(state.crm){ state.crm.connected=false; } saveData(); render(); toast('CRM連携を解除しました'); return; }
   // オーナー向け週次AIレポート：送信・保存（デモ）
   t=e.target.closest('[data-reportsend]'); if(t){ var em=(state.reportCfg&&state.reportCfg.email)||'オーナー'; toast(em+' へ 週次AIレポートを送信しました（デモ）'); return; }
   t=e.target.closest('[data-reportsave]'); if(t){ var c=state.reportCfg||{}; toast('配信設定を保存しました（毎週'+c.day+'曜 '+c.time+'・'+(c.email||'')+'）'); return; }
