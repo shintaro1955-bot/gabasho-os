@@ -108,6 +108,16 @@ const PROMPTS = {
     system: 'あなたはホリプロ（仮）所属の女子アナ・コーチ「三上あかり」の分身AIです。若手営業マンの【今日の営業目標(架電/訪問/アポ/商談など)】と【日報・気分・連続日数】から、1〜3日で無理なく届く“小さなマイルストーン”を3つ推察して設計してください。各マイルストーンには、達成した瞬間に本人へ届ける「女子アナからの動画メッセージ」の台本(cheerScript)を、あらかじめ用意します。台本のトーンは【ド派手に超全力で応援・キラキラ・喜び爆発・本人の頑張りを具体的に労う】。絵文字を効果的に使い、達成の喜びを本人と一緒に爆発させてください（60〜100字）。ただし嫌味なく温かく。condition は「アポ2件」「3日連続で日報」等の短くて判定しやすい達成条件。badge は獲得バッジ名（短語）。emoji は1〜2個。医療診断・人格否定はしない。必ず指定のJSON形式のみで返答してください。',
     schema: { type:'object', properties:{ milestones:{ type:'array', items:{ type:'object', properties:{ title:{type:'string'}, condition:{type:'string'}, cheerTitle:{type:'string'}, cheerScript:{type:'string'}, badge:{type:'string'}, emoji:{type:'string'} }, required:['title','condition','cheerTitle','cheerScript','badge','emoji'], additionalProperties:false } } }, required:['milestones'], additionalProperties:false },
   },
+  // オーナー向け週次AIレポートの文面（集約・匿名の数値のみ入力）
+  ownerReport: {
+    system: 'あなたは経営者向けの週次組織レポートを書くAI「ガバショAI」です。入力は集約・匿名の数値のみ（面談数・ふりかえり記入率・心の温度・価値観/人生観の分布・要フォロー傾向の人数）。個人は特定しない。監視ではなく「人が動く理由」を経営が掴むための情報として、経営者向けの落ち着いた敬体で書く。詰める提言ではなく、組織の価値観に沿った“承認”を促す提言にする。summaryは3つの文（各60〜90字）、actionは今週の打ち手を1つ（具体的・実行可能）。必ず指定のJSON形式のみで返答してください。',
+    schema: { type:'object', properties:{ summary:{type:'array',items:{type:'string'}}, action:{type:'string'} }, required:['summary','action'], additionalProperties:false },
+  },
+  // 面談ふりかえり（選択式回答の蓄積）→ コーチ向けの一言インサイト＋やさしい声かけ
+  reflectInsight: {
+    system: 'あなたは若手営業マンの面談ふりかえり（選択式回答の蓄積）から、担当コーチ（アスリート/アナウンサー）向けに、その人が大事にしている価値観・人生観の傾向を一言でまとめ、次の面談の冒頭でかける「やさしい声かけ」を1つ提案するAIです。決めつけない・詰めない・医療診断や人格の断定はしない。insightは30〜60字、openerは自然な話し言葉の一文（相手を認める入り方）。必ず指定のJSON形式のみで返答してください。',
+    schema: { type:'object', properties:{ insight:{type:'string'}, opener:{type:'string'} }, required:['insight','opener'], additionalProperties:false },
+  },
 };
 /* APIキー未設定でもデモが動くよう、一部kindは“あらかじめ用意した”ド派手応援コンテンツを返すモック */
 const MOCKS = {
@@ -124,6 +134,12 @@ const MOCKS = {
         cheerScript: 'でたーーーアポ' + apo + '件っ！！🎯💥 勇気を出して踏み込んだ結果だよ、本当にすごい…！！断られても諦めなかったあなたが掴んだ一件です。誇っていい！！次の商談も、わたし全力で応援してるからね〜〜！！📣💖' },
     ] };
   },
+  ownerReport: () => ({ summary: [
+    '今週の面談とふりかえりの蓄積から、組織の心理状態はゆるやかに上向きです。数字の裏で、人が動いている“理由”が見えはじめています。',
+    '組織がいちばん大事にしているのは「家族・大切な人」、営業を続ける理由は「人の役に立つため」が最多でした。',
+    '支えが要りそうな傾向が数名（氏名は非開示）。詰めるより、この価値観に沿った承認が定着に効きます。',
+  ], action: '朝礼・全社発信で「大切にしていること」を経営の言葉で示し、評価面談は“詰め”を減らして価値観に沿った承認を増やす。' }),
+  reflectInsight: () => ({ insight: '成長と承認を大切にし、人の役に立つことにやりがいを感じる傾向。', opener: 'この前のふりかえり、読みました。人の役に立ちたいという気持ち、ちゃんと伝わってますよ。' }),
 };
 async function callAnthropic(kind, input) {
   const p = PROMPTS[kind];
@@ -311,12 +327,31 @@ const server = http.createServer(async (req, res) => {
         const d = await readMemberData(m.id);
         const th = await readThread(m.id);
         const last = th[th.length - 1];
+        const refl = Array.isArray(d.reflections) && d.reflections[0] ? d.reflections[0] : null; // 最新のふりかえり
+        const pick = (k) => refl && Array.isArray(refl.answers) ? (refl.answers.find(a => a.key === k) || {}).a || '' : '';
+        const booking = Array.isArray(d.bookings) && d.bookings[0] && d.bookings[0].date ? d.bookings[0] : null; // 面談予約(Zoom)
         members.push({ id: m.id, name: m.name, email: m.email,
+          profile: d.profile ? { name: d.profile.name, company: d.profile.company, position: d.profile.position, photo: d.profile.photo || '' } : null,
           streak: d.streak || 0, lastDiary: (d.diary && (d.diary.done || d.diary.issue || d.diary.consult)) || '',
           mood: d.mood || null, score: d.aiComment ? d.aiComment.score : null,
+          approvedCount: typeof d.approvedCount === 'number' ? d.approvedCount : 0,
+          goals: Array.isArray(d.goals) ? d.goals : null,
+          reflection: refl ? { when: refl.when, sessionNo: refl.sessionNo, temp: pick('temp'), life: pick('life'), action: pick('action'), note: refl.note || '' } : null,
+          booking: booking ? { date: booking.date, time: booking.time, zoom: booking.zoom || null } : null,
           msgCount: th.length, lastFrom: last ? last.from : null });
       }
       return json(res, 200, { members });
+    }
+    // コーチ：メンバーの努力を承認 → 本人のスコアに反映（サーバー保存）
+    if (pathn === '/api/coach/approve' && req.method === 'POST') {
+      const u = authUser(req); if (!u || (u.role !== 'coach' && u.role !== 'admin')) return json(res, 403, { error: 'forbidden' });
+      const { memberId } = await readBody(req);
+      const m = USERS.find(x => x.id === memberId && x.role === 'member'); if (!m) return json(res, 404, { error: 'no member' });
+      const d = await readMemberData(m.id);
+      d.approvedCount = (typeof d.approvedCount === 'number' ? d.approvedCount : 0) + 1;
+      d.todayApproved = true; d.lastApproveGain = 3; d.approvedBy = u.name; d.approvedAt = new Date().toISOString();
+      await saveMemberData(m.id, d);
+      return json(res, 200, { ok: true, approvedCount: d.approvedCount });
     }
     if (pathn === '/api/coach/thread' && req.method === 'GET') {
       const u = authUser(req); if (!u || (u.role !== 'coach' && u.role !== 'admin')) return json(res, 403, { error: 'forbidden' });
