@@ -936,6 +936,34 @@
   .bk-meta{ font-size:10.5px; color:#8a96ac; margin-top:6px }
   .bk-r{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
   .bk-r svg{ width:13px; height:13px; vertical-align:-2px; margin-right:3px }
+  /* Zoom後：ふりかえり導線 */
+  .zoom-card .zc-after{ margin-top:12px; padding-top:12px; border-top:1px dashed #dce8f7; display:flex; align-items:center; gap:11px; flex-wrap:wrap }
+  .zoom-card .zc-after .btn-pink{ background:#E1306C; color:#fff; border:none } .zoom-card .zc-after .btn-pink svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px }
+  .zoom-card .zc-after-note{ font-size:11px; color:#7a8ba0 }
+  /* 面談ふりかえり（選択式） */
+  .gbz .rf-lead{ display:flex; gap:9px; align-items:flex-start; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12.5px; color:#6a5a62; line-height:1.7 }
+  .gbz .rf-lead svg{ width:16px; height:16px; color:#E1306C; flex:0 0 auto; margin-top:2px } .gbz .rf-lead b{ color:#333 }
+  .gbz .rf-block{ background:#fff; border:1px solid #F3DDE5; border-radius:16px; padding:16px 16px; margin-bottom:12px }
+  .gbz .rf-qhead{ display:flex; gap:10px; align-items:center; margin-bottom:12px }
+  .gbz .rf-no{ width:24px; height:24px; border-radius:50%; background:#FFE4EE; color:#E1306C; font-size:12px; font-weight:900; display:grid; place-items:center; flex:0 0 auto }
+  .gbz .rf-no svg{ width:13px; height:13px }
+  .gbz .rf-qhead b{ font-size:14.5px; color:#222; font-weight:800; line-height:1.5 }
+  .gbz .rf-chips{ display:flex; flex-wrap:wrap; gap:8px }
+  .gbz .rf-chips.scale{ flex-wrap:nowrap; gap:6px }
+  .gbz .rf-chip{ border:1px solid #F3DDE5; background:#FFF8FB; color:#5a505a; font-size:13px; font-weight:700; border-radius:999px; padding:9px 15px; cursor:pointer; line-height:1.3 }
+  .gbz .rf-chip.sc{ flex:1; text-align:center; padding:9px 4px; font-size:12px }
+  .gbz .rf-chip:hover{ border-color:#F5427A }
+  .gbz .rf-chip.on{ background:#E1306C; border-color:#E1306C; color:#fff }
+  /* コーチ側：ふりかえり通知 */
+  .rf-wrap{ border:1px solid #F3DDE5; background:linear-gradient(135deg,#FFF6FA,#fff) }
+  .rf-note-item{ padding:13px 0; border-top:1px solid #F6E3EB } .rf-note-item:first-of-type{ border-top:0 }
+  .rf-note-item.new{ position:relative } .rf-note-item.new::before{ content:'NEW'; position:absolute; top:12px; right:0; font-size:9px; font-weight:800; color:#fff; background:#E1306C; border-radius:5px; padding:1px 6px }
+  .rf-ni-top{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap } .rf-ni-top b{ font-size:14px; color:#0B2545 }
+  .rf-ni-when{ font-size:11px; color:#8a96ac }
+  .rf-ni-tags{ display:flex; flex-wrap:wrap; gap:7px; margin-top:8px }
+  .rf-tag{ font-size:12px; color:#3a2c30; background:#fff; border:1px solid #F3DDE5; border-radius:8px; padding:5px 10px }
+  .rf-tag i{ font-style:normal; font-size:10px; font-weight:800; color:#c58aa0; margin-right:5px }
+  .rf-ni-msg{ margin-top:8px; font-size:12.5px; color:#5a505a; line-height:1.7 } .rf-ni-msg svg{ width:13px; height:13px; color:#c58aa0; vertical-align:-2px; margin-right:3px }
   .gbz .hero .score{ margin:24px 0 0; text-align:center }
   .gbz .hero .score .lab{ font-size:11px; font-weight:800; letter-spacing:.22em; color:#ffd0e0 }
   .gbz .hero .score .n{ font-size:74px; font-weight:900; line-height:1; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 8px 34px rgba(255,255,255,.3) }
@@ -1277,6 +1305,44 @@ function zoomMeeting(date,time){
   var url='https://us02web.zoom.us/j/'+id.replace(/ /g,'')+'?pwd='+pass+'ff';
   return { id:id, pass:pass, url:url };
 }
+// 面談ふりかえり（選択式）。Zoomが終わるたびに、各ステージのバリエーションがローテーションして選択肢が変わる。
+var COACH_REFLECTIONS=[];
+var REFL_STAGES=[
+  { key:'temp', title:'いまの温度', variants:[
+    {q:'面談を終えた今の気持ちは？', kind:'single', opts:['すっきり','前向きになれた','じんわり嬉しい','悔しい・火がついた','ほっとした','まだ整理できてない']},
+    {q:'心の温度、正直どれくらい上がった？', kind:'scale', opts:['↓ 下がった','±0','少し↑','↑↑','↑↑↑']},
+    {q:'終わってみて、いちばん近い感覚は？', kind:'single', opts:['背中を押された','見てもらえた','図星だった','肩の荷が下りた','やる気が出た','考え込んでいる']}
+  ]},
+  { key:'hit', title:'刺さったこと', variants:[
+    {q:'いちばん心に残った“ひとこと”のタイプは？', kind:'single', opts:['認めてくれた言葉','背中を押す言葉','図星だった言葉','新しい視点','具体的なアドバイス','まだ言葉にできない']},
+    {q:'今日いちばん効いたのは？', kind:'single', opts:['実体験の話','考え方・マインド','具体的なやり方','「見てるよ」の一言','質問されて気づいた','沈黙・間']},
+    {q:'家に帰っても思い出しそうな場面は？', kind:'single', opts:['褒められた瞬間','本音を言えた瞬間','弱さを受け止めてもらえた瞬間','ハッとした瞬間','期待をかけられた瞬間','笑い合えた瞬間']}
+  ]},
+  { key:'why', title:'なぜ響いたか', variants:[
+    {q:'それが響いたのは、なぜ？', kind:'single', opts:['ずっと言ってほしかった','薄々気づいてた','誰も言ってくれなかった','憧れの人だから','図星だったから','自分でも意外']},
+    {q:'今日の気づきを一言でいうと？', kind:'single', opts:['思ったより頑張れてた','視点が狭かった','比べる相手を間違えてた','やり方を変えればいい','大事を後回しにしてた','立ち止まってよかった']},
+    {q:'その言葉、どうして刺さったと思う？', kind:'single', opts:['本当はそうなりたいから','見て見ぬふりをしてた','認められたかった','初めての視点だった','過去の自分と重なった','うまく言えない']}
+  ]},
+  { key:'values', title:'大事にしたいこと', variants:[
+    {q:'本当に大事にしたいこと（最大3つ）', kind:'multi', max:3, opts:['家族・大切な人','成長','認められること','自由・自分らしさ','お金・安定','仲間','社会への貢献','挑戦・勝つこと']},
+    {q:'「自分らしい」と感じるのはどんな時？（最大3つ）', kind:'multi', max:3, opts:['頼られた時','目標に向かってる時','勝った時','誰かを助けた時','没頭してる時','認められた時','自由に動けてる時','仲間といる時']},
+    {q:'今日の話は、あなたの何に触れた？（最大3つ）', kind:'multi', max:3, opts:['守りたい人','なりたい姿','許せない自分','本当の望み','過去の後悔','これからの覚悟','自分の強み','弱さ']}
+  ]},
+  { key:'life', title:'人生観', variants:[
+    {q:'5年後、どんな自分でありたい？', kind:'single', opts:['結果を出す自分','頼られる自分','自由に選べる自分','家族を支える自分','人を育てる自分','まだ描けない'], feed:'become'},
+    {q:'営業は、あなたにとって何のため？', kind:'single', opts:['生活のため','成長のため','認められるため','人の役に立つため','自分を証明するため','まだ言葉にできない'], feed:'purpose'},
+    {q:'人生の最後に「いい人生だった」と思えるのは？', kind:'single', opts:['大切な人に囲まれてる','やりきったと思える','誰かの支えになれた','挑戦し続けた','自分らしく生きた','まだ分からない'], feed:'become'}
+  ]},
+  { key:'action', title:'次の一歩', variants:[
+    {q:'この気づきを、明日の“1つの行動”にするなら？', kind:'single', opts:['朝いちで動く','苦手に踏み込む','誰かに相談する','小さく1件動く','記録を続ける','決めた一歩をやり切る'], feed:'todayFocus'},
+    {q:'次にコーチに会う時、どんな自分でいたい？', kind:'single', opts:['結果を持って','一歩踏み出して','続けられてる状態で','悩みを整理して','笑顔で','自分を好きになれてる'], feed:'todayFocus'},
+    {q:'明日の自分に、ひとこと送るなら？', kind:'single', opts:['焦らず一歩','昨日の自分を超える','逃げない','楽しんでいこう','続けよう','自分を信じる'], feed:'todayFocus'}
+  ]}
+];
+// 今回のセッションで表示する組み合わせ（セッション番号でローテーション＝毎回変わる）
+function reflSet(){ var n=state.reflSession||0; return REFL_STAGES.map(function(s,i){ var v=s.variants[(n+i)%s.variants.length]; return { key:s.key, title:s.title, q:v.q, kind:v.kind, opts:v.opts, max:v.max||3, feed:v.feed }; }); }
+function reflLabelOf(stage,ans){ if(ans==null) return ''; if(stage.kind==='multi'){ return (ans||[]).map(function(i){return stage.opts[i];}).join('・'); } return stage.opts[ans]; }
+
 function setConfirmed(date,time){
   var z=zoomMeeting(date,time);
   SCHEDULE.confirmed={date:date, time:time, zoom:z};
@@ -1366,7 +1432,8 @@ var state = {
   approvedCount:null, todayApproved:false, lastApproveGain:0, approvedByUser:{},
   dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false, imgSeed:7 },
   qa:{ mDate:'', mAns:'', nDate:'', nQ:'' },
-  profile:{ name:'', company:'', dept:'', position:'', years:'', email:'', salesType:'', about:'', photo:'' }
+  profile:{ name:'', company:'', dept:'', position:'', years:'', email:'', salesType:'', about:'', photo:'' },
+  reflSession:0, reflAnswers:{}, reflections:[]
 };
 
 /* ===== 応援メッセージ（本人↔女子アナ/コーチ） ===== */
@@ -1485,9 +1552,11 @@ function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }cat
 var SERVER=false, USER=null, AI_ENABLED=false;
 function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
 
-function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[] }; }
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections }; }
 function applyData(d){ if(!d) return;
   if(d.profile){ state.profile=Object.assign(state.profile||{},d.profile); syncProfileToME(); }
+  if(typeof d.reflSession==='number') state.reflSession=d.reflSession;
+  if(Array.isArray(d.reflections)) state.reflections=d.reflections;
   if(Array.isArray(d.bookings)&&d.bookings[0]&&d.bookings[0].date){ SCHEDULE.confirmed=d.bookings[0]; }
   if(typeof d.streak==='number') ME.streak=d.streak;
   if(d.mood) state.mood=Object.assign(state.mood,d.mood);
@@ -1584,6 +1653,7 @@ var NAV = {
     {v:'challenge', ic:'flame', t:'継続チャレンジ'},
     {v:'coaching', ic:'sparkles', t:'コーチを知る'},
     {v:'schedule', ic:'calendar', t:'面談カレンダー'},
+    {v:'reflect', ic:'edit', t:'面談ふりかえり'},
     {v:'thanks', ic:'heart', t:'サンクスポイント'},
     {v:'history', ic:'clock', t:'成長ログ'},
     {v:'pulse', ic:'activity', t:'今週のコンディション'},
@@ -2574,7 +2644,8 @@ VIEWS.user.schedule=function(){
       + '<div class="zoom-card"><div class="zc-top"><span class="zc-badge">'+svg('video')+' Zoom</span><span class="zc-note">'+an.name+'さんへ通知を送信しました</span></div>'
       + '<div class="zc-url"><a href="'+z.url+'" target="_blank" rel="noopener">'+z.url+'</a></div>'
       + '<div class="zc-meta">ミーティングID：'+z.id+'　／　パスコード：'+z.pass+'</div>'
-      + '<div class="zc-btns"><a class="btn btn-em btn-sm" href="'+z.url+'" target="_blank" rel="noopener">'+svg('video')+' 参加する</a><button class="btn btn-ghost btn-sm" data-copyzoom="'+encodeURIComponent(z.url)+'">'+svg('copy')+' リンクをコピー</button></div></div>';
+      + '<div class="zc-btns"><a class="btn btn-em btn-sm" href="'+z.url+'" target="_blank" rel="noopener">'+svg('video')+' 参加する</a><button class="btn btn-ghost btn-sm" data-copyzoom="'+encodeURIComponent(z.url)+'">'+svg('copy')+' リンクをコピー</button></div>'
+      + '<div class="zc-after"><button class="btn btn-pink btn-sm" data-reflstart="1">'+svg('edit')+' 面談を終えて、ふりかえりを書く</button><span class="zc-after-note">Zoomを終えたら、熱が残るうちに1〜2分で。</span></div></div>';
   }
   var dows=['日','月','火','水','木','金','土'].map(function(d,i){return '<div class="dow'+(i===0?' sun':i===6?' sat':'')+'">'+d+'</div>';}).join('');
   var cells='';
@@ -2817,6 +2888,30 @@ function pfField(key,label,ph,type){
   var esc=function(s){ return String(s||'').replace(/"/g,'&quot;'); };
   return '<div class="pf-q"><label>'+label+'</label><input class="oneline" type="'+(type||'text')+'" data-pf="'+key+'" value="'+esc(pfVal(key))+'" placeholder="'+ph+'"></div>';
 }
+
+// 面談ふりかえり（選択式・毎回選択肢が変わる）
+VIEWS.user.reflect=function(){
+  var A=state.reflAnswers||{}, set=reflSet();
+  var answered=set.filter(function(s){ var a=A[s.key]; return s.kind==='multi'?(a&&a.length):(a!=null); }).length;
+  var blocks=set.map(function(s,i){
+    var a=A[s.key];
+    var chips=s.opts.map(function(o,oi){
+      if(s.kind==='multi'){ var on=(a||[]).indexOf(oi)>=0; return '<button class="rf-chip'+(on?' on':'')+'" data-reflmulti="'+s.key+':'+oi+'">'+o+'</button>'; }
+      var on=(a===oi); return '<button class="rf-chip'+(on?' on':'')+(s.kind==='scale'?' sc':'')+'" data-refl="'+s.key+':'+oi+'">'+o+'</button>';
+    }).join('');
+    return '<div class="rf-block"><div class="rf-qhead"><span class="rf-no">'+(i+1)+'</span><b>'+s.q+'</b></div><div class="rf-chips'+(s.kind==='scale'?' scale':'')+'">'+chips+'</div></div>';
+  }).join('');
+  var esc=function(x){ return String(x||'').replace(/"/g,'&quot;'); };
+  return '<div class="gbz">'
+    + pageHead('面談ふりかえり','面談の熱が残っているうちに。タップで答えるだけ、1〜2分。','<span class="pill pink">第'+((state.reflSession||0)+1)+'回</span>')
+    + '<div class="rf-lead">'+svg('sparkles')+'<span>選択肢は<b>毎回すこしずつ変わります</b>。今日のあなたに近いものを選んでください。人生観の答えは「頑張る理由」に活かされます。</span></div>'
+    + blocks
+    + '<div class="rf-block"><div class="rf-qhead"><span class="rf-no">'+svg('message')+'</span><b>コーチへ、ひとこと（任意）</b></div>'
+      + '<textarea class="pf-ta" data-reflnote="1" placeholder="書きたい人だけでOK。今日のお礼や、話し足りなかったこと。">'+esc(A.note)+'</textarea></div>'
+    + '<button class="save" data-reflsubmit="1">ふりかえりを送る（'+answered+'/'+set.length+'）</button>'
+    + '<p class="pf-note">'+svg('lock')+' 内容は担当コーチに共有されます。会社には日記・気分の生データは渡りません。</p>'
+    + '</div>';
+};
 
 VIEWS.user.onboarding=function(){
   var ans=onbAnswered(), pct=Math.round(ans/ONB_Q.length*100);
@@ -3793,7 +3888,20 @@ VIEWS.coach.queue=function(){
       }).join('')
       + '<p class="muted" style="margin:10px 0 0;font-size:11.5px">'+svg('calendar')+' メンバーが日程を確定すると、Zoom URL付きでここに自動通知が届きます（アスリート／アナウンサー側）。</p></div>';
   }
+  // 面談ふりかえりの自動通知（面談直後に本人が記入 → コーチ側へ届く）
+  var reflHtml='';
+  if(COACH_REFLECTIONS.length){
+    reflHtml='<div class="card rf-wrap">'+secH('message','面談ふりかえりが届きました')
+      + COACH_REFLECTIONS.map(function(r){
+        return '<div class="rf-note-item'+(r.read?'':' new')+'"><div class="rf-ni-top"><b>'+r.member+'</b><span class="rf-ni-when">'+r.when+'の面談 ／ 第'+r.sessionNo+'回</span></div>'
+          + '<div class="rf-ni-tags">'+[['温度',r.temp],['人生観',r.life],['次の一歩',r.action]].filter(function(x){return x[1];}).map(function(x){return '<span class="rf-tag"><i>'+x[0]+'</i>'+x[1]+'</span>';}).join('')+'</div>'
+          + (r.note?'<div class="rf-ni-msg">'+svg('message')+'「'+r.note+'」</div>':'')
+          + '</div>';
+      }).join('')
+      + '<p class="muted" style="margin:10px 0 0;font-size:11.5px">面談準備から「努力を承認」すると、本人のGABASHO SCOREに反映されます。</p></div>';
+  }
   return pageHead('担当予定一覧','面談前に、AIが相手の特徴と進め方を整理してくれます。GABASHO SCOREは、あなたの承認で上がります。','<span class="pill purple">承認待ち '+pending+'件</span>')
+    + reflHtml
     + bookHtml
     + '<div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px;background:linear-gradient(120deg,var(--em-tint),#fff)"><div class="kpi-ic-lg">'+svg('sparkles')+'</div><div style="flex:1;min-width:220px"><b>スコアはコーチが承認して上がります</b><p class="muted" style="margin:3px 0 0;font-size:12.5px">メンバーが「マイナス思考→一歩→結果」まで進んだら、面談準備からその努力を承認してください。自己申告ではスコアは動きません。</p></div></div>'
     + '<table class="tbl"><thead><tr><th>担当ユーザー</th><th>予定</th><th>スコア</th><th>今の状態</th><th>承認</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
@@ -4381,6 +4489,35 @@ document.addEventListener('click', function(e){
   t=e.target.closest('[data-saveprofile]'); if(t){ syncProfileToME(); saveData(); render(); toast('プロフィールを保存しました'); return; }
   t=e.target.closest('[data-copyzoom]'); if(t){ var u=decodeURIComponent(t.getAttribute('data-copyzoom'));
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(u).then(function(){toast('Zoom URLをコピーしました');},function(){toast('コピーできませんでした');}); } else { toast('Zoom URL：'+u); } return; }
+  // 面談ふりかえり：開始・選択・送信
+  t=e.target.closest('[data-reflstart]'); if(t){ state.reflAnswers={}; state.view='reflect'; render(); window.scrollTo(0,0); return; }
+  t=e.target.closest('[data-refl]'); if(t){ var pk=t.getAttribute('data-refl').split(':'); if(!state.reflAnswers) state.reflAnswers={}; state.reflAnswers[pk[0]]=parseInt(pk[1],10); saveData(); render(); return; }
+  t=e.target.closest('[data-reflmulti]'); if(t){ var pm=t.getAttribute('data-reflmulti').split(':'); if(!state.reflAnswers) state.reflAnswers={}; var key=pm[0], idx=parseInt(pm[1],10); var arr=state.reflAnswers[key]||[]; var st=reflSet().filter(function(x){return x.key===key;})[0]; var at=arr.indexOf(idx);
+    if(at>=0) arr.splice(at,1); else { if(arr.length>=(st?st.max:3)){ toast('最大'+(st?st.max:3)+'つまでです'); return; } arr.push(idx); } state.reflAnswers[key]=arr; saveData(); render(); return; }
+  t=e.target.closest('[data-reflsubmit]'); if(t){
+    var A=state.reflAnswers||{}, set=reflSet(), recAns=[];
+    set.forEach(function(s){ var a=A[s.key]; var label=reflLabelOf(s,a); if(label) recAns.push({q:s.q, a:label, key:s.key});
+      // 人生観・行動の回答を「なりたい姿」「今日の一歩」へ流し込む
+      if(a!=null && s.kind==='single'){ var lab=s.opts[a];
+        if(s.feed==='become' && state.vision && !state.vision.becomeWhat) state.vision.becomeWhat=lab;
+        if(s.feed==='purpose' && state.vision && !state.vision.purpose) state.vision.purpose=lab;
+        if(s.feed==='todayFocus' && state.diary){ state.diary.todayFocus=lab; }
+      }
+    });
+    if(!recAns.length){ toast('ひとつだけでも選んでみてください'); return; }
+    var when=(SCHEDULE.confirmed?jpDate(SCHEDULE.confirmed.date):'今日');
+    var me=(state.profile&&state.profile.name)||ME.name;
+    var rec={ sessionNo:(state.reflSession||0)+1, when:when, answers:recAns, note:(A.note||'') };
+    if(!Array.isArray(state.reflections)) state.reflections=[];
+    state.reflections.unshift(rec);
+    // コーチ（アスリート／アナ）側へ通知（要点＝温度・人生観・次の一歩）
+    var pick=function(k){ var r=recAns.filter(function(x){return x.key===k;})[0]; return r?r.a:''; };
+    COACH_REFLECTIONS.unshift({ member:me, when:when, temp:pick('temp'), life:pick('life'), action:pick('action'), note:(A.note||''), sessionNo:rec.sessionNo, read:false });
+    state.reflSession=(state.reflSession||0)+1;   // 次回はローテーションで選択肢が変わる
+    state.reflAnswers={};
+    saveData(); state.view='today'; render();
+    toast('ふりかえりを送りました。コーチが受け止めます（承認でスコアが上がります）');
+    return; }
   // goal +progress
   t=e.target.closest('[data-goalup]');
   if(t){ var g=GOALS.filter(function(x){return x.id===t.getAttribute('data-goalup');})[0];
@@ -4400,6 +4537,7 @@ document.addEventListener('click', function(e){
 document.addEventListener('input', function(e){
   var d=e.target.getAttribute&&e.target.getAttribute('data-diary'); if(d){ state.diary[d]=e.target.value; saveData(); return; }
   var pf=e.target.getAttribute&&e.target.getAttribute('data-pf'); if(pf){ if(!state.profile) state.profile={}; state.profile[pf]=e.target.value; saveData(); return; }
+  if(e.target.getAttribute&&e.target.getAttribute('data-reflnote')){ if(!state.reflAnswers) state.reflAnswers={}; state.reflAnswers.note=e.target.value; return; }
   var v=e.target.getAttribute&&e.target.getAttribute('data-vision'); if(v){ state.vision[v]=e.target.value; saveData(); }
   var dr=e.target.getAttribute&&e.target.getAttribute('data-dream'); if(dr){ if(!state.dream) state.dream={}; state.dream[dr]=e.target.value; saveData();
     var cd=el('dreamCount'); if(cd&&(dr==='age'||dr==='retireAge')) cd.innerHTML=dreamCountHtml(); }
