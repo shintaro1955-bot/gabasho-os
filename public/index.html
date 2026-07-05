@@ -1930,9 +1930,14 @@ function render(){
   // 「頑張る理由」未設定なら、マイページに入る前にセットアップ（初回のみ）
   if(state.role==='user' && state.view==='today' && !(state.dream&&state.dream.done)) state.view='dreamsetup';
   var fn=(VIEWS[state.role]&&VIEWS[state.role][state.view])||function(){return '<div class="card">準備中の画面です。</div>';};
-  el('main').innerHTML=(typeof goalStrip==='function'?goalStrip():'')+fn(); window.scrollTo(0,0);
+  // 画面（role/view）が変わった時だけ先頭へ。同じ画面の再描画（気分タップ・選択肢など）はスクロール位置を維持。
+  var key=state.role+'/'+state.view, sameView=(key===_lastRenderKey), prevScroll=window.pageYOffset||document.documentElement.scrollTop||0;
+  el('main').innerHTML=(typeof goalStrip==='function'?goalStrip():'')+fn();
+  if(sameView) window.scrollTo(0, prevScroll); else window.scrollTo(0,0);
+  _lastRenderKey=key;
   if(state.role==='user' && typeof ensureDreamImgPrompt==='function') ensureDreamImgPrompt(); // 目標画像のAI翻訳（未翻訳時のみ）
 }
+var _lastRenderKey='';
 
 var VIEWS={ user:{}, admin:{}, coach:{}, operator:{} };
 
