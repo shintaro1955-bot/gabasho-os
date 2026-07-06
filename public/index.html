@@ -9,7 +9,7 @@
   :root{
     --ink:#222222; --ink-2:#555b66; --mut:#7b8290; --line:#ECECEF;
     --bg:#ffffff; --bg-soft:#ffffff; --card:#ffffff;
-    --em:#F5427A; --em-deep:#E1306C; --em-dark:#C71E5B; --em-soft:#FFE6EE; --em-tint:#FFF1F5;
+    --em:#F5427A; --em-deep:#E1306C; --em-dark:#C71E5B; --em-soft:#FFE6EE; --em-tint:#FFF1F5; --em-lite:#ff9ab8;
     --gold:#B68A2A; --gold-soft:#F5EBCD; --pink:#FF7A9C; --pink-soft:#FFE6EE; --blue:#4aa3ff; --blue-soft:#e8f3ff;
     --navy:#0D1B4C; --navy-dark:#07112F;
     --purple:#8b6ff0; --purple-soft:#efeafb;
@@ -23,11 +23,22 @@
 
   .appbar{position:sticky;top:0;z-index:40;background:#ffffff;border-bottom:1px solid var(--line)}
   .appbar-in{display:flex;align-items:center;gap:14px;height:60px;padding:0 20px;max-width:1340px;margin:0 auto}
+  @media(max-width:900px){ .appbar-in{flex-wrap:wrap;height:auto;min-height:56px;padding:8px 14px;row-gap:8px} }
   .cobrand{display:flex;align-items:center;text-decoration:none;color:inherit;flex:0 0 auto}
   .cobrand .ga{font-size:19px;font-weight:900;color:var(--em-deep);letter-spacing:.01em}
   .roleswitch{margin-left:auto;display:flex;background:#F4F4F6;border-radius:999px;padding:3px;gap:2px;flex-wrap:nowrap}
   .roleswitch button{border:0;background:transparent;color:var(--ink-2);font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
   .roleswitch button.on{background:var(--em-deep);color:#fff}
+  .courseswitch{display:flex;background:#F4F4F6;border-radius:999px;padding:3px;gap:2px;margin-left:10px}
+  .courseswitch button{border:0;background:transparent;color:var(--ink-2);font-weight:800;font-size:12.5px;padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .courseswitch button.on{background:var(--em-deep);color:#fff}
+  /* アスリートコース：ピンク基調 → ネイビー×ゴールドへ切替（アクセント変数を上書き） */
+  body.course-athlete{ --em:#12245E; --em-deep:#0D1B4C; --em-dark:#07112F; --em-soft:#E7ECF7; --em-tint:#F1F4FB; --em-lite:#3a4f84; --pink:#C9A227; --pink-soft:#F5EBCD; --shadow:0 18px 44px -26px rgba(13,27,76,.34); }
+  /* アスリートコース：ハードコードされたピンク面をネイビー×ゴールドへ */
+  body.course-athlete .gbz .hero{ background:radial-gradient(120% 120% at 100% 0,#2a3f74 0%,rgba(42,63,116,0) 55%),linear-gradient(160deg,#12245E,#0D1B4C); box-shadow:0 24px 60px -30px rgba(13,27,76,.55) }
+  body.course-athlete .gbz .hero .streak{ background:rgba(231,212,160,.18); border-color:rgba(231,212,160,.5); color:#F5EBCD }
+  body.course-athlete .sched-req .si.c{ background:linear-gradient(135deg,#c9b06a,#b68a2a) }
+  body.course-athlete .intro-pick .ii.a{ background:linear-gradient(135deg,#3a4f84,#12245e) }
   .who{display:flex;align-items:center;gap:9px;flex:0 0 auto}
   .who .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--em),var(--em-deep));color:#fff;display:grid;place-items:center;font-weight:900;font-size:14px}
   .who small{font-size:11px;color:var(--mut);display:block;line-height:1.2}
@@ -129,7 +140,7 @@
   .psil{width:66%;height:66%;color:#fff;opacity:.92;display:block;margin:auto}
   .coach-card .av .psil{color:#3a2b08;opacity:.82}
   .side-self .av .psil{color:#3a2b08;opacity:.85}
-  .aiface{display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;flex:0 0 auto;box-shadow:0 6px 14px -8px rgba(245,66,122,.6)}
+  .aiface{display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;flex:0 0 auto;box-shadow:0 6px 14px -8px rgba(245,66,122,.6)}
   .aiface .ic-svg{width:60%;height:60%}
   body.theme-pro .aiface{background:linear-gradient(135deg,#e7d4a0,#b68a2a);color:#3a2b08}
   .ai .ai-head{display:flex;align-items:center;gap:11px}
@@ -143,7 +154,7 @@
   .match-ring small{position:relative;z-index:1;font-size:9px;color:var(--mut);display:block;text-align:center;margin-top:-2px}
   .coach-row{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px dashed var(--line)}
   .coach-row:last-child{border-bottom:0}
-  .coach-row .cav{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;flex:0 0 auto}
+  .coach-row .cav{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;flex:0 0 auto}
   .coach-row .cav .ic-svg{width:24px;height:24px}
   .coach-row .cm{flex:1;min-width:0}
   .coach-row .cm b{font-size:14px} .coach-row .cm .ct{font-size:11.5px;color:var(--mut)}
@@ -164,7 +175,7 @@
   .hear-opt.on{border-color:var(--pink);background:#fff0f5;color:#b53a63}
   .hear-opt.on .rad{border-color:var(--pink)} .hear-opt.on .rad::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--pink)}
   .hear-prog{height:7px;background:var(--pink-soft);border-radius:999px;overflow:hidden;margin:4px 0 2px}
-  .hear-prog i{display:block;height:100%;background:linear-gradient(90deg,#ff9ab8,#f5427a)}
+  .hear-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--em-lite),var(--em))}
   .reco{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:#fff;border-radius:18px;padding:22px;margin-top:16px}
   .reco .rl{font-size:11px;font-weight:800;letter-spacing:.06em;opacity:.95}
   .reco .rn{font-size:23px;font-weight:900;margin:4px 0 2px}
@@ -224,7 +235,7 @@
   .pairbox .prow b{font-size:12px;display:block} .pairbox .prow small{font-size:10px;color:var(--mut)}
   body.theme-pro .pairbox .prow small{color:#aab2d8} body.theme-pro .pairbox .prow b{color:#fff}
   .pdot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto;color:#fff}
-  .pdot.fire{background:linear-gradient(135deg,#ff8c42,#f5427a)} .pdot.wood{background:linear-gradient(135deg,#8a6a2a,#caa44e)}
+  .pdot.fire{background:linear-gradient(135deg,#ff8c42,var(--em))} .pdot.wood{background:linear-gradient(135deg,#8a6a2a,#caa44e)}
   /* 成果KPIダッシュボード（リテンション §6.5） */
   .kpi-compare{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
   @media(max-width:820px){ .kpi-compare{grid-template-columns:1fr 1fr} }
@@ -238,7 +249,7 @@
   .cmp .delta.bad{color:#d6334a}
   /* 顔ナビ：顔写真セル（無ければイニシャル） */
   .face{border-radius:50%;background-size:cover;background-position:center;flex:0 0 auto;box-shadow:0 2px 6px -3px rgba(0,0,0,.3)}
-  .face.initial{display:grid;place-items:center;font-weight:900;color:#fff;background:linear-gradient(135deg,#ff9ab8,#f5427a)}
+  .face.initial{display:grid;place-items:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--em-lite),var(--em))}
   body.theme-pro .face.initial{background:linear-gradient(135deg,#1a2342,#0d1b4c);color:#e7d4a0}
   .face.sq{border-radius:14px}
   .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
@@ -321,7 +332,7 @@
   .slot:hover{background:var(--pink-soft)}
   .sched-req{display:flex;align-items:flex-start;gap:11px;padding:13px 0;border-bottom:1px dashed var(--line)} .sched-req:last-child{border-bottom:0}
   .sched-req .si{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;color:#fff}
-  .sched-req .si.m{background:linear-gradient(135deg,var(--em),var(--em-deep))} .sched-req .si.c{background:linear-gradient(135deg,#ff9ab8,#f5427a)}
+  .sched-req .si.m{background:linear-gradient(135deg,var(--em),var(--em-deep))} .sched-req .si.c{background:linear-gradient(135deg,var(--em-lite),var(--em))}
   .sched-req .si .ic-svg{width:16px;height:16px}
   .sched-req .sb{flex:1;min-width:0} .sched-req .sb b{font-size:13.5px} .sched-req .sb .sd{font-size:11px;color:var(--mut);margin-top:1px}
   .sched-req .sact{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
@@ -338,7 +349,7 @@
   .intro-pick button{display:flex;align-items:center;gap:13px;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;cursor:pointer;font-family:inherit;text-align:left;transition:all .12s}
   .intro-pick button:hover{border-color:var(--pink);background:var(--pink-soft)}
   .intro-pick .ii{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;color:#fff}
-  .intro-pick .ii.a{background:linear-gradient(135deg,#ff9ab8,#f5427a)} .intro-pick .ii.b{background:linear-gradient(135deg,#e7d4a0,#b68a2a)} .intro-pick .ii.c{background:linear-gradient(135deg,var(--em),var(--em-deep))}
+  .intro-pick .ii.a{background:linear-gradient(135deg,var(--em-lite),var(--em))} .intro-pick .ii.b{background:linear-gradient(135deg,#e7d4a0,#b68a2a)} .intro-pick .ii.c{background:linear-gradient(135deg,var(--em),var(--em-deep))}
   .intro-pick b{font-size:14px;display:block} .intro-pick small{font-size:11.5px;color:var(--mut)}
   /* 提案サマリー */
   .pitch-hero{background:radial-gradient(120% 140% at 85% 0,#1c2c5a,#0d1b4c 55%,#07112f);color:#fff;border-radius:20px;padding:32px 30px;margin-bottom:16px}
@@ -364,7 +375,7 @@
   .lp-hero p{font-size:12.5px;opacity:.95;margin:0;line-height:1.6}
   .ann-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
   .ann-card{border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;background:#fff;box-shadow:0 1px 2px rgba(17,24,39,.04)}
-  .ann-card .av{width:64px;height:64px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-weight:900;font-size:26px;color:#fff;background:linear-gradient(135deg,#ff9ab8,#f5427a)}
+  .ann-card .av{width:64px;height:64px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-weight:900;font-size:26px;color:#fff;background:linear-gradient(135deg,var(--em-lite),var(--em))}
   .ann-card .role{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:#b53a63}
   .ann-card .nm{font-size:14px;font-weight:900;margin:2px 0 4px}
   .ann-card .tag{display:inline-block;font-size:10.5px;font-weight:800;background:var(--pink-soft);color:#b53a63;border-radius:999px;padding:2px 9px;margin-bottom:8px}
@@ -383,13 +394,13 @@
   @media(max-width:560px){ .trust .row{grid-template-columns:1fr} }
   /* タスク2: 今日のコーチからのひとことバナー */
   .hitokoto{display:flex;gap:13px;align-items:center;background:linear-gradient(120deg,#fff0f5,#fff);border:1px solid #ffd0e2;border-left:4px solid #ff6b9d;border-radius:14px;padding:14px 16px;margin-bottom:16px}
-  .hitokoto .av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:20px;flex:0 0 auto}
+  .hitokoto .av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900;font-size:20px;flex:0 0 auto}
   .hitokoto .lab{font-size:10.5px;font-weight:800;color:#b53a63;letter-spacing:.04em}
   .hitokoto .nm{font-size:11.5px;color:var(--mut);font-weight:700}
   .hitokoto .msg{font-size:13.5px;font-weight:700;margin-top:3px;line-height:1.5}
   /* タスク3: コーチからの応援 ブランドヘッダー＋バブル */
   .coach-brand{display:flex;gap:13px;align-items:center;background:#fff0f5;border-left:4px solid #ff6b9d;border-radius:12px;padding:14px 16px;margin-bottom:16px}
-  .coach-brand .av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:21px;flex:0 0 auto}
+  .coach-brand .av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900;font-size:21px;flex:0 0 auto}
   .coach-brand .nm{font-size:15px;font-weight:900}
   .coach-brand .ro{font-size:11.5px;color:#b53a63;font-weight:700}
   .coach-brand .cert{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;color:var(--em-dark);background:var(--em-soft);border-radius:999px;padding:2px 8px;margin-top:4px}
@@ -400,7 +411,7 @@
   .thread .bubble.coach{background:#ffe4f0;border-color:#ffd0e2}
   /* タスク5: サイドメニュー上部プロフィール */
   .side-coach{background:#fff0f5;border:1px solid #ffb3d1;border-radius:8px;padding:11px 12px;margin:0 4px 12px;display:flex;gap:10px;align-items:center}
-  .side-coach .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:17px;flex:0 0 auto}
+  .side-coach .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900;font-size:17px;flex:0 0 auto}
   .side-coach .lab{font-size:9.5px;font-weight:800;color:#b53a63;letter-spacing:.03em}
   .side-coach .nm{font-size:13px;font-weight:900;line-height:1.25}
   .side-coach .ro{font-size:10px;color:var(--mut);font-weight:700}
@@ -414,10 +425,10 @@
   .side-self .stat .s b{font-size:15px;font-weight:900;color:#f6d365;display:block;line-height:1} .side-self .stat .s small{font-size:9.5px;color:#c7c2e0}
   /* タスク4: 応援動画BOX ブランドヘッダー＋カードのコーチ表示 */
   .video-brand{display:flex;gap:13px;align-items:center;background:linear-gradient(120deg,#fff0f5,#fff);border:1px solid #ffd0e2;border-radius:14px;padding:16px 18px;margin-bottom:16px}
-  .video-brand .av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:21px;flex:0 0 auto}
+  .video-brand .av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900;font-size:21px;flex:0 0 auto}
   .video-brand b{font-size:15px} .video-brand p{font-size:12px;color:var(--mut);margin:3px 0 0}
   .vcard-outer .vmeta{display:flex;align-items:center;gap:8px;padding:0 14px 10px}
-  .vcard-outer .vmeta .mav{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px;flex:0 0 auto}
+  .vcard-outer .vmeta .mav{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px;flex:0 0 auto}
   .vcard-outer .vmeta .mn{font-size:11px;font-weight:800} .vcard-outer .vmeta .mr{font-size:9.5px;color:var(--mut)}
   .vcard-outer .vmeta .hbadge{margin-left:auto;font-size:9px;font-weight:800;color:#b53a63;background:var(--pink-soft);border-radius:999px;padding:2px 8px}
   .follow h2 .ic-svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px;color:var(--warn)}
@@ -700,35 +711,36 @@
     .shell{grid-template-columns:1fr} nav.side{display:none}
     .kpis,.badges{grid-template-columns:1fr 1fr} .twocol,.threecol,.vbox{grid-template-columns:1fr}
     .roleswitch .lbl{display:none}
+    .courseswitch .lbl{display:none} .courseswitch{margin-left:6px}
   }
   /* ===== ガバショ マイページ再設計：ネイビー×グリーンのクールSaaS（.gbz スコープ） ===== */
-  .gbz{ --ac:#F5427A; --ac2:#E1306C; --sub:#7b8290; --bg:#FFFFFF; --card:#FFFFFF; --line:#ECECEF; --ink:#222222;
+  .gbz{ --ac:var(--em); --ac2:var(--em-deep); --sub:#7b8290; --bg:#FFFFFF; --card:#FFFFFF; --line:#ECECEF; --ink:#222222;
     max-width:720px; margin:0 auto; }
   .gbz *{box-sizing:border-box}
-  .gbz .hero{ position:relative; background:radial-gradient(120% 120% at 100% 0,#ff9ab8 0%,rgba(255,154,184,0) 55%),linear-gradient(160deg,#F5427A,#E1306C); color:#fff; border-radius:24px; padding:34px 30px; overflow:hidden; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
+  .gbz .hero{ position:relative; background:radial-gradient(120% 120% at 100% 0,var(--em-lite) 0%,rgba(255,154,184,0) 55%),linear-gradient(160deg,var(--em),var(--em-deep)); color:#fff; border-radius:24px; padding:34px 30px; overflow:hidden; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
   .gbz .hero .streak{ position:absolute; top:18px; right:20px; font-size:12px; font-weight:800; color:#fff; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.42); border-radius:999px; padding:6px 13px; letter-spacing:.02em }
   .gbz .hero h1{ font-size:clamp(24px,3.6vw,30px); font-weight:900; letter-spacing:.01em; margin:0; line-height:1.35 }
   .gbz .hero .sub{ font-size:13.5px; color:#ffdfea; margin:8px 0 0 }
   .gbz .anc{ display:inline-flex; align-items:center; gap:11px; margin-top:16px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); border-radius:999px; padding:6px 16px 6px 6px }
-  .gbz .anc .av{ width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.92); color:#E1306C; display:grid; place-items:center; flex:0 0 auto }
+  .gbz .anc .av{ width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.92); color:var(--em-deep); display:grid; place-items:center; flex:0 0 auto }
   .gbz .anc .av svg{ width:20px; height:20px }
   .gbz .anc b{ font-size:13px; color:#fff; font-weight:800 }
   .gbz .anc small{ display:block; font-size:11px; color:#ffe0ec; font-weight:600 }
   /* アナウンサー週次メッセージカード */
   .gbz.amp-wrap{ margin:0 0 18px }
-  .amp-card{ position:relative; background:linear-gradient(165deg,#FFF5F9,#FFFFFF); border:1px solid #F3DDE5; border-left:4px solid #F5427A; border-radius:18px; padding:18px 20px; box-shadow:0 14px 40px -28px rgba(225,48,108,.45) }
+  .amp-card{ position:relative; background:linear-gradient(165deg,#FFF5F9,#FFFFFF); border:1px solid #F3DDE5; border-left:4px solid var(--em); border-radius:18px; padding:18px 20px; box-shadow:0 14px 40px -28px rgba(225,48,108,.45) }
   .amp-head{ display:flex; align-items:center; gap:12px }
-  .amp-head .amp-av{ width:44px; height:44px; border-radius:50%; background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; display:grid; place-items:center; flex:0 0 auto }
+  .amp-head .amp-av{ width:44px; height:44px; border-radius:50%; background:linear-gradient(160deg,var(--em),var(--em-deep)); color:#fff; display:grid; place-items:center; flex:0 0 auto }
   .amp-head .amp-av svg{ width:26px; height:26px }
   .amp-head b{ font-size:14px; color:#222; font-weight:900; display:block }
   .amp-head small{ font-size:11px; color:#9a8790; font-weight:600 }
-  .amp-badge{ margin-left:auto; align-self:flex-start; font-size:11px; font-weight:800; color:#E1306C; background:#FFE4EE; border-radius:999px; padding:4px 11px; white-space:nowrap }
+  .amp-badge{ margin-left:auto; align-self:flex-start; font-size:11px; font-weight:800; color:var(--em-deep); background:#FFE4EE; border-radius:999px; padding:4px 11px; white-space:nowrap }
   .amp-body{ font-size:14.5px; line-height:1.85; color:#3a3340; margin:15px 2px 4px; font-weight:500 }
   .amp-foot{ margin-top:12px; padding-top:12px; border-top:1px dashed #F3DDE5 }
   .amp-note{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#a08a92; font-weight:700 }
   .amp-note svg{ width:14px; height:14px }
   .amp-more{ margin-top:12px }
-  .amp-more summary{ cursor:pointer; font-size:12px; font-weight:800; color:#E1306C; list-style:none }
+  .amp-more summary{ cursor:pointer; font-size:12px; font-weight:800; color:var(--em-deep); list-style:none }
   .amp-more summary::-webkit-details-marker{ display:none }
   .amp-more summary::before{ content:'＋ '; }
   .amp-more[open] summary::before{ content:'− '; }
@@ -737,7 +749,7 @@
   .amp-past p{ font-size:13px; line-height:1.8; color:#5a505a; margin:5px 0 0 }
   /* 継続チャレンジ */
   .chl-hero{ display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:12px }
-  .chl-h-l{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; border-radius:20px; padding:22px 24px; box-shadow:0 20px 50px -30px rgba(225,48,108,.5) }
+  .chl-h-l{ background:linear-gradient(160deg,var(--em),var(--em-deep)); color:#fff; border-radius:20px; padding:22px 24px; box-shadow:0 20px 50px -30px rgba(225,48,108,.5) }
   .chl-h-lab{ font-size:12px; font-weight:800; color:#ffd8e6; letter-spacing:.02em }
   .chl-h-n{ font-size:52px; font-weight:900; line-height:1; margin:6px 0 12px; font-variant-numeric:tabular-nums }
   .chl-h-n small{ font-size:20px; font-weight:800; margin-left:4px }
@@ -746,49 +758,49 @@
   .chl-h-sub{ font-size:12px; color:#ffe0ec; font-weight:700; margin-top:9px }
   .chl-h-r{ background:#FFF5F9; border:1px solid #F3DDE5; border-radius:20px; padding:22px 20px; display:flex; flex-direction:column; justify-content:center }
   .chl-you-lab{ font-size:12px; font-weight:800; color:#c58aa0 }
-  .chl-you-n{ font-size:44px; font-weight:900; color:#E1306C; line-height:1; margin:4px 0 8px; font-variant-numeric:tabular-nums }
+  .chl-you-n{ font-size:44px; font-weight:900; color:var(--em-deep); line-height:1; margin:4px 0 8px; font-variant-numeric:tabular-nums }
   .chl-you-n small{ font-size:18px; margin-left:3px }
   .chl-you-msg{ font-size:12px; color:#8a6a76; font-weight:600; line-height:1.6 }
   .chl-note{ display:flex; align-items:center; gap:8px; font-size:12px; color:#a08a92; font-weight:700; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; padding:11px 14px; margin-bottom:6px }
-  .chl-note svg{ width:15px; height:15px; flex:0 0 auto; color:#E1306C }
+  .chl-note svg{ width:15px; height:15px; flex:0 0 auto; color:var(--em-deep) }
   .chl-list{ display:flex; flex-direction:column; gap:8px }
   .chl-row{ display:flex; align-items:center; gap:12px; background:#fff; border:1px solid #F3DDE5; border-radius:14px; padding:12px 15px }
-  .chl-row.me{ background:#FFF0F6; border-color:#F5427A }
-  .chl-flame{ color:#F5427A; display:grid; place-items:center }
+  .chl-row.me{ background:#FFF0F6; border-color:var(--em) }
+  .chl-flame{ color:var(--em); display:grid; place-items:center }
   .chl-flame svg{ width:20px; height:20px }
   .chl-nm{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap }
   .chl-nm b{ font-size:14px; color:#222; font-weight:800 }
-  .chl-badge{ font-size:10.5px; font-weight:800; color:#E1306C; background:#FFE4EE; border-radius:999px; padding:2px 9px }
-  .chl-days{ font-size:22px; font-weight:900; color:#E1306C; font-variant-numeric:tabular-nums }
+  .chl-badge{ font-size:10.5px; font-weight:800; color:var(--em-deep); background:#FFE4EE; border-radius:999px; padding:2px 9px }
+  .chl-days{ font-size:22px; font-weight:900; color:var(--em-deep); font-variant-numeric:tabular-nums }
   .chl-days small{ font-size:12px; font-weight:800; margin-left:2px; color:#c58aa0 }
-  .chl-cheer{ border:1px solid #F5427A; background:#fff; color:#E1306C; font-weight:800; font-size:12px; border-radius:999px; padding:6px 13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
+  .chl-cheer{ border:1px solid var(--em); background:#fff; color:var(--em-deep); font-weight:800; font-size:12px; border-radius:999px; padding:6px 13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
   .chl-cheer svg{ width:14px; height:14px }
-  .chl-cheer:hover{ background:#F5427A; color:#fff }
-  .chl-cheer.done{ background:#FFE4EE; border-color:#FFE4EE; color:#E1306C; cursor:default }
+  .chl-cheer:hover{ background:var(--em); color:#fff }
+  .chl-cheer.done{ background:#FFE4EE; border-color:#FFE4EE; color:var(--em-deep); cursor:default }
   .chl-praise{ display:flex; align-items:flex-start; gap:11px; background:#fff; border:1px solid #F3DDE5; border-radius:14px; padding:12px 15px; margin-bottom:8px }
-  .chl-pa{ width:34px; height:34px; border-radius:50%; background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; display:grid; place-items:center; font-weight:800; font-size:14px; flex:0 0 auto }
+  .chl-pa{ width:34px; height:34px; border-radius:50%; background:linear-gradient(160deg,var(--em),var(--em-deep)); color:#fff; display:grid; place-items:center; font-weight:800; font-size:14px; flex:0 0 auto }
   .chl-praise b{ font-size:13px; color:#222 }
   .chl-praise p{ font-size:12.5px; color:#5a505a; margin:3px 0 0; line-height:1.7 }
-  .chl-pt{ margin-left:auto; align-self:center; font-size:13px; font-weight:900; color:#E1306C; background:#FFE4EE; border-radius:999px; padding:3px 11px; flex:0 0 auto }
+  .chl-pt{ margin-left:auto; align-self:center; font-size:13px; font-weight:900; color:var(--em-deep); background:#FFE4EE; border-radius:999px; padding:3px 11px; flex:0 0 auto }
   @media(max-width:720px){ .chl-hero{ grid-template-columns:1fr } }
   /* 成長のプロセス（承認でスコアが上がる） */
   .gbz .gp-card{ padding:20px }
   .gbz .gp-flow{ display:flex; align-items:stretch; gap:6px }
   .gbz .gp-node{ flex:1; display:flex; flex-direction:column; align-items:center; text-align:center; gap:7px; padding:12px 6px; border-radius:14px; border:1px solid #F3DDE5; background:#FFF8FB }
-  .gbz .gp-node.done{ background:linear-gradient(160deg,#FFE9F1,#fff); border-color:#F5427A }
+  .gbz .gp-node.done{ background:linear-gradient(160deg,#FFE9F1,#fff); border-color:var(--em) }
   .gbz .gp-node.active{ border-color:#F9A8C4; box-shadow:0 0 0 3px rgba(245,66,122,.08) }
   .gbz .gp-node.todo{ opacity:.62 }
   .gbz .gp-ic{ font-size:22px; line-height:1 }
-  .gbz .gp-num{ width:26px; height:26px; border-radius:50%; background:#FFE4EE; color:#E1306C; font-size:13px; font-weight:900; display:grid; place-items:center }
-  .gbz .gp-node.done .gp-num{ background:#F5427A; color:#fff }
+  .gbz .gp-num{ width:26px; height:26px; border-radius:50%; background:#FFE4EE; color:var(--em-deep); font-size:13px; font-weight:900; display:grid; place-items:center }
+  .gbz .gp-node.done .gp-num{ background:var(--em); color:#fff }
   .gbz .gp-node.done .gp-ic{ filter:none }
   .gbz .gp-b b{ font-size:12.5px; color:#222; font-weight:900; display:block }
   .gbz .gp-b small{ font-size:10.5px; color:#8a7a82; line-height:1.45; display:block; margin-top:3px }
-  .gbz .gp-arrow{ display:flex; align-items:center; color:#F5427A; flex:0 0 auto }
+  .gbz .gp-arrow{ display:flex; align-items:center; color:var(--em); flex:0 0 auto }
   .gbz .gp-arrow svg{ width:16px; height:16px }
-  .gbz .gp-status{ margin:14px 0 0; font-size:13px; font-weight:800; color:#E1306C; text-align:center }
+  .gbz .gp-status{ margin:14px 0 0; font-size:13px; font-weight:800; color:var(--em-deep); text-align:center }
   .gbz .gp-note{ display:flex; gap:9px; align-items:flex-start; margin-top:13px; padding:12px 14px; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; font-size:12px; color:#6a5a62; line-height:1.7 }
-  .gbz .gp-note svg{ width:16px; height:16px; color:#F5427A; flex:0 0 auto; margin-top:2px }
+  .gbz .gp-note svg{ width:16px; height:16px; color:var(--em); flex:0 0 auto; margin-top:2px }
   .gbz .gp-note b{ color:#333 }
   .gbz .gp-log-h{ margin:16px 0 9px; font-size:12px; font-weight:900; color:#a08a92; letter-spacing:.02em }
   .gbz .gp-log{ display:flex; gap:11px; align-items:flex-start; padding:11px 0; border-top:1px solid #F6E3EB }
@@ -797,18 +809,18 @@
   .gbz .gp-log-b p{ margin:0; font-size:12.5px; line-height:1.65 }
   .gbz .gp-log-b p.neg{ color:#8a7a82 }
   .gbz .gp-log-b p.res{ color:#2f6b4a; margin-top:2px }
-  .gbz .gp-coach{ font-size:10.5px; font-weight:800; color:#E1306C; background:#FFE4EE; border-radius:999px; padding:2px 9px; display:inline-block; margin-top:5px }
-  .gbz .gp-pts{ font-size:14px; font-weight:900; color:#E1306C; flex:0 0 auto; align-self:center }
+  .gbz .gp-coach{ font-size:10.5px; font-weight:800; color:var(--em-deep); background:#FFE4EE; border-radius:999px; padding:2px 9px; display:inline-block; margin-top:5px }
+  .gbz .gp-pts{ font-size:14px; font-weight:900; color:var(--em-deep); flex:0 0 auto; align-self:center }
   @media(max-width:640px){ .gbz .gp-flow{ flex-wrap:wrap } .gbz .gp-node{ flex:1 1 42% } .gbz .gp-arrow{ display:none } }
   /* 頑張る理由（じぶん設定） */
   .gbz .dream{ background:linear-gradient(165deg,#FFF5F9,#FFFFFF); border:1px solid #F3DDE5 }
   .gbz .dream .dr-line{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; font-weight:700; color:#5a505a }
   .gbz .dream .dr-line label{ font-size:12px; font-weight:800; color:#c58aa0 }
-  .gbz .dream .dr-num{ width:64px; padding:8px 10px; border:1px solid #F3DDE5; border-radius:10px; font-size:15px; font-weight:800; color:#E1306C; text-align:center; font-family:inherit }
-  .gbz .dream .dr-num:focus{ outline:none; border-color:#F5427A }
+  .gbz .dream .dr-num{ width:64px; padding:8px 10px; border:1px solid #F3DDE5; border-radius:10px; font-size:15px; font-weight:800; color:var(--em-deep); text-align:center; font-family:inherit }
+  .gbz .dream .dr-num:focus{ outline:none; border-color:var(--em) }
   .gbz .dream .dr-count{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:13px 0 4px; padding:13px 16px; background:#fff; border:1px dashed #F3DDE5; border-radius:14px }
   .gbz .dream .dr-count::before{ content:'定年まで あと'; font-size:12px; font-weight:800; color:#c58aa0 }
-  .gbz .dream .dr-big{ font-size:34px; font-weight:900; color:#E1306C; line-height:1; font-variant-numeric:tabular-nums }
+  .gbz .dream .dr-big{ font-size:34px; font-weight:900; color:var(--em-deep); line-height:1; font-variant-numeric:tabular-nums }
   .gbz .dream .dr-big small{ font-size:15px; margin-left:2px }
   .gbz .dream .dr-days{ font-size:14px; font-weight:800; color:#a08a92; font-variant-numeric:tabular-nums }
   .gbz .dream .dr-note{ flex-basis:100%; font-size:12px; color:#8a6a76; font-weight:600 }
@@ -825,9 +837,9 @@
   .gbz .dr-img{ display:block; width:100%; height:auto; aspect-ratio:9/5; object-fit:cover; background:linear-gradient(120deg,#FFE9F1,#FFF8FB) }
   .gbz .dr-img-foot{ display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap; padding:10px 14px }
   .gbz .dr-img-foot span{ font-size:11px; color:#a08a92; font-weight:600; flex:1; min-width:200px; line-height:1.6 }
-  .gbz .dr-regen{ border:1px solid #F5427A; background:#fff; color:#E1306C; font-weight:800; font-size:11.5px; border-radius:999px; padding:6px 13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
+  .gbz .dr-regen{ border:1px solid var(--em); background:#fff; color:var(--em-deep); font-weight:800; font-size:11.5px; border-radius:999px; padding:6px 13px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
   .gbz .dr-regen svg{ width:13px; height:13px }
-  .gbz .dr-regen:hover{ background:#F5427A; color:#fff }
+  .gbz .dr-regen:hover{ background:var(--em); color:#fff }
   /* 朝の問い／夜の問い */
   .gbz .qa-card{ border-radius:18px }
   .gbz .qa-card.qa-m{ background:linear-gradient(150deg,#FFF9EC,#FFFFFF); border:1px solid #F2E3C4 }
@@ -852,43 +864,43 @@
   /* 目標バーのサムネイル */
   .dreambar .db-img{ width:40px; height:40px; border-radius:12px; object-fit:cover; flex:0 0 auto; border:1px solid #F3DDE5; background:#FFE9F1 }
   /* 初回セットアップ（頑張る理由） */
-  .gbz .ds-hero{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; border-radius:24px; padding:30px 30px; margin-bottom:18px; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
+  .gbz .ds-hero{ background:linear-gradient(160deg,var(--em),var(--em-deep)); color:#fff; border-radius:24px; padding:30px 30px; margin-bottom:18px; box-shadow:0 24px 60px -30px rgba(225,48,108,.5) }
   .gbz .ds-eyebrow{ font-size:11px; font-weight:800; letter-spacing:.18em; color:#ffd0e0 }
   .gbz .ds-hero h1{ font-size:clamp(21px,3.2vw,27px); font-weight:900; margin:8px 0 0; line-height:1.4 }
   .gbz .ds-hero p{ font-size:13px; color:#ffdfea; margin:10px 0 0; line-height:1.75 }
   /* 全ページ共通・目標バー */
-  .dreambar{ display:flex; align-items:center; gap:11px; background:linear-gradient(120deg,#FFF0F6,#FFF8FB); border:1px solid #F3DDE5; border-left:4px solid #F5427A; border-radius:14px; padding:10px 16px; margin:0 0 16px; cursor:pointer }
-  .dreambar:hover{ border-color:#F5427A }
+  .dreambar{ display:flex; align-items:center; gap:11px; background:linear-gradient(120deg,#FFF0F6,#FFF8FB); border:1px solid #F3DDE5; border-left:4px solid var(--em); border-radius:14px; padding:10px 16px; margin:0 0 16px; cursor:pointer }
+  .dreambar:hover{ border-color:var(--em) }
   .dreambar .db-ic{ font-size:18px; flex:0 0 auto }
   .dreambar .db-main{ flex:1; min-width:0 }
   .dreambar .db-main b{ font-size:13.5px; color:#222; font-weight:800; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
   .dreambar .db-main small{ font-size:11px; color:#a08a92; font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
   .dreambar .db-days{ flex:0 0 auto; font-size:11.5px; font-weight:700; color:#8a6a76; background:#fff; border:1px solid #F3DDE5; border-radius:999px; padding:5px 12px; white-space:nowrap }
-  .dreambar .db-days b{ color:#E1306C; font-size:13px; font-variant-numeric:tabular-nums }
+  .dreambar .db-days b{ color:var(--em-deep); font-size:13px; font-variant-numeric:tabular-nums }
   body.theme-pro .dreambar{ background:linear-gradient(120deg,#FFFDF5,#fff); border-color:#ead9a8; border-left-color:var(--gold,#C9A227) }
   /* 承認ニュース（成長プロセス図の代わり） */
   .gbz .appr-news{ display:flex; align-items:center; gap:12px; background:linear-gradient(120deg,#EFFBF3,#fff); border:1px solid #bfe6cd; border-radius:16px; padding:15px 18px }
   .gbz .appr-news .an-ic{ width:38px; height:38px; border-radius:50%; background:#16A05B; color:#fff; display:grid; place-items:center; flex:0 0 auto } .gbz .appr-news .an-ic svg{ width:22px; height:22px }
   .gbz .appr-news b{ font-size:15px; color:#12603a; display:block } .gbz .appr-news small{ font-size:12px; color:#4a7a5e }
-  .gbz .appr-note{ font-size:12.5px; color:#8a7a82; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; padding:12px 14px } .gbz .appr-note svg{ width:15px; height:15px; color:#E1306C; vertical-align:-3px; margin-right:5px } .gbz .appr-note b{ color:#333 }
+  .gbz .appr-note{ font-size:12.5px; color:#8a7a82; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; padding:12px 14px } .gbz .appr-note svg{ width:15px; height:15px; color:var(--em-deep); vertical-align:-3px; margin-right:5px } .gbz .appr-note b{ color:#333 }
   /* 今日の振り返り：日付＋時刻ヘッダー */
   .gbz .rv-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1px solid #F3DDE5; border-radius:16px; padding:14px 18px; margin:18px 0 4px }
-  .gbz .rv-head .rv-cap{ font-size:11.5px; font-weight:800; color:#c58aa0; letter-spacing:.02em } .gbz .rv-head .rv-cap svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px; color:#E1306C }
+  .gbz .rv-head .rv-cap{ font-size:11.5px; font-weight:800; color:#c58aa0; letter-spacing:.02em } .gbz .rv-head .rv-cap svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px; color:var(--em-deep) }
   .gbz .rv-head .rv-date{ display:block; font-size:16px; font-weight:900; color:#222; margin-top:3px }
-  .gbz .rv-head .rv-clock{ font-size:26px; font-weight:900; color:#E1306C; font-variant-numeric:tabular-nums; letter-spacing:.02em }
+  .gbz .rv-head .rv-clock{ font-size:26px; font-weight:900; color:var(--em-deep); font-variant-numeric:tabular-nums; letter-spacing:.02em }
   /* 朝夜アイコン付き見出し */
-  .gbz .sec-t svg{ width:15px; height:15px; vertical-align:-2px; margin-right:5px; color:#E1306C }
+  .gbz .sec-t svg{ width:15px; height:15px; vertical-align:-2px; margin-right:5px; color:var(--em-deep) }
   .gbz .daynote{ font-size:11.5px; color:#a08a92; margin:10px 0 8px }
   /* 夜：今日の数字 */
   .gbz .num-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
   .gbz .num-in{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #F3DDE5; border-radius:12px; padding:9px 12px }
   .gbz .num-in label{ font-size:12px; font-weight:800; color:#c58aa0; white-space:nowrap }
-  .gbz .num-in input{ flex:1; border:none; outline:none; font-size:17px; font-weight:800; color:#E1306C; text-align:right; width:100%; font-family:inherit; padding:0; background:transparent }
+  .gbz .num-in input{ flex:1; border:none; outline:none; font-size:17px; font-weight:800; color:var(--em-deep); text-align:right; width:100%; font-family:inherit; padding:0; background:transparent }
   .gbz .num-in span{ font-size:12px; color:#a08a92 }
   /* お祝い動画まで あと3回 */
   .gbz .vhint{ display:flex; align-items:center; gap:11px; justify-content:center; margin:14px 0 0; font-size:12px; color:#8a7a82; font-weight:600 }
-  .gbz .vhint b{ color:#E1306C } .gbz .vh-dots{ display:flex; gap:6px }
-  .gbz .vdot{ width:10px; height:10px; border-radius:50%; background:#F3DDE5 } .gbz .vdot.on{ background:#F5427A }
+  .gbz .vhint b{ color:var(--em-deep) } .gbz .vh-dots{ display:flex; gap:6px }
+  .gbz .vdot{ width:10px; height:10px; border-radius:50%; background:#F3DDE5 } .gbz .vdot.on{ background:var(--em) }
   /* 今月の目標 target 編集 */
   .g-target{ width:44px; border:1px solid var(--line); border-radius:7px; padding:2px 4px; font-size:14px; font-weight:800; color:var(--ink); text-align:center; font-family:inherit }
   @media(max-width:520px){ .gbz .num-row{ grid-template-columns:1fr } }
@@ -904,29 +916,29 @@
   .gbz .crm-inline{ margin-top:10px; font-size:12px; color:#2f6b4a; background:#EFFBF3; border:1px solid #cde8d5; border-radius:10px; padding:9px 12px } .gbz .crm-inline svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px; color:#16A05B }
   /* 個人プロフィール */
   .pf-av{ border-radius:50%; background-size:cover; background-position:center; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; background-color:#F3DDE5 }
-  .pf-av.ph{ background:linear-gradient(160deg,#F5427A,#E1306C); color:#fff; font-weight:800 }
+  .pf-av.ph{ background:linear-gradient(160deg,var(--em),var(--em-deep)); color:#fff; font-weight:800 }
   .gbz .pf-card{ background:linear-gradient(165deg,#FFF5F9,#fff) }
   .gbz .pf-head{ display:flex; align-items:center; gap:16px; position:relative; padding-bottom:16px; border-bottom:1px solid #F3DDE5; margin-bottom:16px }
   .gbz .pf-avwrap{ position:relative; flex:0 0 auto }
-  .gbz .pf-cam{ position:absolute; right:-2px; bottom:-2px; width:30px; height:30px; border-radius:50%; border:2px solid #fff; background:#E1306C; color:#fff; display:grid; place-items:center; cursor:pointer }
+  .gbz .pf-cam{ position:absolute; right:-2px; bottom:-2px; width:30px; height:30px; border-radius:50%; border:2px solid #fff; background:var(--em-deep); color:#fff; display:grid; place-items:center; cursor:pointer }
   .gbz .pf-cam svg{ width:15px; height:15px }
   .gbz .pf-headtxt b{ font-size:17px; color:#222; font-weight:900; display:block }
   .gbz .pf-headtxt small{ font-size:12px; color:#a08a92; display:block; margin-top:2px }
   .gbz .pf-photobtns{ display:flex; gap:8px; margin-top:9px }
-  .gbz .btn-mini{ font-size:11.5px; font-weight:800; color:#E1306C; background:#fff; border:1px solid #F5427A; border-radius:999px; padding:5px 12px; cursor:pointer }
+  .gbz .btn-mini{ font-size:11.5px; font-weight:800; color:var(--em-deep); background:#fff; border:1px solid var(--em); border-radius:999px; padding:5px 12px; cursor:pointer }
   .gbz .btn-mini.ghost{ color:#a08a92; border-color:#F3DDE5 }
   .gbz .pf-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
   .gbz .pf-q{ margin-top:0 }
   .gbz .pf-q label{ display:block; font-size:11.5px; font-weight:800; color:#c58aa0; margin:0 0 5px }
   .gbz .pf-grid + .pf-q, .gbz .pf-q + .pf-q{ margin-top:13px }
   .gbz .pf-ta{ width:100%; min-height:78px; border:1px solid #F3DDE5; border-radius:12px; padding:11px 13px; font-family:inherit; font-size:14px; resize:vertical; color:#3a3340 }
-  .gbz .pf-ta:focus{ outline:none; border-color:#F5427A }
+  .gbz .pf-ta:focus{ outline:none; border-color:var(--em) }
   .gbz .pf-note{ display:flex; gap:7px; align-items:flex-start; margin:14px 0 0; font-size:11px; color:#a08a92; font-weight:600; line-height:1.6 }
-  .gbz .pf-note svg{ width:14px; height:14px; flex:0 0 auto; margin-top:2px; color:#E1306C }
+  .gbz .pf-note svg{ width:14px; height:14px; flex:0 0 auto; margin-top:2px; color:var(--em-deep) }
   @media(max-width:600px){ .gbz .pf-grid{ grid-template-columns:1fr } }
   /* サイド：本人プロフィール */
   nav.side .side-me{ display:flex; align-items:center; gap:10px; padding:10px 11px; border:1px solid var(--line); border-radius:13px; margin-bottom:8px; cursor:pointer; text-decoration:none }
-  nav.side .side-me:hover{ border-color:var(--pink,#F5427A) }
+  nav.side .side-me:hover{ border-color:var(--pink,var(--em)) }
   nav.side .side-me .mav{ flex:0 0 auto }
   nav.side .side-me .nm{ font-size:13px; font-weight:800; color:var(--ink,#222); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
   nav.side .side-me .ro{ font-size:10.5px; color:var(--mut,#8a7580); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
@@ -957,26 +969,26 @@
   .bk-r svg{ width:13px; height:13px; vertical-align:-2px; margin-right:3px }
   /* Zoom後：ふりかえり導線 */
   .zoom-card .zc-after{ margin-top:12px; padding-top:12px; border-top:1px dashed #dce8f7; display:flex; align-items:center; gap:11px; flex-wrap:wrap }
-  .zoom-card .zc-after .btn-pink{ background:#E1306C; color:#fff; border:none } .zoom-card .zc-after .btn-pink svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px }
+  .zoom-card .zc-after .btn-pink{ background:var(--em-deep); color:#fff; border:none } .zoom-card .zc-after .btn-pink svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px }
   .zoom-card .zc-after-note{ font-size:11px; color:#7a8ba0 }
   /* 面談ふりかえり（選択式） */
   .gbz .rf-lead{ display:flex; gap:9px; align-items:flex-start; background:#FFF8FB; border:1px dashed #F3DDE5; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12.5px; color:#6a5a62; line-height:1.7 }
-  .gbz .rf-lead svg{ width:16px; height:16px; color:#E1306C; flex:0 0 auto; margin-top:2px } .gbz .rf-lead b{ color:#333 }
+  .gbz .rf-lead svg{ width:16px; height:16px; color:var(--em-deep); flex:0 0 auto; margin-top:2px } .gbz .rf-lead b{ color:#333 }
   .gbz .rf-block{ background:#fff; border:1px solid #F3DDE5; border-radius:16px; padding:16px 16px; margin-bottom:12px }
   .gbz .rf-qhead{ display:flex; gap:10px; align-items:center; margin-bottom:12px }
-  .gbz .rf-no{ width:24px; height:24px; border-radius:50%; background:#FFE4EE; color:#E1306C; font-size:12px; font-weight:900; display:grid; place-items:center; flex:0 0 auto }
+  .gbz .rf-no{ width:24px; height:24px; border-radius:50%; background:#FFE4EE; color:var(--em-deep); font-size:12px; font-weight:900; display:grid; place-items:center; flex:0 0 auto }
   .gbz .rf-no svg{ width:13px; height:13px }
   .gbz .rf-qhead b{ font-size:14.5px; color:#222; font-weight:800; line-height:1.5 }
   .gbz .rf-chips{ display:flex; flex-wrap:wrap; gap:8px }
   .gbz .rf-chips.scale{ flex-wrap:nowrap; gap:6px }
   .gbz .rf-chip{ border:1px solid #F3DDE5; background:#FFF8FB; color:#5a505a; font-size:13px; font-weight:700; border-radius:999px; padding:9px 15px; cursor:pointer; line-height:1.3 }
   .gbz .rf-chip.sc{ flex:1; text-align:center; padding:9px 4px; font-size:12px }
-  .gbz .rf-chip:hover{ border-color:#F5427A }
-  .gbz .rf-chip.on{ background:#E1306C; border-color:#E1306C; color:#fff }
+  .gbz .rf-chip:hover{ border-color:var(--em) }
+  .gbz .rf-chip.on{ background:var(--em-deep); border-color:var(--em-deep); color:#fff }
   /* コーチ側：ふりかえり通知 */
   .rf-wrap{ border:1px solid #F3DDE5; background:linear-gradient(135deg,#FFF6FA,#fff) }
   .rf-note-item{ padding:13px 0; border-top:1px solid #F6E3EB } .rf-note-item:first-of-type{ border-top:0 }
-  .rf-note-item.new{ position:relative } .rf-note-item.new::before{ content:'NEW'; position:absolute; top:12px; right:0; font-size:9px; font-weight:800; color:#fff; background:#E1306C; border-radius:5px; padding:1px 6px }
+  .rf-note-item.new{ position:relative } .rf-note-item.new::before{ content:'NEW'; position:absolute; top:12px; right:0; font-size:9px; font-weight:800; color:#fff; background:var(--em-deep); border-radius:5px; padding:1px 6px }
   .rf-ni-top{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap } .rf-ni-top b{ font-size:14px; color:#0B2545 }
   .rf-ni-when{ font-size:11px; color:#8a96ac }
   .rf-ni-tags{ display:flex; flex-wrap:wrap; gap:7px; margin-top:8px }
@@ -1163,6 +1175,10 @@
       <button data-role="admin"><span class="lbl">管理者</span></button>
       <button data-role="coach"><span class="lbl">コーチ</span></button>
       <button data-role="operator"><span class="lbl">運営</span></button>
+    </div>
+    <div class="courseswitch" id="courseswitch" role="tablist" aria-label="コース選択">
+      <button data-course="announcer" class="on" title="アナウンサーコース">🎙️<span class="lbl">アナウンサー</span></button>
+      <button data-course="athlete" title="アスリートコース">🏅<span class="lbl">アスリート</span></button>
     </div>
     <div class="who" id="who"></div>
   </div>
@@ -1467,7 +1483,7 @@ var state = {
   personality:null, coachBriefs:{}, videoScript:null,
   msgThread:null, msgCoach:null, coachMembers:null, coachSel:null,
   league:null, notify:null,
-  onbAnswers:{}, onboarding:null, assignedCoach:null, leaderNotes:null,
+  onbAnswers:{}, onboarding:null, assignedCoach:null, leaderNotes:null, course:'announcer',
   msQueue:null, msProgress:null, showMore:false, showDetail:false, todayState:null, savedToday:false, viewCoach:null,
   approvedCount:null, todayApproved:false, lastApproveGain:0, approvedByUser:{},
   dream:{ age:'', retireAge:'65', want:'', by:'', action:'', done:false, imgSeed:7 },
@@ -1595,7 +1611,7 @@ function saveCfg(){ try{ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }cat
 var SERVER=false, USER=null, AI_ENABLED=false;
 function aiOn(){ return (SERVER && USER && AI_ENABLED) || (cfg.live && cfg.apiKey); }
 
-function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections, doneCount:state.doneCount, crm:state.crm }; }
+function collectData(){ return { streak:ME.streak, mood:state.mood, diary:state.diary, aiComment:state.aiComment, goals:GOALS, videos:MY_VIDEOS, personality:state.personality, vision:state.vision, onbAnswers:state.onbAnswers, onboarding:state.onboarding, assignedCoach:state.assignedCoach, msQueue:state.msQueue, msProgress:state.msProgress, todayState:state.todayState, dream:state.dream, qa:state.qa, profile:state.profile, bookings:SCHEDULE.confirmed?[SCHEDULE.confirmed]:[], reflSession:state.reflSession, reflections:state.reflections, doneCount:state.doneCount, crm:state.crm, course:state.course }; }
 function applyData(d){ if(!d) return;
   if(d.profile){ state.profile=Object.assign(state.profile||{},d.profile); syncProfileToME(); }
   if(typeof d.reflSession==='number') state.reflSession=d.reflSession;
@@ -1614,6 +1630,7 @@ function applyData(d){ if(!d) return;
   if(d.onbAnswers) state.onbAnswers=Object.assign(state.onbAnswers||{},d.onbAnswers);
   if(d.onboarding) state.onboarding=d.onboarding;
   if(d.assignedCoach) state.assignedCoach=d.assignedCoach;
+  if(d.course==='athlete'||d.course==='announcer') state.course=d.course;
   if(Array.isArray(d.leaderNotes)) state.leaderNotes=d.leaderNotes;
   if(Array.isArray(d.goals)&&d.goals.length && d.goals[0]&&d.goals[0].id==='g_shodan') GOALS=d.goals; // 旧フォーマット(g1..)は無視して新目標を使う
   if(Array.isArray(d.videos)) MY_VIDEOS=d.videos;
@@ -1921,11 +1938,27 @@ function renderSide(){
 function onbDone(){ return !!(state.onboarding); }
 // テスト/デモ/スタンドアロンでは100問ゲートをスキップ → ログインで直接マイページ（診断は任意）
 function testBypass(){ return (!SERVER) || (SERVER && USER && USER.demo); }
+// コース別テキスト：アナウンサー時はa、アスリート時はb
+function courseTxt(a,b){ return state.course==='athlete'?b:a; }
+function setCourse(c){
+  state.course=(c==='athlete')?'athlete':'announcer';
+  // コースに合わせて推薦コーチを取り直す（コース内で再マッチング）
+  try{ var bm=(typeof bestMatch==='function')?bestMatch():null;
+    if(bm&&bm.coach){ state.assignedCoach={id:bm.coach.id,name:bm.coach.name,title:bm.coach.title,
+      reason:(state.course==='athlete'?'アスリートコースの相性で再マッチング':'アナウンサーコースの相性で再マッチング')}; }
+  }catch(e){}
+  try{ if(typeof saveData==='function') saveData(); }catch(e){}
+  if(typeof toast==='function') toast(state.course==='athlete'?'🏅 アスリートコースに切替えました':'🎙️ アナウンサーコースに切替えました');
+  render();
+}
 function render(){
   // 受講者ゲート：診断未完了なら必ず診断画面へ
   if(state.role==='user' && !onbDone() && !testBypass() && state.view!=='onboarding' && state.view!=='onboardingResult'){ state.view='onboarding'; }
   // 全ロール共通の白UI（旧PRO Athleteネイビー×ゴールドテーマは廃止）
   document.body.classList.remove('theme-pro');
+  // コース（アナウンサー/アスリート）でアクセント配色＋スイッチ表示を同期
+  document.body.classList.toggle('course-athlete', state.course==='athlete');
+  var _cs=el('courseswitch'); if(_cs)[].forEach.call(_cs.children,function(b){ b.classList.toggle('on', b.getAttribute('data-course')===state.course); });
   renderWho(); renderSide();
   // 「頑張る理由」未設定なら、マイページに入る前にセットアップ（初回のみ）
   if(state.role==='user' && state.view==='today' && !(state.dream&&state.dream.done)) state.view='dreamsetup';
@@ -2022,7 +2055,17 @@ var COACH_DOW=[
   '一週間おつかれさま。今日の頑張りは、来週のあなたの土台になります。',
   '休む日も大事な準備期間。来週またここで会いましょう。'
 ];
-function todayHitokoto(){ try{ return COACH_DOW[new Date().getDay()]; }catch(e){ return COACH_DOW[1]; } }
+// アスリートコース版「今日のひとこと」
+var COACH_DOW_ATH=[
+  '今週もよく体を動かしました。今日はしっかり回復に充てて、また月曜から。',
+  '新しい一週間。まずは基礎から。今日の1本を、丁寧に積もう。',
+  '昨日の自分に1つだけ勝てれば十分。フォームを崩さずいきましょう。',
+  '週の真ん中。疲労が出やすい日こそ、最低ラインの練習を守れたら花マル。',
+  'あと少しで週末。今日やり切れたことを、ちゃんと自分で認めてあげて。',
+  '一週間おつかれさま。今日の一本は、来週のあなたの土台になります。',
+  'オフも大事なトレーニング。回復して、また次のステージで会いましょう。'
+];
+function todayHitokoto(){ try{ var arr=(state.course==='athlete')?COACH_DOW_ATH:COACH_DOW; return arr[new Date().getDay()]; }catch(e){ return COACH_DOW[1]; } }
 function assignedAnnouncer(){
   var ac=state.assignedCoach;
   if(ac && ac.name){ var hit=ANNOUNCERS.filter(function(a){return a.name===ac.name;})[0]; return hit||{ini:(ac.name||'三').trim().charAt(0), name:ac.name, role:ac.title||'ホリプロ（仮） アナウンサー', tag:'', msg:ac.reason||''}; }
@@ -2043,9 +2086,12 @@ function personaKeywords(){
   if(/成長|挑戦/.test(t)) kw.push('自己成長','挑戦','継続');
   return kw;
 }
+// コース別のコーチ分類（アナウンサーコース＝アナ/モデル系、アスリートコース＝競技者系）
+function courseCategories(){ return state.course==='athlete' ? ['athlete','coach'] : ['announcer','model']; }
+function courseCoaches(){ var cs=courseCategories(); var f=COACHES.filter(function(c){ return cs.indexOf(c.category)>=0; }); return f.length?f:COACHES; }
 function matchCoaches(){
   var kw=personaKeywords();
-  return COACHES.map(function(c){
+  return courseCoaches().map(function(c){
     var hits=c.matchKeys.filter(function(k){ return kw.some(function(w){ return w.indexOf(k)>=0||k.indexOf(w)>=0; }); });
     var score=Math.min(98, 58 + hits.length*11 + Math.round((c.rating-4.5)*20));
     return { coach:c, score:score, reasons:hits.slice(0,3) };
@@ -3192,7 +3238,7 @@ function goalStrip(){
   return '<div class="dreambar" data-goto="dream" title="タップして目標を編集">'
     + (iurl?'<img class="db-img" src="'+iurl+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')
     + '<span class="db-main"><b>'+(by?by+'までに、':'')+want+'</b>'+(action?'<small>そのために：'+action+'</small>':'')+'</span>'
-    + (days?'<span class="db-days">働ける日 あと<b>'+days.toLocaleString()+'</b>日</span>':'')
+    + (days?'<span class="db-days">'+courseTxt('働ける日','現役の日')+' あと<b>'+days.toLocaleString()+'</b>日</span>':'')
   + '</div>';
 }
 
@@ -3239,8 +3285,8 @@ VIEWS.user.today=function(){
   // 夜：今日の営業数字（月間目標へ積み上がる）。CRM連携中は自動取得の案内を出す。
   var crmOn=state.crm&&state.crm.connected;
   var numRow='<div class="num-row">'
-    + '<div class="num-in"><label>今日の商談</label><input class="oneline" type="number" min="0" data-diary="todayShodan" value="'+esc2(state.diary.todayShodan)+'" placeholder="0"><span>件</span></div>'
-    + '<div class="num-in"><label>今日の成約</label><input class="oneline" type="number" min="0" data-diary="todayKeiyaku" value="'+esc2(state.diary.todayKeiyaku)+'" placeholder="0"><span>件</span></div>'
+    + '<div class="num-in"><label>'+courseTxt('今日の商談','今日の練習')+'</label><input class="oneline" type="number" min="0" data-diary="todayShodan" value="'+esc2(state.diary.todayShodan)+'" placeholder="0"><span>'+courseTxt('件','本')+'</span></div>'
+    + '<div class="num-in"><label>'+courseTxt('今日の成約','今日の達成')+'</label><input class="oneline" type="number" min="0" data-diary="todayKeiyaku" value="'+esc2(state.diary.todayKeiyaku)+'" placeholder="0"><span>'+courseTxt('件','回')+'</span></div>'
     + '</div>'
     + (crmOn?'<div class="crm-inline">'+svg('check')+' '+crmName()+'と連携中。商談・成約は自動で取り込まれます（手入力も可）。</div>':'');
   var toNext=3-((state.doneCount||0)%3); if(toNext===0) toNext=3;
@@ -3250,7 +3296,7 @@ VIEWS.user.today=function(){
   var hero='<div class="hero"><span class="streak">'+svg('flame')+' '+ME.streak+'日連続</span>'
     + '<h1>今日も、一歩だけ進もう。</h1>'
     + '<p class="sub">頑張る理由は、毎日変わっていい。</p>'
-    + '<div class="anc"><span class="av">'+personSil()+'</span><div><b>'+(an.name||'三上 あかり').split('（')[0]+'</b><small>'+(an.role||'ホリプロ（仮） アナウンサー')+' ／ 今日もあなたの一歩を見ています。</small></div></div>'
+    + '<div class="anc"><span class="av">'+personSil()+'</span><div><b>'+(an.name||'三上 あかり').split('（')[0]+'</b><small>'+(an.role||courseTxt('ホリプロ（仮） アナウンサー','現役アスリート'))+' ／ 今日もあなたの一歩を見ています。</small></div></div>'
     + ((state.qa&&state.qa.mDate===todayKey()&&state.qa.mAns)?'<div class="motto">今日の合言葉：「'+state.qa.mAns+'」</div>':'')
     + '<div class="score"><div class="lab">GABASHO SCORE</div><div class="n">'+s.total+'</div><div class="d">'+(s.dod>0?('承認で +'+s.dod+' 上がりました'):('承認された努力 '+s.approved+'件 が反映中'))+'</div></div>'
     + '<div style="text-align:center;margin-top:14px"><a data-view="score" style="font-size:12px;color:#ffd9e6;font-weight:800;text-decoration:underline;cursor:pointer">内訳を見る →</a></div>'
@@ -3263,7 +3309,7 @@ VIEWS.user.today=function(){
     + '<div class="sec"><div class="sec-t">今日の気分</div><div class="card">'+axes+'</div></div>'
     + '<div class="sec"><div class="sec-t">'+svg('sun')+' 朝：今日の目標</div>'+step+'</div>'
     + '<div class="sec"><div class="sec-t">'+svg('moon')+' 夜：今日をふり返る</div>'+prog
-      + '<div class="daynote">今日の商談・成約を入れると、今月の目標に積み上がります。</div>'+numRow+'</div>'
+      + '<div class="daynote">'+courseTxt('今日の商談・成約を入れると、今月の目標に積み上がります。','今日の練習・達成を入れると、今月の目標に積み上がります。')+'</div>'+numRow+'</div>'
     + '<button class="save" data-recordeval="1">今日を残す</button>'
     + (state.savedToday?'<div class="saved">今日もちゃんと進んだ。</div>':'')
     + videoHint
@@ -3725,7 +3771,7 @@ VIEWS.user.coaching=function(){
   // 動画ヒーロー（プレースホルダー）
   var video='<div style="border-radius:20px;overflow:hidden;position:relative;aspect-ratio:16/9;background:radial-gradient(120% 120% at 80% 0,#7a1f3d,rgba(122,31,61,0) 60%),linear-gradient(155deg,#3a1020,#5c1633);display:grid;place-items:center;cursor:pointer" data-coachvideo="'+cid+'">'
     + '<span class="sample" style="position:absolute;top:12px;right:12px">デモ：動画はプレースホルダー</span>'
-    + '<div style="width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;color:#E1306C;font-size:27px;box-shadow:0 12px 34px -8px rgba(0,0,0,.55)">▶</div>'
+    + '<div style="width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;color:var(--em-deep);font-size:27px;box-shadow:0 12px 34px -8px rgba(0,0,0,.55)">▶</div>'
     + '<div style="position:absolute;left:0;right:0;bottom:0;padding:22px 22px;background:linear-gradient(transparent,rgba(20,0,10,.74));color:#fff">'
        + '<div style="font-size:12px;opacity:.85;font-weight:700">'+c.title+' ／ '+(isMine?'あなたの担当コーチ':'ホリプロ（仮） コーチ')+'</div>'
        + '<div style="font-size:clamp(18px,3vw,24px);font-weight:900;margin-top:2px">'+st.videoTitle+'</div></div>'
@@ -4358,7 +4404,7 @@ function suggestCoachFromReason(reason){
 function showCoachChange(){
   var cur=(state.assignedCoach&&state.assignedCoach.name)||COACHES[0].name;
   el('modalRoot').innerHTML='<div class="modal-ov" id="ccModal"><div class="modal-card" style="max-width:480px">'
-    + '<div class="mc-top" style="background:linear-gradient(120deg,#ff9ab8,#f5427a);color:#fff">コーチを変更する</div>'
+    + '<div class="mc-top" style="background:linear-gradient(120deg,var(--em-lite),var(--em));color:#fff">コーチを変更する</div>'
     + '<div class="mc-body">'
       + '<p style="font-size:12.5px;color:var(--ink-2);margin:0 0 14px">今の担当は <b>'+cur+'</b> さん。よりよい伴走のために、理由を一言教えてください（AIが次のコーチ選びに活かします）。</p>'
       + '<div class="field"><label>変更したい理由（一言）</label><textarea id="ccReason" rows="2" placeholder="例：もっと優しく話を聞いてほしい／もっと厳しく背中を押してほしい"></textarea></div>'
@@ -4372,7 +4418,7 @@ function ccSuggest(){
   var s=suggestCoachFromReason(reason); state._ccSuggest=s.coach.id;
   el('ccSuggestBox').innerHTML='<div class="card" style="margin:6px 0 4px;background:var(--em-tint);border-color:var(--em-soft);padding:14px">'
     + '<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:var(--em-dark);margin-bottom:8px">'+svg('sparkles')+'AIのおすすめ</div>'
-    + '<div style="display:flex;align-items:center;gap:12px"><div class="cav" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ff9ab8,#f5427a);color:#fff;display:grid;place-items:center;font-weight:900">'+(s.coach.category==='announcer'?svg('announcer'):avatarText(s.coach.name))+'</div>'
+    + '<div style="display:flex;align-items:center;gap:12px"><div class="cav" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--em-lite),var(--em));color:#fff;display:grid;place-items:center;font-weight:900">'+(s.coach.category==='announcer'?svg('announcer'):avatarText(s.coach.name))+'</div>'
     + '<div style="flex:1;min-width:0"><b style="font-size:14px">'+s.coach.name+'</b><div class="muted" style="font-size:11.5px">'+s.coach.title+' ／ '+s.coach.style+'</div></div></div>'
     + '<p style="font-size:12.5px;margin:10px 0 0;color:var(--ink-2)">'+s.why+'</p>'
     + '<button class="btn btn-em btn-sm" style="margin-top:12px" data-confirmcoach="'+s.coach.id+'">'+svg('swap')+'このコーチに変更する</button></div>';
@@ -4482,6 +4528,11 @@ document.addEventListener('click', function(e){
     state.role=t.getAttribute('data-role'); state.view=DEFAULT_VIEW[state.role]; state.selectedMember=null;
     [].forEach.call(el('roleswitch').children,function(b){ b.classList.toggle('on', b.getAttribute('data-role')===state.role); });
     render(); return;
+  }
+  // course switch（アナウンサー / アスリート）
+  t=e.target.closest('[data-course]');
+  if(t && t.parentElement && t.parentElement.id==='courseswitch'){
+    setCourse(t.getAttribute('data-course')); return;
   }
   // nav / goto
   function goView(v){
