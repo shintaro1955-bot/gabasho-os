@@ -711,7 +711,8 @@
     .shell{grid-template-columns:1fr} nav.side{display:none}
     .kpis,.badges{grid-template-columns:1fr 1fr} .twocol,.threecol,.vbox{grid-template-columns:1fr}
     .roleswitch .lbl{display:none}
-    .courseswitch .lbl{display:none} .courseswitch{margin-left:6px}
+    .courseswitch{margin-left:6px}
+    .courseswitch button{padding:6px 9px;font-size:11.5px}
   }
   /* ===== ガバショ マイページ再設計：ネイビー×グリーンのクールSaaS（.gbz スコープ） ===== */
   .gbz{ --ac:var(--em); --ac2:var(--em-deep); --sub:#7b8290; --bg:#FFFFFF; --card:#FFFFFF; --line:#ECECEF; --ink:#222222;
@@ -1177,8 +1178,8 @@
       <button data-role="operator"><span class="lbl">運営</span></button>
     </div>
     <div class="courseswitch" id="courseswitch" role="tablist" aria-label="コース選択">
-      <button data-course="announcer" class="on" title="アナウンサーコース">🎙️<span class="lbl">アナウンサー</span></button>
-      <button data-course="athlete" title="アスリートコース">🏅<span class="lbl">アスリート</span></button>
+      <button data-course="announcer" class="on" title="アナウンサーコース"><span class="lbl">アナウンサー</span></button>
+      <button data-course="athlete" title="アスリートコース"><span class="lbl">アスリート</span></button>
     </div>
     <div class="who" id="who"></div>
   </div>
@@ -1948,7 +1949,7 @@ function setCourse(c){
       reason:(state.course==='athlete'?'アスリートコースの相性で再マッチング':'アナウンサーコースの相性で再マッチング')}; }
   }catch(e){}
   try{ if(typeof saveData==='function') saveData(); }catch(e){}
-  if(typeof toast==='function') toast(state.course==='athlete'?'🏅 アスリートコースに切替えました':'🎙️ アナウンサーコースに切替えました');
+  if(typeof toast==='function') toast(state.course==='athlete'?'アスリートコースに切替えました':'アナウンサーコースに切替えました');
   render();
 }
 function render(){
@@ -3543,12 +3544,12 @@ function milestoneInput(){
 function mockMilestones(){
   var apo=2; (GOALS||[]).forEach(function(x){ if(/アポ/.test(x.label||x.name||'')&&x.value){ apo=x.value; } });
   return [
-    { title:'今日の架電目標をやり切る', condition:'架電目標を達成', cheerTitle:'今日の一本、しっかり踏んだね！🔥', badge:'行動キープ', emoji:'📞🔥',
-      cheerScript:'きゃー田中さんやったーーー！！📞✨ 今日の架電、最後まで手を止めずにやり切りましたね！！この一本一本が、ぜったい未来の成約につながる。もう本当に立派、100点満点っ！！このまま突き抜けよ〜〜！！🔥🎉' },
-    { title:'3日連続で日報を続ける', condition:'3日連続で日報', cheerTitle:'継続の天才、爆誕っ！🌟', badge:'継続ブロンズ＋', emoji:'🗓️🌟',
-      cheerScript:'3日連続、達成おめでとうーーー！！🎊🎊 続けるのが一番むずかしいのに、あなたはやってる。もう「やり切れる人」で確定です！！わたし、ここまで見てて泣きそう…😭✨ この調子で7日連続、ぜったい一緒に行こうね〜〜！！' },
-    { title:'今週あたらしいアポを'+apo+'件', condition:'新規アポ'+apo+'件', cheerTitle:'アポ獲得、最高すぎるっ！！🎉', badge:'アポハンター', emoji:'🎯🎉',
-      cheerScript:'でたーーーアポ'+apo+'件っ！！🎯💥 勇気を出して踏み込んだ結果だよ、本当にすごい…！！断られても諦めなかったあなたが掴んだ一件です。誇っていい！！次の商談も、わたし全力で応援してるからね〜〜！！📣💖' }
+    { title:'今日の架電目標をやり切る', condition:'架電目標を達成', cheerTitle:'今日の一本、しっかり踏んだね！', badge:'行動キープ', emoji:'',
+      cheerScript:'きゃー田中さんやったーーー！！今日の架電、最後まで手を止めずにやり切りましたね！！この一本一本が、ぜったい未来の成約につながる。もう本当に立派、100点満点っ！！このまま突き抜けよ〜〜！！' },
+    { title:'3日連続で日報を続ける', condition:'3日連続で日報', cheerTitle:'継続の天才、爆誕っ！', badge:'継続ブロンズ＋', emoji:'',
+      cheerScript:'3日連続、達成おめでとうーーー！！続けるのが一番むずかしいのに、あなたはやってる。もう「やり切れる人」で確定です！！わたし、ここまで見てて泣きそう…この調子で7日連続、ぜったい一緒に行こうね〜〜！！' },
+    { title:'今週あたらしいアポを'+apo+'件', condition:'新規アポ'+apo+'件', cheerTitle:'アポ獲得、最高すぎるっ！！', badge:'アポハンター', emoji:'',
+      cheerScript:'でたーーーアポ'+apo+'件っ！！勇気を出して踏み込んだ結果だよ、本当にすごい…！！断られても諦めなかったあなたが掴んだ一件です。誇っていい！！次の商談も、わたし全力で応援してるからね〜〜！！' }
   ];
 }
 // マイルストーン／動画の“構成”は受講者に見せない（内緒）。内部キューとして持つだけ。

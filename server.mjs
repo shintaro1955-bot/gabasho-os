@@ -133,12 +133,12 @@ const MOCKS = {
     const m = s.match(/アポ[^0-9]{0,4}(\d+)/);
     const apo = m ? Number(m[1]) : 2;
     return { milestones: [
-      { title: '今日の架電目標をやり切る', condition: '架電目標を達成', cheerTitle: '今日の一本、しっかり踏んだね！🔥', badge: '行動キープ', emoji: '📞🔥',
-        cheerScript: 'きゃー田中さんやったーーー！！📞✨ 今日の架電、最後まで手を止めずにやり切りましたね！！この一本一本が、ぜったい未来の成約につながる。もう本当に立派、100点満点っ！！このまま突き抜けよ〜〜！！🔥🎉' },
-      { title: '3日連続で日報を続ける', condition: '3日連続で日報', cheerTitle: '継続の天才、爆誕っ！🌟', badge: '継続ブロンズ＋', emoji: '🗓️🌟',
-        cheerScript: '3日連続、達成おめでとうーーー！！🎊🎊 続けるのが一番むずかしいのに、あなたはやってる。もう「やり切れる人」で確定です！！わたし、ここまで見てて泣きそう…😭✨ この調子で7日連続、ぜったい一緒に行こうね〜〜！！' },
-      { title: '今週あたらしいアポを' + apo + '件', condition: '新規アポ' + apo + '件', cheerTitle: 'アポ獲得、最高すぎるっ！！🎉', badge: 'アポハンター', emoji: '🎯🎉',
-        cheerScript: 'でたーーーアポ' + apo + '件っ！！🎯💥 勇気を出して踏み込んだ結果だよ、本当にすごい…！！断られても諦めなかったあなたが掴んだ一件です。誇っていい！！次の商談も、わたし全力で応援してるからね〜〜！！📣💖' },
+      { title: '今日の架電目標をやり切る', condition: '架電目標を達成', cheerTitle: '今日の一本、しっかり踏んだね！', badge: '行動キープ', emoji: '',
+        cheerScript: 'きゃー田中さんやったーーー！！今日の架電、最後まで手を止めずにやり切りましたね！！この一本一本が、ぜったい未来の成約につながる。もう本当に立派、100点満点っ！！このまま突き抜けよ〜〜！！' },
+      { title: '3日連続で日報を続ける', condition: '3日連続で日報', cheerTitle: '継続の天才、爆誕っ！', badge: '継続ブロンズ＋', emoji: '',
+        cheerScript: '3日連続、達成おめでとうーーー！！続けるのが一番むずかしいのに、あなたはやってる。もう「やり切れる人」で確定です！！わたし、ここまで見てて泣きそう…この調子で7日連続、ぜったい一緒に行こうね〜〜！！' },
+      { title: '今週あたらしいアポを' + apo + '件', condition: '新規アポ' + apo + '件', cheerTitle: 'アポ獲得、最高すぎるっ！！', badge: 'アポハンター', emoji: '',
+        cheerScript: 'でたーーーアポ' + apo + '件っ！！勇気を出して踏み込んだ結果だよ、本当にすごい…！！断られても諦めなかったあなたが掴んだ一件です。誇っていい！！次の商談も、わたし全力で応援してるからね〜〜！！' },
     ] };
   },
   ownerReport: () => ({ summary: [
@@ -184,7 +184,7 @@ async function appendThread(memberId, msg){
 }
 async function saveMemberData(id, d){ await writeFile(path.join(DATA_DIR, id + '.json'), JSON.stringify(d || {}, null, 2)); }
 function memberPoints(d){ d = d || {}; const sc = d.aiComment ? d.aiComment.score : 0; return (d.points || 0) + (d.streak || 0) * 5 + (d.deals || 0) * 50 + sc; }
-function rankTitle(rank, total){ if (rank === 1) return '👑 MVP'; if (rank <= Math.max(2, Math.ceil(total * 0.25))) return '🥇 エース'; if (rank <= Math.ceil(total * 0.6)) return '🔥 チャレンジャー'; return '🌱 ルーキー'; }
+function rankTitle(rank, total){ if (rank === 1) return 'MVP'; if (rank <= Math.max(2, Math.ceil(total * 0.25))) return 'エース'; if (rank <= Math.ceil(total * 0.6)) return 'チャレンジャー'; return 'ルーキー'; }
 async function leagueBoard(){
   const rows = [];
   for (const m of USERS.filter(x => x.role === 'member')) { const d = await readMemberData(m.id); rows.push({ id: m.id, name: m.name, points: memberPoints(d), streak: d.streak || 0, deals: d.deals || 0 }); }
@@ -195,12 +195,12 @@ async function leagueBoard(){
 /* ===== 女子アナ/タレント ロスター ＋ ペルソナ自動マッチング ===== */
 const AXIS_JA = { compete:'勝ち負け', approval:'承認', growth:'成長', reward:'報酬・地位', relation:'チーム', purpose:'意義', stability:'継続', empathy:'対話・共感', challenge:'挑戦', selfdrive:'自分軸' };
 const COACH_ROSTER = [
-  { id:'co_a', name:'元プロ野球選手 A', title:'プロ野球 元選手', emoji:'⚾', affinity:['compete','challenge','selfdrive'] },
-  { id:'co_c', name:'元サッカー日本代表 C', title:'サッカー 元日本代表', emoji:'⚽', affinity:['compete','relation','purpose'] },
-  { id:'co_b', name:'フリーアナウンサー B', title:'フリーアナウンサー', emoji:'🎤', affinity:['approval','empathy','growth'] },
-  { id:'co_mikami', name:'三上 あかり（女子アナ）', title:'女子アナ', emoji:'🎙️', affinity:['empathy','approval','relation'] },
-  { id:'co_d', name:'モデル D', title:'モデル／PR', emoji:'💫', affinity:['approval','reward','selfdrive'] },
-  { id:'co_e', name:'アナウンサー E', title:'アナウンサー', emoji:'📣', affinity:['growth','purpose','empathy'] },
+  { id:'co_a', name:'元プロ野球選手 A', title:'プロ野球 元選手', emoji:'', affinity:['compete','challenge','selfdrive'] },
+  { id:'co_c', name:'元サッカー日本代表 C', title:'サッカー 元日本代表', emoji:'', affinity:['compete','relation','purpose'] },
+  { id:'co_b', name:'フリーアナウンサー B', title:'フリーアナウンサー', emoji:'', affinity:['approval','empathy','growth'] },
+  { id:'co_mikami', name:'三上 あかり（女子アナ）', title:'女子アナ', emoji:'', affinity:['empathy','approval','relation'] },
+  { id:'co_d', name:'モデル D', title:'モデル／PR', emoji:'', affinity:['approval','reward','selfdrive'] },
+  { id:'co_e', name:'アナウンサー E', title:'アナウンサー', emoji:'', affinity:['growth','purpose','empathy'] },
 ];
 function topAxes(ax){ return Object.keys(ax || {}).sort((a,b)=>(ax[b]||0)-(ax[a]||0)).slice(0,3); }
 function personaLabel(top){ return (top || []).map(a=>AXIS_JA[a]||a).join('・') + 'タイプ'; }
@@ -212,8 +212,8 @@ function shareCardSVG(r){
   <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0F1830"/><stop offset="1" stop-color="#16224A"/></linearGradient>
   <radialGradient id="gd" cx="100%" cy="0%" r="70%"><stop offset="0" stop-color="#E0B14A" stop-opacity=".45"/><stop offset="1" stop-color="#E0B14A" stop-opacity="0"/></radialGradient></defs>
   <rect width="1200" height="630" fill="url(#g)"/><rect width="1200" height="630" fill="url(#gd)"/>
-  <text x="80" y="120" font-size="26" font-weight="800" fill="#E0B14A">★ HORIPRO × A.B.HAP ガバショ！</text>
-  <text x="80" y="250" font-size="64" font-weight="900" fill="#FFFFFF">🎉 ${esc(r.name)} さん</text>
+  <text x="80" y="120" font-size="26" font-weight="800" fill="#E0B14A">HORIPRO × A.B.HAP ガバショ！</text>
+  <text x="80" y="250" font-size="64" font-weight="900" fill="#FFFFFF">${esc(r.name)} さん</text>
   <text x="80" y="340" font-size="56" font-weight="900" fill="#E7D4A0">${esc(r.reason)}！</text>
   <text x="80" y="420" font-size="30" font-weight="700" fill="#C9D2E6">${esc(r.talent)}から、お祝い動画が届きました。</text>
   <text x="80" y="556" font-size="26" font-weight="800" fill="#FFFFFF">続けるほど、誰かに応援され、自分の成長が見える。</text>
@@ -226,7 +226,7 @@ function sharePageHTML(r, base, id){
   const img = url + '/card.svg';
   const title = r.name + 'さん、' + r.reason + '！｜ガバショ！';
   const desc = r.talent + 'から、お祝い動画が届きました。続けるほど、応援され、成長が見える。';
-  const tw = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(r.reason + '達成！🎉 #ガバショ ') + '&url=' + encodeURIComponent(url);
+  const tw = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(r.reason + '達成！#ガバショ ') + '&url=' + encodeURIComponent(url);
   const line = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url);
   return `<!doctype html><html lang="ja"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>${esc(title)}</title>
@@ -248,8 +248,8 @@ a.btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;border
 <body>
 <canvas id="cf" style="position:fixed;inset:0;z-index:1;pointer-events:none"></canvas>
 <div class="card">
-  <div class="brand">★ HORIPRO × A.B.HAP ガバショ！</div>
-  <h1>🎉 ${esc(r.name)} さん</h1>
+  <div class="brand">HORIPRO × A.B.HAP ガバショ！</div>
+  <h1>${esc(r.name)} さん</h1>
   <div class="reason">${esc(r.reason)}！</div>
   <div class="player"><span class="smp">デモ：動画はプレースホルダー</span><div class="play">▶</div></div>
   <div class="msg">${esc(r.talent)}から、お祝い動画が届きました。<br>「${esc(r.name)}さん、おめでとうございます！この勢いで次の一歩へ。」</div>
@@ -428,11 +428,11 @@ const server = http.createServer(async (req, res) => {
       const board = await leagueBoard(); const meRow = board.find(r => r.id === u.id);
       const n = [];
       const s = d.streak || 0;
-      if (s > 0) n.push({ type: 'streak', level: 'high', icon: '🔥', title: '記録が途切れそう！', text: '現在 ' + s + '日連続。今日入力すれば ' + (s + 1) + '日に更新。空けると記録はリセットされます。' });
-      else n.push({ type: 'streak', level: 'mid', icon: '🌱', title: '今日から再スタート', text: '1分の入力で連続記録がまた積み上がります。' });
-      if (meRow && meRow.rank > 1) { const rival = board.find(r => r.rank === meRow.rank - 1); n.push({ type: 'rank', level: 'mid', icon: '🏆', title: 'ライバルまであと ' + (rival.points - meRow.points) + 'pt', text: '今日の入力・成約でリーグ順位を上げよう（現在 ' + meRow.rank + '位）。' }); }
+      if (s > 0) n.push({ type: 'streak', level: 'high', icon: '', title: '記録が途切れそう！', text: '現在 ' + s + '日連続。今日入力すれば ' + (s + 1) + '日に更新。空けると記録はリセットされます。' });
+      else n.push({ type: 'streak', level: 'mid', icon: '', title: '今日から再スタート', text: '1分の入力で連続記録がまた積み上がります。' });
+      if (meRow && meRow.rank > 1) { const rival = board.find(r => r.rank === meRow.rank - 1); n.push({ type: 'rank', level: 'mid', icon: '', title: 'ライバルまであと ' + (rival.points - meRow.points) + 'pt', text: '今日の入力・成約でリーグ順位を上げよう（現在 ' + meRow.rank + '位）。' }); }
       const coachTh = await readThread(u.id); const last = coachTh[coachTh.length - 1];
-      if (last && last.from === 'coach') n.push({ type: 'coach', level: 'mid', icon: '💌', title: '女子アナから応援が届いています', text: last.text.slice(0, 40) + '…' });
+      if (last && last.from === 'coach') n.push({ type: 'coach', level: 'mid', icon: '', title: '女子アナから応援が届いています', text: last.text.slice(0, 40) + '…' });
       return json(res, 200, { notifications: n, lineLinked: !!d.lineLinked });
     }
     if (pathn === '/api/notify/line' && req.method === 'POST') {
