@@ -274,6 +274,9 @@ const server = http.createServer(async (req, res) => {
   const pathn = url.pathname;
   try {
     // ---- API ----
+    if (pathn === '/api/health') {
+      return json(res, 200, { ok: true, ai: !!API_KEY, model: MODEL, ts: Date.now() });
+    }
     if (pathn === '/api/login' && req.method === 'POST') {
       const { email, password } = await readBody(req);
       const u = USERS.find(x => x.email === String(email || '').toLowerCase().trim());
@@ -508,3 +511,22 @@ server.listen(PORT, () => {
   console.log('ガバショ！OS → http://localhost:' + PORT);
   console.log('AIモデル: ' + MODEL + ' / 実LLM: ' + (API_KEY ? 'ON（サーバー側キー）' : 'OFF（ANTHROPIC_API_KEY未設定→モック）'));
 });
+
+// ===== Keep-alive（Render無料プランのスリープ防止）=====
+// Renderが自動で渡す RENDER_EXTERNAL_URL に対し定期的に自分自身を叩き、
+// 15分の無通信スリープを回避する。KEEPALIVE=0 で無効化。ローカルでは何もしない。
+const SELF_URL = process.env.RENDER_EXTERNAL_URL || '';
+if (SELF_URL && process.env.KEEPALIVE !== '0') {
+  const PING_MS = Number(process.env.KEEPALIVE_MS || 12 * 60 * 1000); // 既定12分（<15分）
+  const ping = async () => {
+    try {
+      const r = await fetch(SELF_URL.replace(/\/+$/, '') + '/api/health', { cache: 'no-store' });
+      console.log('[keepalive] ' + new Date().toISOString() + ' ' + r.status);
+    } catch (e) {
+      console.log('[keepalive] error: ' + (e && e.message || e));
+    }
+  };
+  setTimeout(ping, 30 * 1000); // 起動30秒後に初回
+  setInterval(ping, PING_MS);
+  console.log('[keepalive] ON → ' + SELF_URL + ' 間隔 ' + Math.round(PING_MS / 60000) + '分');
+}
